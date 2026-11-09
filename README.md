@@ -53,7 +53,7 @@ It solves common capture hardware issues such as squished or stretched aspect ra
 
 ### Method 1: Web Browser (GitHub Pages)
 
-1. Open the live link: `https://kolyacat.github.io/PS2-Viewer/` *(or your repository URL)*.
+1. Open the live link: `https://kolyacat.github.io/HDMI-Video-capture-viewer/` *(or your repository URL)*.
 
 2. Plug your **HDMI Video Capture Card** into your laptop/PC USB port.
 

@@ -69,6 +69,10 @@ It solves common capture hardware issues such as squished or stretched aspect ra
 
 3. Grant Camera & Microphone permissions when prompted by the browser.
 
+### Screenshoots :###
+![Tampilan Aplikasi](preview1.png)
+![Tampilan Aplikasi](preview2.png)
+
 ## 🛠️ Hardware Setup Recommendation
 
 ```

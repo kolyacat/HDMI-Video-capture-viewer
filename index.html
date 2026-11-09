@@ -1,1171 +1,451 @@
-<!<!DOCTYPE html>
-<html lang="ja" class="dark">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PS2 HDMI Display Adjuster</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Fonts: Inter & Noto Sans JP -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PS2 HDMI Screen Viewer</title>
+  <style>
+    :root {
+      --bg-color: #131316;
+      --surface-color: #1c1b1f;
+      --card-bg: #2b2930;
+      --primary: #d0bcff;
+      --primary-container: #4a4458;
+      --on-primary-container: #e8def8;
+      --accent: #a8c7fa;
+      --text-main: #e6e1e5;
+      --text-sub: #cac4d0;
+      --border-color: #49454f;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-pill: 100px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      background-color: var(--surface-color);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 1.1rem; color: var(--primary); }
+
+    .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    select, button {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: var(--radius-pill);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    select:hover, button:hover { background-color: var(--primary-container); border-color: var(--primary); }
+
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      position: relative;
+    }
+
+    .viewport-frame {
+      width: 100%;
+      max-width: min(100vw - 32px, (100vh - 160px) * (16 / 9));
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+
+    :fullscreen .viewport-frame, body:-webkit-full-screen .viewport-frame {
+      max-width: 100vw !important;
+      max-height: 100vh !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      border-radius: 0 !important;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: crisp-edges;
+      transition: transform 0.05s linear;
+    }
+
+    .controls-bar {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .btn-primary { background-color: var(--primary); color: #381e72; font-weight: 600; border: none; }
+    .btn-primary:hover { background-color: #e8def8; }
+
+    .drawer {
+      position: fixed;
+      right: -360px;
+      top: 0;
+      width: 340px;
+      height: 100vh;
+      background: var(--surface-color);
+      border-left: 1px solid var(--border-color);
+      padding: 24px;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.4);
+      transition: right 0.3s ease;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .drawer.open { right: 0; }
+    .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        pixel: {
-                            bg: '#131316',
-                            surface: '#1C1B1F',
-                            card: '#2B2930',
-                            cardHover: '#36343B',
-                            border: '#49454F',
-                            blue: '#A8C7FA',
-                            blueContainer: '#004A77',
-                            violet: '#D0BCFF',
-                            violetContainer: '#4A4458',
-                            green: '#A6F4C5',
-                            textPrimary: '#E6E1E5',
-                            textSecondary: '#CAC4D0'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'Noto Sans JP', 'sans-serif'],
-                    },
-                    borderRadius: {
-                        '4xl': '2rem',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #131316;
-            color: #E6E1E5;
-        }
+    .setting-group { margin-bottom: 18px; }
+    .setting-group label { display: block; font-size: 0.85rem; color: var(--text-sub); margin-bottom: 6px; }
+    .setting-group input[type="range"] { width: 100%; accent-color: var(--primary); }
 
-        /* Material You Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1C1B1F;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #49454F;
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #787579;
-        }
-
-        /* Material 3 Slider Styling */
-        input[type=range] {
-            accent-color: #A8C7FA;
-            height: 6px;
-            border-radius: 9999px;
-        }
-
-        /* Strict 16:9 Viewport Box Constraint */
-        .viewport-frame {
-            width: 100%;
-            height: 100%;
-            max-width: calc((100vh - 140px) * (16 / 9));
-            max-height: calc(100vw * (9 / 16));
-            aspect-ratio: 16 / 9;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            background-color: #000000;
-            border-radius: 1.75rem; /* 28px Material You curves */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            transition: max-width 0.2s ease, max-height 0.2s ease, border-radius 0.2s ease;
-        }
-
-        /* Fullscreen Mode Override - Fills 100% monitor without borders or constraints */
-        :fullscreen .viewport-frame,
-        #viewportContainer:fullscreen .viewport-frame,
-        .viewport-frame:fullscreen {
-            max-width: 100vw !important;
-            max-height: 100vh !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            aspect-ratio: auto !important;
-        }
-
-        .scanline-overlay {
-            background: linear-gradient(
-                to bottom,
-                rgba(255,255,255,0),
-                rgba(255,255,255,0) 50%,
-                rgba(0, 0, 0, 0.35) 50%,
-                rgba(0, 0, 0, 0.35)
-            );
-            background-size: 100% 4px;
-        }
-
-        /* High Definition Crisp Rendering Fix */
-        #ps2Video {
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
-        }
-    </style>
+    .toast {
+      position: absolute;
+      top: 20px;
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 50;
+    }
+    .toast.show { opacity: 1; }
+  </style>
 </head>
-<body class="bg-pixel-bg text-pixel-textPrimary font-sans min-h-screen flex flex-col overflow-x-hidden select-none">
+<body>
 
-    <!-- TOP HEADER / MONET BAR -->
-    <header class="h-16 bg-pixel-surface border-b border-pixel-border/40 px-5 flex items-center justify-between z-30 shrink-0">
-        <div class="flex items-center space-x-3">
-            <div class="p-2.5 bg-pixel-blueContainer text-pixel-blue rounded-full">
-                <i data-lucide="gamepad-2" class="w-5 h-5"></i>
-            </div>
-            <div class="flex flex-col">
-                <h1 class="font-bold text-sm tracking-wide text-pixel-textPrimary leading-tight flex items-center gap-2">
-                    <span>PS2 がめん えいぞう ちょうせい</span>
-                </h1>
-                <div class="w-full border-t border-pixel-border/50 my-0.5"></div>
-                <p class="text-[10px] text-pixel-textSecondary leading-tight">
-                    PS2 HDMI Display Adjuster
-                </p>
-            </div>
-        </div>
+  <header>
+    <div class="brand">
+      <span>🎮</span> <span id="appTitle">PS2 Viewer</span>
+    </div>
+    <div class="header-actions">
+      <select id="videoSourceSelect"></select>
+      <select id="langSelect" onchange="changeLanguage(this.value)">
+        <option value="en">🇬🇧 English</option>
+        <option value="id">🇮🇩 Indonesia</option>
+        <option value="su">🇮🇩 Sunda</option>
+      </select>
+      <button class="btn-primary" id="btnConnect" onclick="startStream()">Connect</button>
+    </div>
+  </header>
 
-        <!-- Quick Status & Pixel Pills -->
-        <div class="flex items-center space-x-2.5">
-            <!-- Audio Meter Chip -->
-            <div class="hidden sm:flex flex-col items-center bg-pixel-card border border-pixel-border/50 rounded-full px-3.5 py-1">
-                <div class="flex items-center space-x-2">
-                    <span class="text-[9px] text-pixel-green font-bold bg-emerald-950/80 border border-emerald-500/30 px-2 py-0.5 rounded-full">なま おんせい</span>
-                    <i data-lucide="volume-2" class="w-3.5 h-3.5 text-pixel-textSecondary"></i>
-                    <canvas id="audioMeterCanvas" width="45" height="8" class="rounded-full bg-black/50"></canvas>
-                </div>
-                <div class="w-full border-t border-pixel-border/40 my-0.5"></div>
-                <span class="text-[8px] text-pixel-textSecondary">Raw Stereo Audio</span>
-            </div>
-
-            <!-- Fullscreen Button -->
-            <button id="btnFullscreen" title="Fullscreen (F)" class="px-3.5 py-1 bg-pixel-card hover:bg-pixel-cardHover text-pixel-textPrimary rounded-full border border-pixel-border/50 transition flex flex-col items-center">
-                <span class="text-xs font-medium leading-tight">ぜんめん ひょうじ</span>
-                <span class="w-full border-t border-pixel-border/40 my-0.5"></span>
-                <span class="text-[9px] text-pixel-textSecondary leading-tight">Fullscreen</span>
-            </button>
-
-            <!-- Screenshot Button -->
-            <button id="btnScreenshot" title="Screenshot (S)" class="px-3.5 py-1 bg-pixel-blueContainer text-pixel-blue hover:opacity-90 rounded-full border border-pixel-blue/30 transition flex flex-col items-center">
-                <span class="text-xs font-bold leading-tight flex items-center gap-1">
-                    <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-                    <span>しゃしん</span>
-                </span>
-                <span class="w-full border-t border-pixel-blue/30 my-0.5"></span>
-                <span class="text-[9px] opacity-90 leading-tight">Screenshot</span>
-            </button>
-
-            <!-- Toggle Drawer Button -->
-            <button id="btnToggleSidebar" class="px-4 py-1 bg-pixel-blue text-pixel-bg hover:opacity-90 rounded-full transition flex flex-col items-center font-bold shadow-md">
-                <span class="text-xs leading-tight flex items-center gap-1">
-                    <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
-                    <span>せってい</span>
-                </span>
-                <span class="w-full border-t border-pixel-bg/30 my-0.5"></span>
-                <span class="text-[9px] opacity-90 leading-tight">Settings</span>
-            </button>
-        </div>
-    </header>
-
-    <!-- MAIN CONTENT AREA -->
-    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative p-3 sm:p-4 gap-4">
-
-        <!-- DISPLAY SCREEN AREA (FIXED 16:9 VIEWPORT BOUNDS) -->
-        <main id="viewportContainer" class="flex-1 flex items-center justify-center relative overflow-hidden min-h-[300px]">
-            
-            <!-- STRICT 16:9 CONTAINER -->
-            <div class="viewport-frame border border-pixel-border/40">
-                
-                <!-- CRT Scanline Overlay -->
-                <div id="scanlineEffect" class="scanline-overlay absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-10"></div>
-
-                <!-- Setup / Connect Placeholder -->
-                <div id="placeholderState" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20 bg-pixel-surface/95 backdrop-blur-md">
-                    <div class="w-16 h-16 bg-pixel-blueContainer text-pixel-blue rounded-full flex items-center justify-center mb-4 shadow-lg">
-                        <i data-lucide="tv" class="w-8 h-8 animate-pulse"></i>
-                    </div>
-                    
-                    <div class="flex flex-col items-center mb-4">
-                        <h2 class="text-base font-bold text-pixel-textPrimary">PS2 きき を つないで ください</h2>
-                        <div class="w-28 border-t border-pixel-blue/40 my-1"></div>
-                        <span class="text-xs text-pixel-blue font-medium">Connect PS2 Capture Device</span>
-                    </div>
-
-                    <button id="btnStartCaptureDirect" class="px-6 py-2 bg-pixel-blue hover:opacity-90 text-pixel-bg font-bold rounded-full shadow-lg flex flex-col items-center transition">
-                        <span class="text-xs leading-tight flex items-center gap-1.5">
-                            <i data-lucide="play" class="w-4 h-4 fill-pixel-bg"></i>
-                            <span>つなぐ</span>
-                        </span>
-                        <span class="w-full border-t border-pixel-bg/30 my-0.5"></span>
-                        <span class="text-[9px] opacity-90 leading-tight">Connect Stream</span>
-                    </button>
-                </div>
-
-                <!-- VIDEO ELEMENT (TRANSFORM BOUND INSIDE 16:9 CONTAINER) -->
-                <div id="screenWrapper" class="relative w-full h-full flex items-center justify-center overflow-hidden">
-                    <video id="ps2Video" autoplay playsinline class="max-w-full max-h-full origin-center transition-all duration-75 object-contain">
-                    </video>
-                </div>
-
-                <!-- OSD TOAST NOTIFICATION -->
-                <div id="osdNotification" class="absolute top-4 left-4 bg-pixel-card/90 backdrop-blur-md border border-pixel-blue/50 text-pixel-blue text-xs px-4 py-2 rounded-2xl opacity-0 transition-opacity duration-300 pointer-events-none z-20 flex flex-col shadow-xl">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="info" class="w-4 h-4 text-pixel-blue"></i>
-                        <span id="osdTextJp" class="font-bold text-pixel-textPrimary">へんこう しました</span>
-                    </div>
-                    <div class="w-full border-t border-pixel-border my-0.5"></div>
-                    <span id="osdTextEn" class="text-[10px] text-pixel-textSecondary">Settings Updated</span>
-                </div>
-
-                <!-- Floating Bottom Quick Pill Bar -->
-                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-pixel-surface/90 backdrop-blur-md border border-pixel-border/60 rounded-full px-4 py-1.5 flex items-center gap-3 z-20 shadow-xl opacity-60 hover:opacity-100 transition-opacity duration-300">
-                    <button id="hudReset" title="Reset (R)" class="text-pixel-textSecondary hover:text-pixel-textPrimary transition flex flex-col items-center">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                    </button>
-
-                    <div class="h-4 w-px bg-pixel-border"></div>
-
-                    <button id="hudAspect43" class="text-pixel-textSecondary hover:text-pixel-blue transition flex flex-col items-center">
-                        <span class="text-[11px] font-bold text-pixel-green">4:3 ゆがみ ぼうし</span>
-                        <span class="text-[8px] opacity-75">4:3 Anti-Distortion</span>
-                    </button>
-
-                    <div class="h-4 w-px bg-pixel-border"></div>
-
-                    <button id="hudAspectCrop" class="text-pixel-textSecondary hover:text-pixel-blue transition flex flex-col items-center">
-                        <span class="text-[11px] font-bold text-pixel-blue">くろふち けし</span>
-                        <span class="text-[8px] opacity-75">Crop Black Edges</span>
-                    </button>
-
-                    <div class="h-4 w-px bg-pixel-border"></div>
-
-                    <button id="hudAspect169" class="text-pixel-textSecondary hover:text-pixel-blue transition flex flex-col items-center">
-                        <span class="text-[11px] font-bold">16:9 あわせ</span>
-                        <span class="text-[8px] opacity-75">16:9 Fit</span>
-                    </button>
-
-                    <div class="h-4 w-px bg-pixel-border"></div>
-
-                    <button id="hudAspectStretch" class="text-pixel-textSecondary hover:text-pixel-blue transition flex flex-col items-center">
-                        <span class="text-[11px] font-bold">がめん いっぱい</span>
-                        <span class="text-[8px] opacity-75">Full Stretch</span>
-                    </button>
-
-                    <div class="h-4 w-px bg-pixel-border"></div>
-
-                    <button id="hudScanlines" title="Toggle Scanlines" class="text-pixel-textSecondary hover:text-pixel-blue transition flex flex-col items-center">
-                        <i data-lucide="grid" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            </div>
-
-        </main>
-
-        <!-- MATERIAL YOU CONTROL DRAWER SIDEBAR -->
-        <aside id="controlSidebar" class="w-full lg:w-80 bg-pixel-surface border border-pixel-border/50 rounded-3xl flex flex-col z-20 shrink-0 h-auto max-h-[50vh] lg:max-h-none overflow-y-auto">
-            
-            <div class="p-4 border-b border-pixel-border/40 flex items-center justify-between bg-pixel-surface/90 sticky top-0 z-10 backdrop-blur-md rounded-t-3xl">
-                <div class="flex flex-col">
-                    <div class="flex items-center gap-2 font-bold text-pixel-textPrimary text-sm">
-                        <i data-lucide="settings-2" class="w-4 h-4 text-pixel-blue"></i>
-                        <span>せってい</span>
-                    </div>
-                    <div class="w-full border-t border-pixel-border/50 my-0.5"></div>
-                    <span class="text-[9px] text-pixel-textSecondary uppercase tracking-wider font-semibold">Settings Panel</span>
-                </div>
-                <button id="btnCloseSidebar" class="lg:hidden p-1 text-pixel-textSecondary hover:text-white">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-
-            <div class="p-4 space-y-5">
-
-                <!-- 1. DEVICE SELECTOR -->
-                <div class="space-y-2.5">
-                    <div class="flex flex-col">
-                        <span class="text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
-                            <i data-lucide="webcam" class="w-3.5 h-3.5 text-pixel-blue"></i>
-                            <span>きき えらび</span>
-                        </span>
-                        <div class="w-full border-t border-pixel-border/40 my-0.5"></div>
-                        <span class="text-[9px] text-pixel-textSecondary">Device Selector</span>
-                    </div>
-
-                    <div class="space-y-2">
-                        <div>
-                            <label class="block text-[11px] text-pixel-textSecondary font-medium">えいぞう にゅうりょく</label>
-                            <span class="block text-[8px] text-pixel-textSecondary/70 mb-1">Video Input Device</span>
-                            <select id="videoSourceSelect" class="w-full bg-pixel-card border border-pixel-border/60 text-xs rounded-2xl p-2.5 text-pixel-textPrimary focus:outline-none focus:border-pixel-blue">
-                                <option value="">-- えらんで ください / Select Video --</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-[11px] text-pixel-textSecondary font-medium">おんせい にゅうりょく</label>
-                            <span class="block text-[8px] text-pixel-textSecondary/70 mb-1">Audio Input Device</span>
-                            <select id="audioSourceSelect" class="w-full bg-pixel-card border border-pixel-border/60 text-xs rounded-2xl p-2.5 text-pixel-textPrimary focus:outline-none focus:border-pixel-blue">
-                                <option value="">-- えらんで ください / Select Audio --</option>
-                            </select>
-                        </div>
-
-                        <div class="pt-1 flex gap-2">
-                            <button id="btnStartCapture" class="flex-1 py-2 bg-pixel-blue text-pixel-bg hover:opacity-90 rounded-full font-bold transition flex flex-col items-center justify-center shadow-md">
-                                <span class="text-xs leading-tight flex items-center gap-1">
-                                    <i data-lucide="power" class="w-3.5 h-3.5"></i>
-                                    <span>つなぐ</span>
-                                </span>
-                                <span class="w-full border-t border-pixel-bg/30 my-0.5"></span>
-                                <span class="text-[8px] opacity-90 leading-tight">Connect Devices</span>
-                            </button>
-
-                            <button id="btnRefreshDevices" title="Refresh List" class="px-3.5 py-2 bg-pixel-card hover:bg-pixel-cardHover text-pixel-textPrimary rounded-full border border-pixel-border/60 transition flex flex-col items-center justify-center">
-                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                                <span class="w-full border-t border-pixel-border/40 my-0.5"></span>
-                                <span class="text-[8px] text-pixel-textSecondary">Refresh</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 2. ASPECT RATIO (ANTI-DISTORTION) -->
-                <div class="space-y-2.5 pt-3 border-t border-pixel-border/40">
-                    <div class="flex items-center justify-between">
-                        <div class="flex flex-col">
-                            <span class="text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
-                                <i data-lucide="aspect-ratio" class="w-3.5 h-3.5 text-pixel-violet"></i>
-                                <span>がめんの ひりつ</span>
-                            </span>
-                            <div class="w-full border-t border-pixel-border/40 my-0.5"></div>
-                            <span class="text-[9px] text-pixel-textSecondary">Aspect Ratio Controls</span>
-                        </div>
-                        <span class="text-[9px] text-pixel-green font-bold bg-emerald-950/70 border border-emerald-500/30 px-2 py-0.5 rounded-full">ゆがみ ぼうし</span>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <!-- 4:3 Button -->
-                        <button id="btnAspect43" class="aspect-btn py-2 px-3 bg-pixel-blue text-pixel-bg border border-pixel-blue text-xs rounded-2xl font-bold transition text-left flex flex-col shadow-sm">
-                            <span class="flex items-center justify-between text-xs font-bold">
-                                <span>4:3 ゆがみ ぼうし</span>
-                                <i data-lucide="check" class="w-3 h-3 aspect-check"></i>
-                            </span>
-                            <span class="w-full border-t border-pixel-bg/30 my-1"></span>
-                            <span class="text-[8px] opacity-90 font-normal">4:3 Anti-Distortion</span>
-                        </button>
-                        
-                        <!-- Crop Overscan Button -->
-                        <button id="btnAspectCrop" class="aspect-btn py-2 px-3 bg-pixel-card border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-bold transition text-left flex flex-col">
-                            <span class="flex items-center justify-between text-xs font-bold">
-                                <span>くろふち けし</span>
-                                <i data-lucide="check" class="w-3 h-3 aspect-check hidden"></i>
-                            </span>
-                            <span class="w-full border-t border-pixel-border/40 my-1"></span>
-                            <span class="text-[8px] text-pixel-textSecondary font-normal">Crop Black Borders</span>
-                        </button>
-
-                        <!-- 16:9 Button -->
-                        <button id="btnAspect169" class="aspect-btn py-2 px-3 bg-pixel-card border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-bold transition text-left flex flex-col">
-                            <span class="flex items-center justify-between text-xs font-bold">
-                                <span>16:9 あわせ</span>
-                                <i data-lucide="check" class="w-3 h-3 aspect-check hidden"></i>
-                            </span>
-                            <span class="w-full border-t border-pixel-border/40 my-1"></span>
-                            <span class="text-[8px] text-pixel-textSecondary font-normal">16:9 Widescreen Fit</span>
-                        </button>
-
-                        <!-- Stretch Button -->
-                        <button id="btnAspectFill" class="aspect-btn py-2 px-3 bg-pixel-card border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-bold transition text-left flex flex-col">
-                            <span class="flex items-center justify-between text-xs font-bold">
-                                <span>がめん いっぱい</span>
-                                <i data-lucide="check" class="w-3 h-3 aspect-check hidden"></i>
-                            </span>
-                            <span class="w-full border-t border-pixel-border/40 my-1"></span>
-                            <span class="text-[8px] text-pixel-textSecondary font-normal">Full Screen Stretch</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 3. GSM OPL PRESETS -->
-                <div class="space-y-2.5 pt-3 border-t border-pixel-border/40">
-                    <div class="flex flex-col">
-                        <span class="text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
-                            <i data-lucide="zap" class="w-3.5 h-3.5 text-pixel-blue"></i>
-                            <span>かんたん せってい</span>
-                        </span>
-                        <div class="w-full border-t border-pixel-border/40 my-0.5"></div>
-                        <span class="text-[9px] text-pixel-textSecondary">GSM OPL Quick Presets</span>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-2">
-                        <button id="btnPresetGSM1080p" class="py-2 px-2.5 bg-pixel-blueContainer/60 hover:bg-pixel-blueContainer border border-pixel-blue/40 text-pixel-blue text-xs rounded-2xl font-medium transition text-left flex flex-col">
-                            <span class="font-bold text-pixel-blue">1080p ちょうせい</span>
-                            <span class="w-full border-t border-pixel-blue/30 my-0.5"></span>
-                            <span class="text-[8px] text-pixel-textSecondary">Fit 1080p GSM</span>
-                        </button>
-
-                        <button id="btnPresetGSM480p" class="py-2 px-2.5 bg-pixel-card hover:bg-pixel-cardHover border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-medium transition text-left flex flex-col">
-                            <span class="font-bold text-pixel-textPrimary">480p ちょうせい</span>
-                            <span class="w-full border-t border-pixel-border/40 my-0.5"></span>
-                            <span class="text-[8px] text-pixel-textSecondary">Fit 480p GSM</span>
-                        </button>
-
-                        <button id="btnPresetDefault" class="py-2 px-2.5 bg-pixel-card hover:bg-pixel-cardHover border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-medium transition text-left flex flex-col">
-                            <span class="font-bold text-pixel-textPrimary">しょきか</span>
-                            <span class="w-full border-t border-pixel-border/40 my-0.5"></span>
-                            <span class="text-[8px] text-pixel-textSecondary">Reset Default</span>
-                        </button>
-
-                        <button id="btnPresetFullStretch" class="py-2 px-2.5 bg-pixel-card hover:bg-pixel-cardHover border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-medium transition text-left flex flex-col">
-                            <span class="font-bold text-pixel-textPrimary">ぜんめん かくだい</span>
-                            <span class="w-full border-t border-pixel-border/40 my-0.5"></span>
-                            <span class="text-[8px] text-pixel-textSecondary">Full Stretch</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 4. MANUAL POSITION & ZOOM -->
-                <div class="space-y-3 pt-3 border-t border-pixel-border/40">
-                    <div class="flex items-center justify-between">
-                        <div class="flex flex-col">
-                            <span class="text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
-                                <i data-lucide="move" class="w-3.5 h-3.5 text-pixel-blue"></i>
-                                <span>いち と おおきさ</span>
-                            </span>
-                            <div class="w-full border-t border-pixel-border/40 my-0.5"></div>
-                            <span class="text-[9px] text-pixel-textSecondary">Position & Scale Fine-Tune</span>
-                        </div>
-                        <button id="btnResetPosOnly" class="text-[9px] text-pixel-blue hover:underline">やりなおし | Reset</button>
-                    </div>
-
-                    <!-- Zoom / Scale -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-medium text-pixel-textPrimary">おおきさ</span>
-                                <span class="text-[8px] text-pixel-textSecondary">Zoom Scale</span>
-                            </div>
-                            <span id="valZoom" class="font-mono text-xs text-pixel-blue font-bold">1.00x</span>
-                        </div>
-                        <input type="range" id="sliderZoom" min="0.5" max="2.5" step="0.01" value="1.00" class="w-full">
-                    </div>
-
-                    <!-- Pan X -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-medium text-pixel-textPrimary">よこ いどう</span>
-                                <span class="text-[8px] text-pixel-textSecondary">Horizontal Pan</span>
-                            </div>
-                            <span id="valPanX" class="font-mono text-xs text-pixel-blue font-bold">0px</span>
-                        </div>
-                        <input type="range" id="sliderPanX" min="-300" max="300" step="1" value="0" class="w-full">
-                    </div>
-
-                    <!-- Pan Y -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-medium text-pixel-textPrimary">たて いどう</span>
-                                <span class="text-[8px] text-pixel-textSecondary">Vertical Pan</span>
-                            </div>
-                            <span id="valPanY" class="font-mono text-xs text-pixel-blue font-bold">0px</span>
-                        </div>
-                        <input type="range" id="sliderPanY" min="-300" max="300" step="1" value="0" class="w-full">
-                    </div>
-                </div>
-
-                <!-- 5. RAW AUDIO CONTROLS -->
-                <div class="space-y-3 pt-3 border-t border-pixel-border/40">
-                    <div class="flex items-center justify-between">
-                        <div class="flex flex-col">
-                            <span class="text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
-                                <i data-lucide="volume-2" class="w-3.5 h-3.5 text-pixel-green"></i>
-                                <span>おんりょう せってい</span>
-                            </span>
-                            <div class="w-full border-t border-pixel-border/40 my-0.5"></div>
-                            <span class="text-[9px] text-pixel-textSecondary">Volume Control (Raw Stereo)</span>
-                        </div>
-                        <span class="text-[8px] text-pixel-textSecondary">Max 200%</span>
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                        <button id="btnMute" class="p-2.5 bg-pixel-card border border-pixel-border/60 text-pixel-textPrimary rounded-2xl hover:bg-pixel-cardHover transition">
-                            <i data-lucide="volume-2" id="muteIcon" class="w-4 h-4"></i>
-                        </button>
-
-                        <div class="flex-1 space-y-1">
-                            <input type="range" id="sliderVolume" min="0" max="2" step="0.01" value="1" class="w-full">
-                        </div>
-
-                        <span id="valVolume" class="font-mono text-xs text-pixel-textPrimary w-10 text-right">100%</span>
-                    </div>
-                </div>
-
-                <!-- 6. COLOR & BRIGHTNESS -->
-                <div class="space-y-3 pt-3 border-t border-pixel-border/40 pb-4">
-                    <div class="flex items-center justify-between">
-                        <div class="flex flex-col">
-                            <span class="text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
-                                <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-pixel-violet"></i>
-                                <span>がぞうの あかるさ</span>
-                            </span>
-                            <div class="w-full border-t border-pixel-border/40 my-0.5"></div>
-                            <span class="text-[9px] text-pixel-textSecondary">Brightness & Color Adjust</span>
-                        </div>
-                        <button id="btnResetColorOnly" class="text-[9px] text-pixel-blue hover:underline">やりなおし | Reset</button>
-                    </div>
-
-                    <!-- Brightness -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-medium text-pixel-textPrimary">あかるさ</span>
-                                <span class="text-[8px] text-pixel-textSecondary">Brightness</span>
-                            </div>
-                            <span id="valBrightness" class="font-mono text-xs text-pixel-blue font-bold">100%</span>
-                        </div>
-                        <input type="range" id="sliderBrightness" min="50" max="150" step="1" value="100" class="w-full">
-                    </div>
-
-                    <!-- Contrast -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-medium text-pixel-textPrimary">くっきり</span>
-                                <span class="text-[8px] text-pixel-textSecondary">Contrast</span>
-                            </div>
-                            <span id="valContrast" class="font-mono text-xs text-pixel-blue font-bold">100%</span>
-                        </div>
-                        <input type="range" id="sliderContrast" min="50" max="150" step="1" value="100" class="w-full">
-                    </div>
-
-                    <!-- Saturation -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center">
-                            <div class="flex flex-col">
-                                <span class="text-xs font-medium text-pixel-textPrimary">いろの こーさ</span>
-                                <span class="text-[8px] text-pixel-textSecondary">Saturation</span>
-                            </div>
-                            <span id="valSaturate" class="font-mono text-xs text-pixel-blue font-bold">100%</span>
-                        </div>
-                        <input type="range" id="sliderSaturate" min="0" max="200" step="1" value="100" class="w-full">
-                    </div>
-                </div>
-
-            </div>
-        </aside>
-
+  <div class="main-container">
+    <div id="toast" class="toast">Settings updated</div>
+    
+    <div class="viewport-frame" id="viewport">
+      <video id="videoElement" autoplay playsinline></video>
     </div>
 
-    <!-- FOOTER HELPER -->
-    <footer class="bg-pixel-surface border-t border-pixel-border/40 px-5 py-2 text-[10px] text-pixel-textSecondary flex flex-wrap items-center justify-between gap-2 z-30 shrink-0">
-        <div class="flex items-center space-x-4">
-            <span class="flex items-center gap-1 font-mono">
-                <kbd class="bg-pixel-card border border-pixel-border/60 px-1.5 py-0.5 rounded-md text-pixel-textPrimary">F</kbd>
-                <span>ぜんめん ひょうじ | Fullscreen</span>
-            </span>
-            <span class="flex items-center gap-1 font-mono">
-                <kbd class="bg-pixel-card border border-pixel-border/60 px-1.5 py-0.5 rounded-md text-pixel-textPrimary">S</kbd>
-                <span>しゃしん | Screenshot</span>
-            </span>
-            <span class="flex items-center gap-1 font-mono">
-                <kbd class="bg-pixel-card border border-pixel-border/60 px-1.5 py-0.5 rounded-md text-pixel-textPrimary">M</kbd>
-                <span>おんせい けす | Mute</span>
-            </span>
-            <span class="flex items-center gap-1 font-mono">
-                <kbd class="bg-pixel-card border border-pixel-border/60 px-1.5 py-0.5 rounded-md text-pixel-textPrimary">R</kbd>
-                <span>やりなおし | Reset</span>
-            </span>
-        </div>
-        <div class="font-mono text-[9px] text-pixel-textSecondary">
-            <span>GOOGLE PIXEL MONET THEME &bull; RAW STEREO & ANTI-DISTORTION ENGINE</span>
-        </div>
-    </footer>
-
-    <!-- JAVASCRIPT LOGIC ENGINE -->
-    <script>
-        // DOM Elements
-        const videoElement = document.getElementById('ps2Video');
-        const viewportContainer = document.getElementById('viewportContainer');
-        const placeholderState = document.getElementById('placeholderState');
-        const scanlineEffect = document.getElementById('scanlineEffect');
-
-        const videoSourceSelect = document.getElementById('videoSourceSelect');
-        const audioSourceSelect = document.getElementById('audioSourceSelect');
-        const btnStartCapture = document.getElementById('btnStartCapture');
-        const btnStartCaptureDirect = document.getElementById('btnStartCaptureDirect');
-        const btnRefreshDevices = document.getElementById('btnRefreshDevices');
-
-        // Sliders & Values
-        const sliderZoom = document.getElementById('sliderZoom');
-        const sliderPanX = document.getElementById('sliderPanX');
-        const sliderPanY = document.getElementById('sliderPanY');
-        const sliderBrightness = document.getElementById('sliderBrightness');
-        const sliderContrast = document.getElementById('sliderContrast');
-        const sliderSaturate = document.getElementById('sliderSaturate');
-        const sliderVolume = document.getElementById('sliderVolume');
-
-        const valZoom = document.getElementById('valZoom');
-        const valPanX = document.getElementById('valPanX');
-        const valPanY = document.getElementById('valPanY');
-        const valBrightness = document.getElementById('valBrightness');
-        const valContrast = document.getElementById('valContrast');
-        const valSaturate = document.getElementById('valSaturate');
-        const valVolume = document.getElementById('valVolume');
-
-        // Preset Buttons
-        const btnPresetDefault = document.getElementById('btnPresetDefault');
-        const btnPresetGSM1080p = document.getElementById('btnPresetGSM1080p');
-        const btnPresetGSM480p = document.getElementById('btnPresetGSM480p');
-        const btnPresetFullStretch = document.getElementById('btnPresetFullStretch');
-
-        const btnResetPosOnly = document.getElementById('btnResetPosOnly');
-        const btnResetColorOnly = document.getElementById('btnResetColorOnly');
-
-        const btnAspectAuto = document.getElementById('btnAspectAuto');
-        const btnAspect43 = document.getElementById('btnAspect43');
-        const btnAspectCrop = document.getElementById('btnAspectCrop');
-        const btnAspect169 = document.getElementById('btnAspect169');
-        const btnAspectFill = document.getElementById('btnAspectFill');
-
-        const btnMute = document.getElementById('btnMute');
-        const muteIcon = document.getElementById('muteIcon');
-        const btnFullscreen = document.getElementById('btnFullscreen');
-        const btnScreenshot = document.getElementById('btnScreenshot');
-        const btnToggleSidebar = document.getElementById('btnToggleSidebar');
-        const btnCloseSidebar = document.getElementById('btnCloseSidebar');
-        const controlSidebar = document.getElementById('controlSidebar');
-
-        const hudReset = document.getElementById('hudReset');
-        const hudAspect43 = document.getElementById('hudAspect43');
-        const hudAspectCrop = document.getElementById('hudAspectCrop');
-        const hudAspect169 = document.getElementById('hudAspect169');
-        const hudAspectStretch = document.getElementById('hudAspectStretch');
-        const hudScanlines = document.getElementById('hudScanlines');
-
-        const osdNotification = document.getElementById('osdNotification');
-        const osdTextJp = document.getElementById('osdTextJp');
-        const osdTextEn = document.getElementById('osdTextEn');
-        const audioMeterCanvas = document.getElementById('audioMeterCanvas');
-
-        // Application State
-        let currentStream = null;
-        let audioCtx = null;
-        let mediaStreamSource = null;
-        let gainNode = null;
-        let analyser = null;
-        let animFrameId = null;
-
-        let transformState = {
-            zoom: 1.0,
-            panX: 0,
-            panY: 0,
-            brightness: 100,
-            contrast: 100,
-            saturate: 100,
-            aspect: '4:3', // Default 4:3 for PS2 anti-distortion
-            isMuted: false,
-            volume: 1.0,
-            scanlines: false
-        };
-
-        // Initialize Lucide Icons
-        lucide.createIcons();
-
-        // On Load setup
-        window.addEventListener('DOMContentLoaded', () => {
-            getDevices();
-            setAspect('4:3');
-        });
-
-        // 1. DEVICE ENUMERATION & UNPROCESSED AUDIO CAPTURE
-        async function getDevices() {
-            try {
-                const tempStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }).catch(() => null);
-                
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                
-                videoSourceSelect.innerHTML = '<option value="">-- えらんで ください / Select Video --</option>';
-                audioSourceSelect.innerHTML = '<option value="">-- えらんで ください / Select Audio --</option>';
-
-                devices.forEach(device => {
-                    const option = document.createElement('option');
-                    option.value = device.deviceId;
-
-                    if (device.kind === 'videoinput') {
-                        option.text = device.label || `HDMI Video Input (${videoSourceSelect.length})`;
-                        videoSourceSelect.appendChild(option);
-                    } else if (device.kind === 'audioinput') {
-                        option.text = device.label || `HDMI Audio Input (${audioSourceSelect.length})`;
-                        audioSourceSelect.appendChild(option);
-                    }
-                });
-
-                if (videoSourceSelect.options.length > 1) videoSourceSelect.selectedIndex = 1;
-                if (audioSourceSelect.options.length > 1) audioSourceSelect.selectedIndex = 1;
-
-                if (tempStream) {
-                    tempStream.getTracks().forEach(track => track.stop());
-                }
-
-            } catch (err) {
-                console.error("Error enumerating devices:", err);
-                showOSD("きき の しゅとく に しっぱい", "Failed to retrieve devices");
-            }
-        }
-
-        btnRefreshDevices.addEventListener('click', getDevices);
-
-        async function startCapture() {
-            const videoId = videoSourceSelect.value;
-            const audioId = audioSourceSelect.value;
-
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-            }
-
-            // RAW UNPROCESSED AUDIO (Disables browser noise suppression & gain filters)
-            const audioConstraints = audioId ? {
-                deviceId: { exact: audioId },
-                echoCancellation: false,
-                noiseSuppression: false,
-                autoGainControl: false,
-                channelCount: { ideal: 2 },
-                sampleRate: { ideal: 48000 }
-            } : {
-                echoCancellation: false,
-                noiseSuppression: false,
-                autoGainControl: false
-            };
-
-            // Force Maximum 1080p @ 60fps HD Resolution
-            const constraints = {
-                video: videoId ? { 
-                    deviceId: { exact: videoId }, 
-                    width: { ideal: 1920, min: 1280 }, 
-                    height: { ideal: 1080, min: 720 }, 
-                    frameRate: { ideal: 60, min: 30 } 
-                } : {
-                    width: { ideal: 1920, min: 1280 }, 
-                    height: { ideal: 1080, min: 720 }, 
-                    frameRate: { ideal: 60, min: 30 }
-                },
-                audio: audioConstraints
-            };
-
-            try {
-                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-                
-                // Force maximum HD track constraints if supported
-                const videoTrack = currentStream.getVideoTracks()[0];
-                if (videoTrack && videoTrack.applyConstraints) {
-                    await videoTrack.applyConstraints({
-                        width: { ideal: 1920, min: 1280 },
-                        height: { ideal: 1080, min: 720 },
-                        frameRate: { ideal: 60, min: 30 }
-                    }).catch(e => console.log("Constraint fallback:", e));
-                }
-                
-                videoElement.srcObject = currentStream;
-                videoElement.muted = true; // Managed via Web Audio API
-
-                placeholderState.classList.add('hidden');
-
-                // Web Audio API Pipeline
-                setupAudioPipeline(currentStream);
-
-                showOSD("つなぎました", "HDMI Stream Connected (1080p HD)");
-            } catch (err) {
-                console.error("Error starting stream:", err);
-                showOSD("つなぐ のに しっぱい", "Failed to connect stream");
-            }
-        }
-
-        btnStartCapture.addEventListener('click', startCapture);
-        btnStartCaptureDirect.addEventListener('click', startCapture);
-
-        // 2. AUDIO PIPELINE & VU METER
-        function setupAudioPipeline(stream) {
-            const audioTracks = stream.getAudioTracks();
-            if (audioTracks.length === 0) return;
-
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 });
-            }
-
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-
-            if (mediaStreamSource) mediaStreamSource.disconnect();
-            if (gainNode) gainNode.disconnect();
-            if (analyser) analyser.disconnect();
-
-            mediaStreamSource = audioCtx.createMediaStreamSource(stream);
-            gainNode = audioCtx.createGain();
-            analyser = audioCtx.createAnalyser();
-
-            analyser.fftSize = 64;
-
-            mediaStreamSource.connect(gainNode);
-            gainNode.connect(analyser);
-            analyser.connect(audioCtx.destination);
-
-            gainNode.gain.value = transformState.isMuted ? 0 : transformState.volume;
-
-            drawAudioMeter();
-        }
-
-        function drawAudioMeter() {
-            if (!analyser) return;
-            const canvasCtx = audioMeterCanvas.getContext('2d');
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-
-            function render() {
-                animFrameId = requestAnimationFrame(render);
-                analyser.getByteFrequencyData(dataArray);
-
-                let sum = 0;
-                for (let i = 0; i < bufferLength; i++) {
-                    sum += dataArray[i];
-                }
-                let average = sum / bufferLength;
-                let volumePercent = average / 255;
-
-                canvasCtx.clearRect(0, 0, audioMeterCanvas.width, audioMeterCanvas.height);
-                
-                canvasCtx.fillStyle = '#1C1B1F';
-                canvasCtx.fillRect(0, 0, audioMeterCanvas.width, audioMeterCanvas.height);
-
-                let barWidth = audioMeterCanvas.width * Math.min(volumePercent * 2, 1);
-                let gradient = canvasCtx.createLinearGradient(0, 0, audioMeterCanvas.width, 0);
-                gradient.addColorStop(0, '#A6F4C5');
-                gradient.addColorStop(0.7, '#A8C7FA');
-                gradient.addColorStop(1, '#F2B8B5');
-
-                canvasCtx.fillStyle = transformState.isMuted ? '#49454F' : gradient;
-                canvasCtx.fillRect(0, 0, barWidth, audioMeterCanvas.height);
-            }
-
-            if (animFrameId) cancelAnimationFrame(animFrameId);
-            render();
-        }
-
-        // 3. TRANSFORM & STRICT ASPECT CONSTRAINTS
-        function applyTransforms() {
-            // CSS Filters
-            videoElement.style.filter = `brightness(${transformState.brightness}%) contrast(${transformState.contrast}%) saturate(${transformState.saturate}%)`;
-
-            // Transform Matrix inside 16:9 box
-            videoElement.style.transform = `translate(${transformState.panX}px, ${transformState.panY}px) scale(${transformState.zoom})`;
-
-            // Clear Aspect Overrides
-            videoElement.style.removeProperty('aspect-ratio');
-            videoElement.style.removeProperty('width');
-            videoElement.style.removeProperty('height');
-            videoElement.style.removeProperty('object-fit');
-            videoElement.style.removeProperty('max-width');
-            videoElement.style.removeProperty('max-height');
-
-            if (transformState.aspect === '4:3') {
-                videoElement.style.aspectRatio = '4 / 3';
-                videoElement.style.maxHeight = '100%';
-                videoElement.style.maxWidth = '100%';
-                videoElement.style.width = 'auto';
-                videoElement.style.height = 'auto';
-                videoElement.style.objectFit = 'contain';
-            } else if (transformState.aspect === 'crop') {
-                videoElement.style.width = '100%';
-                videoElement.style.height = '100%';
-                videoElement.style.objectFit = 'cover';
-            } else if (transformState.aspect === '16:9') {
-                videoElement.style.aspectRatio = '16 / 9';
-                videoElement.style.maxHeight = '100%';
-                videoElement.style.maxWidth = '100%';
-                videoElement.style.width = 'auto';
-                videoElement.style.height = 'auto';
-                videoElement.style.objectFit = 'contain';
-            } else if (transformState.aspect === 'fill') {
-                // Strictly fills inside frame without pushing layout out!
-                videoElement.style.width = '100%';
-                videoElement.style.height = '100%';
-                videoElement.style.objectFit = 'fill';
-            } else {
-                // Auto
-                videoElement.style.maxWidth = '100%';
-                videoElement.style.maxHeight = '100%';
-                videoElement.style.objectFit = 'contain';
-            }
-
-            // Update Displays
-            valZoom.textContent = `${parseFloat(transformState.zoom).toFixed(2)}x`;
-            valPanX.textContent = `${transformState.panX}px`;
-            valPanY.textContent = `${transformState.panY}px`;
-            valBrightness.textContent = `${transformState.brightness}%`;
-            valContrast.textContent = `${transformState.contrast}%`;
-            valSaturate.textContent = `${transformState.saturate}%`;
-
-            sliderZoom.value = transformState.zoom;
-            sliderPanX.value = transformState.panX;
-            sliderPanY.value = transformState.panY;
-            sliderBrightness.value = transformState.brightness;
-            sliderContrast.value = transformState.contrast;
-            sliderSaturate.value = transformState.saturate;
-        }
-
-        // Aspect Mode Switcher
-        function setAspect(mode) {
-            transformState.aspect = mode;
-            
-            document.querySelectorAll('.aspect-btn').forEach(btn => {
-                btn.classList.remove('bg-pixel-blue', 'text-pixel-bg', 'border-pixel-blue');
-                btn.classList.add('bg-pixel-card', 'text-pixel-textPrimary', 'border-pixel-border/60');
-                const check = btn.querySelector('.aspect-check');
-                if (check) check.classList.add('hidden');
-            });
-
-            let activeBtn = btnAspect43;
-            if (mode === '4:3') activeBtn = btnAspect43;
-            if (mode === 'crop') activeBtn = btnAspectCrop;
-            if (mode === '16:9') activeBtn = btnAspect169;
-            if (mode === 'fill') activeBtn = btnAspectFill;
-
-            if (activeBtn) {
-                activeBtn.classList.replace('bg-pixel-card', 'bg-pixel-blue');
-                activeBtn.classList.replace('text-pixel-textPrimary', 'text-pixel-bg');
-                activeBtn.classList.replace('border-pixel-border/60', 'border-pixel-blue');
-                const activeCheck = activeBtn.querySelector('.aspect-check');
-                if (activeCheck) activeCheck.classList.remove('hidden');
-            }
-
-            applyTransforms();
-            showOSD(`ひりつ: ${mode.toUpperCase()}`, `Aspect Mode: ${mode.toUpperCase()} ${mode === 'crop' ? '(Cropped Overscan)' : ''}`);
-        }
-
-        btnAspect43.addEventListener('click', () => setAspect('4:3'));
-        if (btnAspectCrop) btnAspectCrop.addEventListener('click', () => setAspect('crop'));
-        btnAspect169.addEventListener('click', () => setAspect('16:9'));
-        btnAspectFill.addEventListener('click', () => setAspect('fill'));
-
-        hudAspect43.addEventListener('click', () => setAspect('4:3'));
-        if (hudAspectCrop) hudAspectCrop.addEventListener('click', () => setAspect('crop'));
-        hudAspect169.addEventListener('click', () => setAspect('16:9'));
-        hudAspectStretch.addEventListener('click', () => setAspect('fill'));
-
-        // 4. PRESETS
-        btnPresetDefault.addEventListener('click', () => {
-            transformState.zoom = 1.0;
-            transformState.panX = 0;
-            transformState.panY = 0;
-            setAspect('4:3');
-            showOSD("しょきか しました", "Default 4:3 Preset Loaded");
-        });
-
-        btnPresetGSM1080p.addEventListener('click', () => {
-            transformState.zoom = 1.08;
-            transformState.panX = 18;
-            transformState.panY = -12;
-            setAspect('16:9');
-            showOSD("GSM 1080p ちょうせい", "GSM 1080p Offset Fixed");
-        });
-
-        btnPresetGSM480p.addEventListener('click', () => {
-            transformState.zoom = 1.02;
-            transformState.panX = 0;
-            transformState.panY = 0;
-            setAspect('4:3');
-            showOSD("GSM 480p ちょうせい", "GSM 480p Preset Loaded");
-        });
-
-        btnPresetFullStretch.addEventListener('click', () => {
-            transformState.zoom = 1.0;
-            transformState.panX = 0;
-            transformState.panY = 0;
-            setAspect('fill');
-            showOSD("ぜんめん かくだい", "Full Stretch Preset Loaded");
-        });
-
-        btnResetPosOnly.addEventListener('click', resetPosition);
-        hudReset.addEventListener('click', resetPosition);
-
-        function resetPosition() {
-            transformState.zoom = 1.0;
-            transformState.panX = 0;
-            transformState.panY = 0;
-            applyTransforms();
-            showOSD("いち を もどしました", "Position Reset Complete");
-        }
-
-        btnResetColorOnly.addEventListener('click', () => {
-            transformState.brightness = 100;
-            transformState.contrast = 100;
-            transformState.saturate = 100;
-            applyTransforms();
-            showOSD("いろ を もどしました", "Picture Settings Reset");
-        });
-
-        // Scanlines
-        hudScanlines.addEventListener('click', () => {
-            transformState.scanlines = !transformState.scanlines;
-            scanlineEffect.style.opacity = transformState.scanlines ? '1' : '0';
-            showOSD(`すじ: ${transformState.scanlines ? 'つく' : 'けす'}`, `Scanlines: ${transformState.scanlines ? 'ON' : 'OFF'}`);
-        });
-
-        // 5. AUDIO CONTROLS
-        sliderVolume.addEventListener('input', (e) => {
-            transformState.volume = parseFloat(e.target.value);
-            valVolume.textContent = `${Math.round(transformState.volume * 100)}%`;
-            if (gainNode && !transformState.isMuted) {
-                gainNode.gain.value = transformState.volume;
-            }
-        });
-
-        // Real-Time Slider Event Listeners Fix
-        sliderZoom.addEventListener('input', (e) => {
-            transformState.zoom = parseFloat(e.target.value);
-            applyTransforms();
-        });
-
-        sliderPanX.addEventListener('input', (e) => {
-            transformState.panX = parseInt(e.target.value);
-            applyTransforms();
-        });
-
-        sliderPanY.addEventListener('input', (e) => {
-            transformState.panY = parseInt(e.target.value);
-            applyTransforms();
-        });
-
-        sliderBrightness.addEventListener('input', (e) => {
-            transformState.brightness = parseInt(e.target.value);
-            applyTransforms();
-        });
-
-        sliderContrast.addEventListener('input', (e) => {
-            transformState.contrast = parseInt(e.target.value);
-            applyTransforms();
-        });
-
-        sliderSaturate.addEventListener('input', (e) => {
-            transformState.saturate = parseInt(e.target.value);
-            applyTransforms();
-        });
-
-        btnMute.addEventListener('click', toggleMute);
-
-        function toggleMute() {
-            transformState.isMuted = !transformState.isMuted;
-            if (gainNode) {
-                gainNode.gain.value = transformState.isMuted ? 0 : transformState.volume;
-            }
-            if (transformState.isMuted) {
-                muteIcon.setAttribute('data-lucide', 'volume-x');
-                btnMute.classList.add('text-red-400', 'border-red-500/50');
-                showOSD("おんせい を けしました", "Audio Muted");
-            } else {
-                muteIcon.setAttribute('data-lucide', 'volume-2');
-                btnMute.classList.remove('text-red-400', 'border-red-500/50');
-                showOSD("おんせい を だします", "Audio Active");
-            }
-            lucide.createIcons();
-        }
-
-        // 6. SCREENSHOT TOOL
-        btnScreenshot.addEventListener('click', takeScreenshot);
-
-        function takeScreenshot() {
-            if (!videoElement.srcObject || videoElement.readyState < 2) {
-                showOSD("がぞう が ありません", "No active stream to capture!");
-                return;
-            }
-
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-
-            canvas.width = videoElement.videoWidth || 1920;
-            canvas.height = videoElement.videoHeight || 1080;
-
-            ctx.filter = `brightness(${transformState.brightness}%) contrast(${transformState.contrast}%) saturate(${transformState.saturate}%)`;
-            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-
-            const link = document.createElement('a');
-            const dateStr = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-            link.download = `PS2_Capture_${dateStr}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-
-            showOSD("しゃしん を ほぞん しました", "Screenshot Saved");
-        }
-
-        // 7. FULLSCREEN & SIDEBAR CONTROLS
-        btnFullscreen.addEventListener('click', toggleFullscreen);
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                viewportContainer.requestFullscreen().catch(() => {
-                    showOSD("ぜんめん ひょうじ しっぱい", "Failed to enter Fullscreen mode");
-                });
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        btnToggleSidebar.addEventListener('click', () => {
-            controlSidebar.classList.toggle('hidden');
-        });
-        btnCloseSidebar.addEventListener('click', () => {
-            controlSidebar.classList.add('hidden');
-        });
-
-        // Toast Helper
-        let osdTimeout = null;
-        function showOSD(textJp, textEn) {
-            osdTextJp.textContent = textJp;
-            osdTextEn.textContent = textEn || textJp;
-            osdNotification.classList.remove('opacity-0');
-            if (osdTimeout) clearTimeout(osdTimeout);
-            osdTimeout = setTimeout(() => {
-                osdNotification.classList.add('opacity-0');
-            }, 2500);
-        }
-
-        // Shortcuts
-        window.addEventListener('keydown', (e) => {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-
-            switch (e.key.toLowerCase()) {
-                case 'f':
-                    e.preventDefault();
-                    toggleFullscreen();
-                    break;
-                case 's':
-                    e.preventDefault();
-                    takeScreenshot();
-                    break;
-                case 'm':
-                    e.preventDefault();
-                    toggleMute();
-                    break;
-                case 'r':
-                    e.preventDefault();
-                    resetPosition();
-                    break;
-            }
-        });
-    </script>
+    <div class="controls-bar">
+      <button onclick="setMode('43')" id="btn43">4:3 Native</button>
+      <button onclick="setMode('169')" id="btn169">16:9 Fit</button>
+      <button onclick="setMode('crop')" id="btnCrop">Crop Edges</button>
+      <button onclick="setMode('stretch')" id="btnStretch">Full Stretch</button>
+      <button onclick="toggleFullscreen()" id="btnFull">Fullscreen</button>
+      <button onclick="takeScreenshot()" id="btnSnap">Screenshot</button>
+      <button onclick="toggleDrawer()" id="btnSettings">⚙️ Settings</button>
+    </div>
+  </div>
+
+  <!-- Settings Drawer -->
+  <div class="drawer" id="settingsDrawer">
+    <div class="drawer-header">
+      <h3 id="txtSettingsTitle">Settings</h3>
+      <button onclick="toggleDrawer()" style="padding: 4px 10px;">✕</button>
+    </div>
+
+    <div class="setting-group">
+      <label id="lblZoom">Zoom Level (1.0 - 2.0)</label>
+      <input type="range" id="zoomVal" min="1" max="2" step="0.02" value="1" oninput="updateTransform()">
+    </div>
+    <div class="setting-group">
+      <label id="lblPanX">Pan Horizontal (X)</label>
+      <input type="range" id="panXVal" min="-200" max="200" step="2" value="0" oninput="updateTransform()">
+    </div>
+    <div class="setting-group">
+      <label id="lblPanY">Pan Vertical (Y)</label>
+      <input type="range" id="panYVal" min="-200" max="200" step="2" value="0" oninput="updateTransform()">
+    </div>
+    <div class="setting-group">
+      <label id="lblBright">Brightness</label>
+      <input type="range" id="brightVal" min="0.5" max="1.5" step="0.05" value="1" oninput="updateFilters()">
+    </div>
+    <div class="setting-group">
+      <label id="lblContrast">Contrast</label>
+      <input type="range" id="contrastVal" min="0.5" max="1.5" step="0.05" value="1" oninput="updateFilters()">
+    </div>
+    <div class="setting-group">
+      <label id="lblVolume">Volume Gain Boost</label>
+      <input type="range" id="volumeVal" min="0" max="2" step="0.1" value="1" oninput="updateVolume()">
+    </div>
+    <button onclick="resetAdjustments()" style="width: 100%; justify-content: center; margin-top: 10px;" id="btnReset">Reset All</button>
+  </div>
+
+  <script>
+    const i18n = {
+      en: {
+        title: "PS2 Viewer",
+        connect: "Connect",
+        disconnect: "Disconnect",
+        mode43: "4:3 Native",
+        mode169: "16:9 Fit",
+        crop: "Crop Edges",
+        stretch: "Full Stretch",
+        full: "Fullscreen",
+        snap: "Screenshot",
+        settings: "⚙️ Settings",
+        settingsTitle: "Settings",
+        zoom: "Zoom Level",
+        panX: "Pan Horizontal (X)",
+        panY: "Pan Vertical (Y)",
+        bright: "Brightness",
+        contrast: "Contrast",
+        volume: "Volume Gain Boost",
+        reset: "Reset All",
+        connected: "Capture card connected!",
+        error: "Unable to access video device"
+      },
+      id: {
+        title: "Penampil PS2",
+        connect: "Hubungkan",
+        disconnect: "Putuskan",
+        mode43: "4:3 Asli",
+        mode169: "16:9 Pas",
+        crop: "Potong Pinggir",
+        stretch: "Layar Penuh",
+        full: "Layar Penuh (F)",
+        snap: "Tangkapan Layar",
+        settings: "⚙️ Pengaturan",
+        settingsTitle: "Pengaturan Display",
+        zoom: "Tingkat Zoom",
+        panX: "Geser Kiri/Kanan (X)",
+        panY: "Geser Atas/Bawah (Y)",
+        bright: "Kecerahan",
+        contrast: "Kontras",
+        volume: "Penguat Volume",
+        reset: "Reset Pengaturan",
+        connected: "Capture card terhubung!",
+        error: "Gagal mengakses capture card"
+      },
+      su: {
+        title: "Panyawang PS2",
+        connect: "Sambungkeun",
+        disconnect: "Pegatkeun",
+        mode43: "4:3 Asli",
+        mode169: "16:9 Pas",
+        crop: "Kerat Sisi Hideung",
+        stretch: "Layar Pinuh",
+        full: "Layar Pinuh (F)",
+        snap: "Potrét Layar",
+        settings: "⚙️ Setelan",
+        settingsTitle: "Setelan Layar",
+        zoom: "Tingkat Zoom",
+        panX: "Kénca/Katuhu (X)",
+        panY: "Luhur/Handap (Y)",
+        bright: "Cahaya",
+        contrast: "Bédana Warna",
+        volume: "Penguat Swara",
+        reset: "Puleangkeun",
+        connected: "Capture card parantos disambungkeun!",
+        error: "Teu tiasa muka capture card"
+      }
+    };
+
+    let currentLang = localStorage.getItem('ps2_lang') || 'en';
+    let currentStream = null;
+    let audioCtx = null;
+    let gainNode = null;
+    let currentFit = 'contain';
+
+    const video = document.getElementById('videoElement');
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('ps2_lang', lang);
+      document.getElementById('langSelect').value = lang;
+
+      const t = i18n[lang];
+      document.getElementById('appTitle').innerText = t.title;
+      document.getElementById('btnConnect').innerText = currentStream ? t.disconnect : t.connect;
+      document.getElementById('btn43').innerText = t.mode43;
+      document.getElementById('btn169').innerText = t.mode169;
+      document.getElementById('btnCrop').innerText = t.crop;
+      document.getElementById('btnStretch').innerText = t.stretch;
+      document.getElementById('btnFull').innerText = t.full;
+      document.getElementById('btnSnap').innerText = t.snap;
+      document.getElementById('btnSettings').innerText = t.settings;
+      document.getElementById('txtSettingsTitle').innerText = t.settingsTitle;
+      document.getElementById('lblZoom').innerText = t.zoom;
+      document.getElementById('lblPanX').innerText = t.panX;
+      document.getElementById('lblPanY').innerText = t.panY;
+      document.getElementById('lblBright').innerText = t.bright;
+      document.getElementById('lblContrast').innerText = t.contrast;
+      document.getElementById('lblVolume').innerText = t.volume;
+      document.getElementById('btnReset').innerText = t.reset;
+    }
+
+    async function getDevices() {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoSelect = document.getElementById('videoSourceSelect');
+      videoSelect.innerHTML = '';
+      devices.filter(d => d.kind === 'videoinput').forEach(device => {
+        const opt = document.createElement('option');
+        opt.value = device.deviceId;
+        opt.text = device.label || `Capture Card (${videoSelect.length + 1})`;
+        videoSelect.appendChild(opt);
+      });
+    }
+
+    async function startStream() {
+      if (currentStream) {
+        currentStream.getTracks().forEach(t => t.stop());
+        currentStream = null;
+        video.srcObject = null;
+        changeLanguage(currentLang);
+        return;
+      }
+
+      const deviceId = document.getElementById('videoSourceSelect').value;
+      const constraints = {
+        video: { deviceId: deviceId ? { exact: deviceId } : undefined, width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } },
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+      };
+
+      try {
+        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = currentStream;
+
+        // Raw Stereo Audio setup
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioCtx.createMediaStreamSource(currentStream);
+        gainNode = audioCtx.createGain();
+        source.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        document.getElementById('btnConnect').innerText = i18n[currentLang].disconnect;
+        showToast(i18n[currentLang].connected);
+      } catch (err) {
+        showToast(i18n[currentLang].error);
+      }
+    }
+
+    function setMode(mode) {
+      if (mode === '43') {
+        video.style.objectFit = 'contain';
+        video.style.aspectRatio = '4 / 3';
+      } else if (mode === '169') {
+        video.style.objectFit = 'contain';
+        video.style.aspectRatio = '16 / 9';
+      } else if (mode === 'crop') {
+        video.style.objectFit = 'cover';
+        video.style.aspectRatio = '16 / 9';
+      } else if (mode === 'stretch') {
+        video.style.objectFit = 'fill';
+        video.style.aspectRatio = 'auto';
+      }
+    }
+
+    function updateTransform() {
+      const zoom = document.getElementById('zoomVal').value;
+      const panX = document.getElementById('panXVal').value;
+      const panY = document.getElementById('panYVal').value;
+      video.style.transform = `scale(${zoom}) translate(${panX}px, ${panY}px)`;
+    }
+
+    function updateFilters() {
+      const bright = document.getElementById('brightVal').value;
+      const contrast = document.getElementById('contrastVal').value;
+      video.style.filter = `brightness(${bright}) contrast(${contrast})`;
+    }
+
+    function updateVolume() {
+      if (gainNode) gainNode.gain.value = document.getElementById('volumeVal').value;
+    }
+
+    function resetAdjustments() {
+      document.getElementById('zoomVal').value = 1;
+      document.getElementById('panXVal').value = 0;
+      document.getElementById('panYVal').value = 0;
+      document.getElementById('brightVal').value = 1;
+      document.getElementById('contrastVal').value = 1;
+      document.getElementById('volumeVal').value = 1;
+      updateTransform();
+      updateFilters();
+      updateVolume();
+      setMode('43');
+    }
+
+    function toggleFullscreen() {
+      const elem = document.getElementById('viewport');
+      if (!document.fullscreenElement) {
+        elem.requestFullscreen().catch(err => {});
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function takeScreenshot() {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 1920;
+      canvas.height = video.videoHeight || 1080;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const link = document.createElement('a');
+      link.download = `PS2_Screenshot_${Date.now()}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    function toggleDrawer() {
+      document.getElementById('settingsDrawer').classList.toggle('open');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    navigator.mediaDevices.addEventListener('devicechange', getDevices);
+    getDevices();
+    changeLanguage(currentLang);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+      if (e.key === 's' || e.key === 'S') takeScreenshot();
+      if (e.key === 'r' || e.key === 'R') resetAdjustments();
+    });
+  </script>
 </body>
 </html>

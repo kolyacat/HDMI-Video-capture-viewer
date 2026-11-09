@@ -80,6 +80,6 @@ It solves common capture hardware issues such as squished or stretched aspect ra
 
 ```
 
-## 📜 License
+## 📄 License
 
-Distributed under the **MIT License**. Free to use, modify, and share for personal setups or streaming projects.
+This project is licensed under the [MIT License](LICENSE).

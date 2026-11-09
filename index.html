@@ -74,7 +74,7 @@
             height: 100%;
             max-width: calc((100vh - 140px) * (16 / 9));
             max-height: calc(100vw * (9 / 16));
-            aspect-ratio: 16 / 9;
+            aspect-ratio: 16 / 9 !important;
             position: relative;
             display: flex;
             align-items: center;
@@ -1042,7 +1042,7 @@
                 videoElement.style.maxHeight = '100%';
                 videoElement.style.maxWidth = '100%';
                 videoElement.style.width = 'auto';
-                videoElement.style.height = 'auto';
+                videoElement.style.height = '100%';
                 videoElement.style.objectFit = 'contain';
             } else if (transformState.aspect === 'crop') {
                 videoElement.style.width = '100%';
@@ -1052,8 +1052,8 @@
                 videoElement.style.aspectRatio = '16 / 9';
                 videoElement.style.maxHeight = '100%';
                 videoElement.style.maxWidth = '100%';
-                videoElement.style.width = 'auto';
-                videoElement.style.height = 'auto';
+                videoElement.style.width = '100%';
+                videoElement.style.height = '100%';
                 videoElement.style.objectFit = 'contain';
             } else if (transformState.aspect === 'fill') {
                 videoElement.style.width = '100%';

@@ -1,451 +1,1315 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PS2 HDMI Screen Viewer</title>
-  <style>
-    :root {
-      --bg-color: #131316;
-      --surface-color: #1c1b1f;
-      --card-bg: #2b2930;
-      --primary: #d0bcff;
-      --primary-container: #4a4458;
-      --on-primary-container: #e8def8;
-      --accent: #a8c7fa;
-      --text-main: #e6e1e5;
-      --text-sub: #cac4d0;
-      --border-color: #49454f;
-      --radius-lg: 24px;
-      --radius-md: 16px;
-      --radius-pill: 100px;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
-
-    header {
-      background-color: var(--surface-color);
-      padding: 12px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border-color);
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 1.1rem; color: var(--primary); }
-
-    .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-
-    select, button {
-      background-color: var(--card-bg);
-      color: var(--text-main);
-      border: 1px solid var(--border-color);
-      padding: 8px 16px;
-      border-radius: var(--radius-pill);
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    select:hover, button:hover { background-color: var(--primary-container); border-color: var(--primary); }
-
-    .main-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      position: relative;
-    }
-
-    .viewport-frame {
-      width: 100%;
-      max-width: min(100vw - 32px, (100vh - 160px) * (16 / 9));
-      aspect-ratio: 16 / 9;
-      background: #000;
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    }
-
-    :fullscreen .viewport-frame, body:-webkit-full-screen .viewport-frame {
-      max-width: 100vw !important;
-      max-height: 100vh !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      border-radius: 0 !important;
-    }
-
-    video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      image-rendering: crisp-edges;
-      transition: transform 0.05s linear;
-    }
-
-    .controls-bar {
-      margin-top: 16px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .btn-primary { background-color: var(--primary); color: #381e72; font-weight: 600; border: none; }
-    .btn-primary:hover { background-color: #e8def8; }
-
-    .drawer {
-      position: fixed;
-      right: -360px;
-      top: 0;
-      width: 340px;
-      height: 100vh;
-      background: var(--surface-color);
-      border-left: 1px solid var(--border-color);
-      padding: 24px;
-      box-shadow: -4px 0 20px rgba(0,0,0,0.4);
-      transition: right 0.3s ease;
-      z-index: 100;
-      overflow-y: auto;
-    }
-    .drawer.open { right: 0; }
-    .drawer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PS2 HDMI Display Adjuster</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    .setting-group { margin-bottom: 18px; }
-    .setting-group label { display: block; font-size: 0.85rem; color: var(--text-sub); margin-bottom: 6px; }
-    .setting-group input[type="range"] { width: 100%; accent-color: var(--primary); }
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        pixel: {
+                            bg: '#131316',
+                            surface: '#1C1B1F',
+                            card: '#2B2930',
+                            cardHover: '#36343B',
+                            border: '#49454F',
+                            blue: '#A8C7FA',
+                            blueContainer: '#004A77',
+                            violet: '#D0BCFF',
+                            violetContainer: '#4A4458',
+                            green: '#A6F4C5',
+                            textPrimary: '#E6E1E5',
+                            textSecondary: '#CAC4D0'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #131316;
+            color: #E6E1E5;
+        }
 
-    .toast {
-      position: absolute;
-      top: 20px;
-      background: var(--primary-container);
-      color: var(--on-primary-container);
-      padding: 8px 18px;
-      border-radius: var(--radius-pill);
-      font-size: 0.85rem;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-      z-index: 50;
-    }
-    .toast.show { opacity: 1; }
-  </style>
+        /* Material You Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1C1B1F;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #49454F;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #787579;
+        }
+
+        /* Material 3 Slider Styling */
+        input[type=range] {
+            accent-color: #A8C7FA;
+            height: 6px;
+            border-radius: 9999px;
+        }
+
+        /* Strict 16:9 Viewport Box Constraint */
+        .viewport-frame {
+            width: 100%;
+            height: 100%;
+            max-width: calc((100vh - 140px) * (16 / 9));
+            max-height: calc(100vw * (9 / 16));
+            aspect-ratio: 16 / 9;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: #000000;
+            border-radius: 1.75rem; /* 28px Material You curves */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: max-width 0.2s ease, max-height 0.2s ease, border-radius 0.2s ease;
+        }
+
+        /* Fullscreen Mode Override - Fills 100% monitor without borders */
+        :fullscreen .viewport-frame,
+        #viewportContainer:fullscreen .viewport-frame,
+        .viewport-frame:fullscreen {
+            max-width: 100vw !important;
+            max-height: 100vh !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            aspect-ratio: auto !important;
+        }
+
+        .scanline-overlay {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0, 0, 0, 0.35) 50%,
+                rgba(0, 0, 0, 0.35)
+            );
+            background-size: 100% 4px;
+        }
+
+        /* Crisp High Definition Rendering */
+        #ps2Video {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-pixel-bg text-pixel-textPrimary font-sans min-h-screen flex flex-col overflow-x-hidden select-none">
 
-  <header>
-    <div class="brand">
-      <span>🎮</span> <span id="appTitle">PS2 Viewer</span>
+    <!-- TOP HEADER / MONET BAR -->
+    <header class="h-16 bg-pixel-surface border-b border-pixel-border/40 px-4 sm:px-6 flex items-center justify-between z-30 shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="p-2.5 bg-pixel-blueContainer text-pixel-blue rounded-full">
+                <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+            </div>
+            <div class="flex flex-col">
+                <h1 id="txtAppTitle" class="font-bold text-sm tracking-wide text-pixel-textPrimary leading-tight">
+                    PS2 HDMI Display Adjuster
+                </h1>
+                <p id="txtAppSubtitle" class="text-[10px] text-pixel-textSecondary leading-tight">
+                    Screen Capture & Aspect Recalibration Tool
+                </p>
+            </div>
+        </div>
+
+        <!-- Header Actions & Language Selector -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <!-- Audio Meter Chip -->
+            <div class="hidden md:flex items-center space-x-2 bg-pixel-card border border-pixel-border/50 rounded-full px-3 py-1">
+                <span id="txtRawAudio" class="text-[9px] text-pixel-green font-bold bg-emerald-950/80 border border-emerald-500/30 px-2 py-0.5 rounded-full">Raw Stereo</span>
+                <i data-lucide="volume-2" class="w-3.5 h-3.5 text-pixel-textSecondary"></i>
+                <canvas id="audioMeterCanvas" width="40" height="8" class="rounded-full bg-black/50"></canvas>
+            </div>
+
+            <!-- Language Dropdown Header -->
+            <div class="relative">
+                <select id="langSelectHeader" onchange="changeLanguage(this.value)" class="bg-pixel-card border border-pixel-border/60 text-xs text-pixel-textPrimary rounded-full px-3 py-1.5 focus:outline-none focus:border-pixel-blue cursor-pointer">
+                    <option value="en">🇬🇧 English</option>
+                    <option value="id">🇮🇩 Indonesia</option>
+                    <option value="su">🇮🇩 Sunda</option>
+                </select>
+            </div>
+
+            <!-- Fullscreen Button -->
+            <button id="btnFullscreen" title="Fullscreen (F)" class="px-3.5 py-1.5 bg-pixel-card hover:bg-pixel-cardHover text-pixel-textPrimary rounded-full border border-pixel-border/50 transition flex items-center gap-1.5 text-xs font-medium">
+                <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
+                <span id="txtBtnFullscreen" class="hidden sm:inline">Fullscreen</span>
+            </button>
+
+            <!-- Screenshot Button -->
+            <button id="btnScreenshot" title="Screenshot (S)" class="px-3.5 py-1.5 bg-pixel-blueContainer text-pixel-blue hover:opacity-90 rounded-full border border-pixel-blue/30 transition flex items-center gap-1.5 text-xs font-bold">
+                <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                <span id="txtBtnScreenshot" class="hidden sm:inline">Screenshot</span>
+            </button>
+
+            <!-- Toggle Drawer Button -->
+            <button id="btnToggleSidebar" class="px-4 py-1.5 bg-pixel-blue text-pixel-bg hover:opacity-90 rounded-full transition flex items-center gap-1.5 text-xs font-bold shadow-md">
+                <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                <span id="txtBtnSettings">Settings</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative p-3 sm:p-4 gap-4">
+
+        <!-- DISPLAY SCREEN AREA (FIXED 16:9 VIEWPORT BOUNDS) -->
+        <main id="viewportContainer" class="flex-1 flex items-center justify-center relative overflow-hidden min-h-[300px]">
+            
+            <!-- STRICT 16:9 CONTAINER -->
+            <div class="viewport-frame border border-pixel-border/40">
+                
+                <!-- CRT Scanline Overlay -->
+                <div id="scanlineEffect" class="scanline-overlay absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-10"></div>
+
+                <!-- Setup / Connect Placeholder -->
+                <div id="placeholderState" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20 bg-pixel-surface/95 backdrop-blur-md">
+                    <div class="w-16 h-16 bg-pixel-blueContainer text-pixel-blue rounded-full flex items-center justify-center mb-4 shadow-lg">
+                        <i data-lucide="tv" class="w-8 h-8 animate-pulse"></i>
+                    </div>
+                    
+                    <div class="flex flex-col items-center mb-4">
+                        <h2 id="txtConnectPrompt" class="text-base font-bold text-pixel-textPrimary">Connect PS2 Capture Device</h2>
+                        <span id="txtConnectSub" class="text-xs text-pixel-blue font-medium mt-1">Plug your HDMI Video Capture Card & click Connect</span>
+                    </div>
+
+                    <button id="btnStartCaptureDirect" class="px-6 py-2.5 bg-pixel-blue hover:opacity-90 text-pixel-bg font-bold rounded-full shadow-lg flex items-center gap-2 transition text-xs">
+                        <i data-lucide="play" class="w-4 h-4 fill-pixel-bg"></i>
+                        <span id="txtBtnConnectDirect">Connect Stream</span>
+                    </button>
+                </div>
+
+                <!-- VIDEO ELEMENT (TRANSFORM BOUND INSIDE 16:9 CONTAINER) -->
+                <div id="screenWrapper" class="relative w-full h-full flex items-center justify-center overflow-hidden">
+                    <video id="ps2Video" autoplay playsinline class="max-w-full max-h-full origin-center transition-all duration-75 object-contain">
+                    </video>
+                </div>
+
+                <!-- OSD TOAST NOTIFICATION -->
+                <div id="osdNotification" class="absolute top-4 left-4 bg-pixel-card/90 backdrop-blur-md border border-pixel-blue/50 text-pixel-blue text-xs px-4 py-2 rounded-2xl opacity-0 transition-opacity duration-300 pointer-events-none z-20 flex items-center gap-2 shadow-xl">
+                    <i data-lucide="info" class="w-4 h-4 text-pixel-blue"></i>
+                    <span id="osdText" class="font-medium text-pixel-textPrimary">Settings Updated</span>
+                </div>
+
+                <!-- Floating Bottom Quick Pill Bar -->
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-pixel-surface/90 backdrop-blur-md border border-pixel-border/60 rounded-full px-4 py-2 flex items-center gap-3 z-20 shadow-xl opacity-75 hover:opacity-100 transition-opacity duration-300">
+                    <button id="hudReset" title="Reset (R)" class="text-pixel-textSecondary hover:text-pixel-textPrimary transition">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                    </button>
+
+                    <div class="h-4 w-px bg-pixel-border"></div>
+
+                    <button id="hudAspect43" class="text-pixel-textSecondary hover:text-pixel-blue transition text-xs font-bold flex items-center gap-1">
+                        <span class="text-pixel-green" id="txtHud43">4:3 Native</span>
+                    </button>
+
+                    <div class="h-4 w-px bg-pixel-border"></div>
+
+                    <button id="hudAspectCrop" class="text-pixel-textSecondary hover:text-pixel-blue transition text-xs font-bold flex items-center gap-1">
+                        <span class="text-pixel-blue" id="txtHudCrop">Crop Edges</span>
+                    </button>
+
+                    <div class="h-4 w-px bg-pixel-border"></div>
+
+                    <button id="hudAspect169" class="text-pixel-textSecondary hover:text-pixel-blue transition text-xs font-medium">
+                        <span id="txtHud169">16:9 Fit</span>
+                    </button>
+
+                    <div class="h-4 w-px bg-pixel-border"></div>
+
+                    <button id="hudAspectStretch" class="text-pixel-textSecondary hover:text-pixel-blue transition text-xs font-medium">
+                        <span id="txtHudStretch">Full Stretch</span>
+                    </button>
+
+                    <div class="h-4 w-px bg-pixel-border"></div>
+
+                    <button id="hudScanlines" title="Toggle Scanlines" class="text-pixel-textSecondary hover:text-pixel-blue transition">
+                        <i data-lucide="grid" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- MATERIAL YOU CONTROL SIDEBAR DRAWER -->
+        <aside id="controlSidebar" class="w-full lg:w-80 bg-pixel-surface border border-pixel-border/50 rounded-3xl flex flex-col z-20 shrink-0 h-auto max-h-[55vh] lg:max-h-none overflow-y-auto">
+            
+            <div class="p-4 border-b border-pixel-border/40 flex items-center justify-between bg-pixel-surface/90 sticky top-0 z-10 backdrop-blur-md rounded-t-3xl">
+                <div class="flex items-center gap-2 font-bold text-pixel-textPrimary text-sm">
+                    <i data-lucide="settings-2" class="w-4 h-4 text-pixel-blue"></i>
+                    <span id="txtDrawerTitle">Settings Panel</span>
+                </div>
+                <button id="btnCloseSidebar" class="lg:hidden p-1 text-pixel-textSecondary hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-4 space-y-5">
+
+                <!-- LANGUAGE SELECTOR IN DRAWER -->
+                <div class="space-y-2">
+                    <label id="lblLanguageDrawer" class="block text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
+                        <i data-lucide="globe" class="w-3.5 h-3.5 text-pixel-blue"></i>
+                        <span>Language</span>
+                    </label>
+                    <select id="langSelectDrawer" onchange="changeLanguage(this.value)" class="w-full bg-pixel-card border border-pixel-border/60 text-xs rounded-2xl p-2.5 text-pixel-textPrimary focus:outline-none focus:border-pixel-blue cursor-pointer">
+                        <option value="en">🇬🇧 English</option>
+                        <option value="id">🇮🇩 Bahasa Indonesia</option>
+                        <option value="su">🇮🇩 Bahasa Sunda</option>
+                    </select>
+                </div>
+
+                <!-- 1. DEVICE SELECTOR -->
+                <div class="space-y-2.5 pt-3 border-t border-pixel-border/40">
+                    <span id="txtDeviceHeading" class="text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
+                        <i data-lucide="webcam" class="w-3.5 h-3.5 text-pixel-blue"></i>
+                        <span>Device Selector</span>
+                    </span>
+
+                    <div class="space-y-2">
+                        <div>
+                            <label id="lblVideoInput" class="block text-[11px] text-pixel-textSecondary font-medium mb-1">Video Input Device</label>
+                            <select id="videoSourceSelect" class="w-full bg-pixel-card border border-pixel-border/60 text-xs rounded-2xl p-2.5 text-pixel-textPrimary focus:outline-none focus:border-pixel-blue">
+                                <option value="">-- Select Video Input --</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label id="lblAudioInput" class="block text-[11px] text-pixel-textSecondary font-medium mb-1">Audio Input Device</label>
+                            <select id="audioSourceSelect" class="w-full bg-pixel-card border border-pixel-border/60 text-xs rounded-2xl p-2.5 text-pixel-textPrimary focus:outline-none focus:border-pixel-blue">
+                                <option value="">-- Select Audio Input --</option>
+                            </select>
+                        </div>
+
+                        <div class="pt-1 flex gap-2">
+                            <button id="btnStartCapture" class="flex-1 py-2 bg-pixel-blue text-pixel-bg hover:opacity-90 rounded-full font-bold transition flex items-center justify-center gap-1.5 text-xs shadow-md">
+                                <i data-lucide="power" class="w-3.5 h-3.5"></i>
+                                <span id="txtBtnConnect">Connect Stream</span>
+                            </button>
+
+                            <button id="btnRefreshDevices" title="Refresh Devices" class="px-3 py-2 bg-pixel-card hover:bg-pixel-cardHover text-pixel-textPrimary rounded-full border border-pixel-border/60 transition flex items-center justify-center">
+                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. ASPECT RATIO (ANTI-DISTORTION) -->
+                <div class="space-y-2.5 pt-3 border-t border-pixel-border/40">
+                    <div class="flex items-center justify-between">
+                        <span id="txtAspectHeading" class="text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
+                            <i data-lucide="aspect-ratio" class="w-3.5 h-3.5 text-pixel-violet"></i>
+                            <span>Aspect Ratio Controls</span>
+                        </span>
+                        <span id="txtBadgeAntiDistort" class="text-[9px] text-pixel-green font-bold bg-emerald-950/70 border border-emerald-500/30 px-2 py-0.5 rounded-full">Anti-Distortion</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <!-- 4:3 Button -->
+                        <button id="btnAspect43" class="aspect-btn py-2 px-3 bg-pixel-blue text-pixel-bg border border-pixel-blue text-xs rounded-2xl font-bold transition text-left flex flex-col shadow-sm">
+                            <span class="flex items-center justify-between text-xs font-bold">
+                                <span id="txtOpt43">4:3 Native</span>
+                                <i data-lucide="check" class="w-3 h-3 aspect-check"></i>
+                            </span>
+                        </button>
+                        
+                        <!-- Crop Overscan Button -->
+                        <button id="btnAspectCrop" class="aspect-btn py-2 px-3 bg-pixel-card border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-bold transition text-left flex flex-col">
+                            <span class="flex items-center justify-between text-xs font-bold">
+                                <span id="txtOptCrop">Crop Black Edges</span>
+                                <i data-lucide="check" class="w-3 h-3 aspect-check hidden"></i>
+                            </span>
+                        </button>
+
+                        <!-- 16:9 Button -->
+                        <button id="btnAspect169" class="aspect-btn py-2 px-3 bg-pixel-card border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-bold transition text-left flex flex-col">
+                            <span class="flex items-center justify-between text-xs font-bold">
+                                <span id="txtOpt169">16:9 Fit</span>
+                                <i data-lucide="check" class="w-3 h-3 aspect-check hidden"></i>
+                            </span>
+                        </button>
+
+                        <!-- Stretch Button -->
+                        <button id="btnAspectFill" class="aspect-btn py-2 px-3 bg-pixel-card border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-bold transition text-left flex flex-col">
+                            <span class="flex items-center justify-between text-xs font-bold">
+                                <span id="txtOptStretch">Full Stretch</span>
+                                <i data-lucide="check" class="w-3 h-3 aspect-check hidden"></i>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. GSM OPL PRESETS -->
+                <div class="space-y-2.5 pt-3 border-t border-pixel-border/40">
+                    <span id="txtPresetsHeading" class="text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
+                        <i data-lucide="zap" class="w-3.5 h-3.5 text-pixel-blue"></i>
+                        <span>GSM OPL Quick Presets</span>
+                    </span>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btnPresetGSM1080p" class="py-2 px-2.5 bg-pixel-blueContainer/60 hover:bg-pixel-blueContainer border border-pixel-blue/40 text-pixel-blue text-xs rounded-2xl font-medium transition text-left">
+                            <span id="txtPreset1080p" class="font-bold text-pixel-blue">Fit 1080p GSM</span>
+                        </button>
+
+                        <button id="btnPresetGSM480p" class="py-2 px-2.5 bg-pixel-card hover:bg-pixel-cardHover border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-medium transition text-left">
+                            <span id="txtPreset480p" class="font-bold text-pixel-textPrimary">Fit 480p GSM</span>
+                        </button>
+
+                        <button id="btnPresetDefault" class="py-2 px-2.5 bg-pixel-card hover:bg-pixel-cardHover border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-medium transition text-left">
+                            <span id="txtPresetReset" class="font-bold text-pixel-textPrimary">Reset Default</span>
+                        </button>
+
+                        <button id="btnPresetFullStretch" class="py-2 px-2.5 bg-pixel-card hover:bg-pixel-cardHover border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-medium transition text-left">
+                            <span id="txtPresetStretch" class="font-bold text-pixel-textPrimary">Full Stretch</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4. MANUAL POSITION & ZOOM -->
+                <div class="space-y-3 pt-3 border-t border-pixel-border/40">
+                    <div class="flex items-center justify-between">
+                        <span id="txtPosHeading" class="text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
+                            <i data-lucide="move" class="w-3.5 h-3.5 text-pixel-blue"></i>
+                            <span>Position & Scale</span>
+                        </span>
+                        <button id="btnResetPosOnly" class="text-[10px] text-pixel-blue hover:underline">Reset</button>
+                    </div>
+
+                    <!-- Zoom / Scale -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center text-xs">
+                            <span id="lblZoom" class="text-pixel-textPrimary">Zoom Scale</span>
+                            <span id="valZoom" class="font-mono text-pixel-blue font-bold">1.00x</span>
+                        </div>
+                        <input type="range" id="sliderZoom" min="0.5" max="2.5" step="0.01" value="1.00" class="w-full">
+                    </div>
+
+                    <!-- Pan X -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center text-xs">
+                            <span id="lblPanX" class="text-pixel-textPrimary">Horizontal Pan (X)</span>
+                            <span id="valPanX" class="font-mono text-pixel-blue font-bold">0px</span>
+                        </div>
+                        <input type="range" id="sliderPanX" min="-300" max="300" step="1" value="0" class="w-full">
+                    </div>
+
+                    <!-- Pan Y -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center text-xs">
+                            <span id="lblPanY" class="text-pixel-textPrimary">Vertical Pan (Y)</span>
+                            <span id="valPanY" class="font-mono text-pixel-blue font-bold">0px</span>
+                        </div>
+                        <input type="range" id="sliderPanY" min="-300" max="300" step="1" value="0" class="w-full">
+                    </div>
+                </div>
+
+                <!-- 5. RAW AUDIO CONTROLS -->
+                <div class="space-y-3 pt-3 border-t border-pixel-border/40">
+                    <div class="flex items-center justify-between">
+                        <span id="txtAudioHeading" class="text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
+                            <i data-lucide="volume-2" class="w-3.5 h-3.5 text-pixel-green"></i>
+                            <span>Volume Control</span>
+                        </span>
+                        <span class="text-[9px] text-pixel-textSecondary">Max 200%</span>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <button id="btnMute" class="p-2.5 bg-pixel-card border border-pixel-border/60 text-pixel-textPrimary rounded-2xl hover:bg-pixel-cardHover transition">
+                            <i data-lucide="volume-2" id="muteIcon" class="w-4 h-4"></i>
+                        </button>
+
+                        <div class="flex-1 space-y-1">
+                            <input type="range" id="sliderVolume" min="0" max="2" step="0.01" value="1" class="w-full">
+                        </div>
+
+                        <span id="valVolume" class="font-mono text-xs text-pixel-textPrimary w-10 text-right">100%</span>
+                    </div>
+                </div>
+
+                <!-- 6. COLOR & BRIGHTNESS -->
+                <div class="space-y-3 pt-3 border-t border-pixel-border/40 pb-4">
+                    <div class="flex items-center justify-between">
+                        <span id="txtColorHeading" class="text-xs font-bold text-pixel-textPrimary flex items-center gap-1.5">
+                            <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-pixel-violet"></i>
+                            <span>Brightness & Color</span>
+                        </span>
+                        <button id="btnResetColorOnly" class="text-[10px] text-pixel-blue hover:underline">Reset</button>
+                    </div>
+
+                    <!-- Brightness -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center text-xs">
+                            <span id="lblBrightness" class="text-pixel-textPrimary">Brightness</span>
+                            <span id="valBrightness" class="font-mono text-pixel-blue font-bold">100%</span>
+                        </div>
+                        <input type="range" id="sliderBrightness" min="50" max="150" step="1" value="100" class="w-full">
+                    </div>
+
+                    <!-- Contrast -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center text-xs">
+                            <span id="lblContrast" class="text-pixel-textPrimary">Contrast</span>
+                            <span id="valContrast" class="font-mono text-pixel-blue font-bold">100%</span>
+                        </div>
+                        <input type="range" id="sliderContrast" min="50" max="150" step="1" value="100" class="w-full">
+                    </div>
+
+                    <!-- Saturation -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center text-xs">
+                            <span id="lblSaturation" class="text-pixel-textPrimary">Saturation</span>
+                            <span id="valSaturate" class="font-mono text-pixel-blue font-bold">100%</span>
+                        </div>
+                        <input type="range" id="sliderSaturate" min="0" max="200" step="1" value="100" class="w-full">
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
     </div>
-    <div class="header-actions">
-      <select id="videoSourceSelect"></select>
-      <select id="langSelect" onchange="changeLanguage(this.value)">
-        <option value="en">🇬🇧 English</option>
-        <option value="id">🇮🇩 Indonesia</option>
-        <option value="su">🇮🇩 Sunda</option>
-      </select>
-      <button class="btn-primary" id="btnConnect" onclick="startStream()">Connect</button>
-    </div>
-  </header>
 
-  <div class="main-container">
-    <div id="toast" class="toast">Settings updated</div>
-    
-    <div class="viewport-frame" id="viewport">
-      <video id="videoElement" autoplay playsinline></video>
-    </div>
+    <!-- FOOTER HELPER -->
+    <footer class="bg-pixel-surface border-t border-pixel-border/40 px-5 py-2 text-[10px] text-pixel-textSecondary flex flex-wrap items-center justify-between gap-2 z-30 shrink-0">
+        <div class="flex items-center space-x-4">
+            <span class="flex items-center gap-1 font-mono">
+                <kbd class="bg-pixel-card border border-pixel-border/60 px-1.5 py-0.5 rounded-md text-pixel-textPrimary">F</kbd>
+                <span id="txtKbdFullscreen">Fullscreen</span>
+            </span>
+            <span class="flex items-center gap-1 font-mono">
+                <kbd class="bg-pixel-card border border-pixel-border/60 px-1.5 py-0.5 rounded-md text-pixel-textPrimary">S</kbd>
+                <span id="txtKbdScreenshot">Screenshot</span>
+            </span>
+            <span class="flex items-center gap-1 font-mono">
+                <kbd class="bg-pixel-card border border-pixel-border/60 px-1.5 py-0.5 rounded-md text-pixel-textPrimary">M</kbd>
+                <span id="txtKbdMute">Mute</span>
+            </span>
+            <span class="flex items-center gap-1 font-mono">
+                <kbd class="bg-pixel-card border border-pixel-border/60 px-1.5 py-0.5 rounded-md text-pixel-textPrimary">R</kbd>
+                <span id="txtKbdReset">Reset</span>
+            </span>
+        </div>
+        <div class="font-mono text-[9px] text-pixel-textSecondary">
+            <span>GOOGLE PIXEL MONET THEME &bull; RAW STEREO & ANTI-DISTORTION ENGINE</span>
+        </div>
+    </footer>
 
-    <div class="controls-bar">
-      <button onclick="setMode('43')" id="btn43">4:3 Native</button>
-      <button onclick="setMode('169')" id="btn169">16:9 Fit</button>
-      <button onclick="setMode('crop')" id="btnCrop">Crop Edges</button>
-      <button onclick="setMode('stretch')" id="btnStretch">Full Stretch</button>
-      <button onclick="toggleFullscreen()" id="btnFull">Fullscreen</button>
-      <button onclick="takeScreenshot()" id="btnSnap">Screenshot</button>
-      <button onclick="toggleDrawer()" id="btnSettings">⚙️ Settings</button>
-    </div>
-  </div>
+    <!-- JAVASCRIPT & I18N ENGINE -->
+    <script>
+        // Dictionary for Dynamic i18n Translations
+        const i18n = {
+            en: {
+                appTitle: "PS2 HDMI Display Adjuster",
+                appSubtitle: "Screen Capture & Aspect Recalibration Tool",
+                rawAudio: "Raw Stereo",
+                btnFullscreen: "Fullscreen",
+                btnScreenshot: "Screenshot",
+                btnSettings: "Settings",
+                connectPrompt: "Connect PS2 Capture Device",
+                connectSub: "Plug your HDMI Video Capture Card & click Connect",
+                btnConnectDirect: "Connect Stream",
+                btnConnect: "Connect Stream",
+                btnDisconnect: "Disconnect Stream",
+                hud43: "4:3 Native",
+                hudCrop: "Crop Edges",
+                hud169: "16:9 Fit",
+                hudStretch: "Full Stretch",
+                drawerTitle: "Settings Panel",
+                lblLanguageDrawer: "Language",
+                deviceHeading: "Device Selector",
+                lblVideoInput: "Video Input Device",
+                lblAudioInput: "Audio Input Device",
+                selectVideoDefault: "-- Select Video Input --",
+                selectAudioDefault: "-- Select Audio Input --",
+                aspectHeading: "Aspect Ratio Controls",
+                badgeAntiDistort: "Anti-Distortion",
+                opt43: "4:3 Native",
+                optCrop: "Crop Black Edges",
+                opt169: "16:9 Fit",
+                optStretch: "Full Stretch",
+                presetsHeading: "GSM OPL Quick Presets",
+                preset1080p: "Fit 1080p GSM",
+                preset480p: "Fit 480p GSM",
+                presetReset: "Reset Default",
+                presetStretch: "Full Stretch",
+                posHeading: "Position & Scale",
+                lblZoom: "Zoom Scale",
+                lblPanX: "Horizontal Pan (X)",
+                lblPanY: "Vertical Pan (Y)",
+                audioHeading: "Volume Control",
+                colorHeading: "Brightness & Color",
+                lblBrightness: "Brightness",
+                lblContrast: "Contrast",
+                lblSaturation: "Saturation",
+                kbdFullscreen: "Fullscreen",
+                kbdScreenshot: "Screenshot",
+                kbdMute: "Mute",
+                kbdReset: "Reset",
+                toastConnected: "HDMI Stream Connected (1080p HD)",
+                toastDisconnected: "Stream Disconnected",
+                toastError: "Failed to connect stream",
+                toastScreenshot: "Screenshot Saved",
+                toastMuted: "Audio Muted",
+                toastActive: "Audio Active",
+                toastReset: "Position & Color Reset",
+                toastAspect: "Aspect Mode: "
+            },
+            id: {
+                appTitle: "Penampil Layar PS2 HDMI",
+                appSubtitle: "Alat Tangkap Layar & Rekalibrasi Rasio PS2",
+                rawAudio: "Stereo Asli",
+                btnFullscreen: "Layar Penuh",
+                btnScreenshot: "Tangkapan Layar",
+                btnSettings: "Pengaturan",
+                connectPrompt: "Hubungkan Perangkat Capture PS2",
+                connectSub: "Colokkan HDMI Video Capture Card & klik Hubungkan",
+                btnConnectDirect: "Hubungkan Sinyal",
+                btnConnect: "Hubungkan Sinyal",
+                btnDisconnect: "Putuskan Sinyal",
+                hud43: "4:3 Anti-Gepeng",
+                hudCrop: "Potong Pinggir",
+                hud169: "16:9 Pas Layar",
+                hudStretch: "Tarik Penuh",
+                drawerTitle: "Panel Pengaturan",
+                lblLanguageDrawer: "Bahasa",
+                deviceHeading: "Pilih Perangkat Input",
+                lblVideoInput: "Perangkat Input Video",
+                lblAudioInput: "Perangkat Input Audio",
+                selectVideoDefault: "-- Pilih Input Video --",
+                selectAudioDefault: "-- Pilih Input Audio --",
+                aspectHeading: "Kontrol Rasio Layar",
+                badgeAntiDistort: "Anti-Gepeng",
+                opt43: "4:3 Anti-Gepeng",
+                optCrop: "Potong Pinggir Hitam",
+                opt169: "16:9 Pas Layar",
+                optStretch: "Tarik Penuh",
+                presetsHeading: "Preset Cepat GSM OPL",
+                preset1080p: "Pas 1080p GSM",
+                preset480p: "Pas 480p GSM",
+                presetReset: "Reset Awal",
+                presetStretch: "Tarik Penuh",
+                posHeading: "Posisi & Ukuran",
+                lblZoom: "Tingkat Zoom",
+                lblPanX: "Geser Horisontal (X)",
+                lblPanY: "Geser Vertikal (Y)",
+                audioHeading: "Pengaturan Volume",
+                colorHeading: "Kecerahan & Warna",
+                lblBrightness: "Kecerahan",
+                lblContrast: "Kontras",
+                lblSaturation: "Saturasi Warna",
+                kbdFullscreen: "Layar Penuh",
+                kbdScreenshot: "Foto Layar",
+                kbdMute: "Bungkam",
+                kbdReset: "Reset",
+                toastConnected: "Sinyal HDMI Terhubung (1080p HD)",
+                toastDisconnected: "Sinyal Terputus",
+                toastError: "Gagal menghubungkan sinyal video",
+                toastScreenshot: "Foto Layar Berhasil Disimpan",
+                toastMuted: "Audio Dibungkam",
+                toastActive: "Audio Aktif",
+                toastReset: "Pengaturan Layar Direset",
+                toastAspect: "Mode Rasio: "
+            },
+            su: {
+                appTitle: "Panyawang Layar PS2 HDMI",
+                appSubtitle: "Parabot Nyandak Layar & Rekalibrasi Rasio PS2",
+                rawAudio: "Stereo Asli",
+                btnFullscreen: "Layar Pinuh",
+                btnScreenshot: "Potrét Layar",
+                btnSettings: "Setelan",
+                connectPrompt: "Sambungkeun Alat Capture PS2",
+                connectSub: "Colokkeun HDMI Video Capture Card & pencét Sambungkeun",
+                btnConnectDirect: "Sambungkeun Sinyal",
+                btnConnect: "Sambungkeun Sinyal",
+                btnDisconnect: "Pegatkeun Sinyal",
+                hud43: "4:3 Cegah Gepeng",
+                hudCrop: "Kerat Sisi",
+                hud169: "16:9 Pas Layar",
+                hudStretch: "Tarik Pinuh",
+                drawerTitle: "Panel Setelan",
+                lblLanguageDrawer: "Basa",
+                deviceHeading: "Pilih Perangkat Input",
+                lblVideoInput: "Alat Input Pidéo",
+                lblAudioInput: "Alat Input Swara",
+                selectVideoDefault: "-- Pilih Input Pidéo --",
+                selectAudioDefault: "-- Pilih Input Swara --",
+                aspectHeading: "Kontrol Rasio Layar",
+                badgeAntiDistort: "Cegah Mérok",
+                opt43: "4:3 Cegah Mérok",
+                optCrop: "Kerat Sisi Hideung",
+                opt169: "16:9 Pas Layar",
+                optStretch: "Tarik Pinuh",
+                presetsHeading: "Setelan Enggal GSM OPL",
+                preset1080p: "Pas 1080p GSM",
+                preset480p: "Pas 480p GSM",
+                presetReset: "Puleangkeun",
+                presetStretch: "Tarik Pinuh",
+                posHeading: "Posisi & Ukuran",
+                lblZoom: "Tingkat Zoom",
+                lblPanX: "Geser Kénca/Katuhu (X)",
+                lblPanY: "Geser Luhur/Handap (Y)",
+                audioHeading: "Setelan Swara",
+                colorHeading: "Cahaya & Warna",
+                lblBrightness: "Cahaya",
+                lblContrast: "Kontras",
+                lblSaturation: "Kerat Warna",
+                kbdFullscreen: "Layar Pinuh",
+                kbdScreenshot: "Potrét Layar",
+                kbdMute: "Pareum Swara",
+                kbdReset: "Puleangkeun",
+                toastConnected: "Sinyal HDMI Parantos Disambungkeun (1080p HD)",
+                toastDisconnected: "Sinyal Dipegatkeun",
+                toastError: "Teu tiasa nyambungkeun pidéo",
+                toastScreenshot: "Potrét Layar Parantos Disimpen",
+                toastMuted: "Swara Dipareumkeun",
+                toastActive: "Swara Hurung",
+                toastReset: "Setelan Layar Dipuleangkeun",
+                toastAspect: "Mode Rasio: "
+            }
+        };
 
-  <!-- Settings Drawer -->
-  <div class="drawer" id="settingsDrawer">
-    <div class="drawer-header">
-      <h3 id="txtSettingsTitle">Settings</h3>
-      <button onclick="toggleDrawer()" style="padding: 4px 10px;">✕</button>
-    </div>
+        let currentLang = localStorage.getItem('ps2_viewer_lang') || 'en';
 
-    <div class="setting-group">
-      <label id="lblZoom">Zoom Level (1.0 - 2.0)</label>
-      <input type="range" id="zoomVal" min="1" max="2" step="0.02" value="1" oninput="updateTransform()">
-    </div>
-    <div class="setting-group">
-      <label id="lblPanX">Pan Horizontal (X)</label>
-      <input type="range" id="panXVal" min="-200" max="200" step="2" value="0" oninput="updateTransform()">
-    </div>
-    <div class="setting-group">
-      <label id="lblPanY">Pan Vertical (Y)</label>
-      <input type="range" id="panYVal" min="-200" max="200" step="2" value="0" oninput="updateTransform()">
-    </div>
-    <div class="setting-group">
-      <label id="lblBright">Brightness</label>
-      <input type="range" id="brightVal" min="0.5" max="1.5" step="0.05" value="1" oninput="updateFilters()">
-    </div>
-    <div class="setting-group">
-      <label id="lblContrast">Contrast</label>
-      <input type="range" id="contrastVal" min="0.5" max="1.5" step="0.05" value="1" oninput="updateFilters()">
-    </div>
-    <div class="setting-group">
-      <label id="lblVolume">Volume Gain Boost</label>
-      <input type="range" id="volumeVal" min="0" max="2" step="0.1" value="1" oninput="updateVolume()">
-    </div>
-    <button onclick="resetAdjustments()" style="width: 100%; justify-content: center; margin-top: 10px;" id="btnReset">Reset All</button>
-  </div>
+        function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('ps2_viewer_lang', lang);
 
-  <script>
-    const i18n = {
-      en: {
-        title: "PS2 Viewer",
-        connect: "Connect",
-        disconnect: "Disconnect",
-        mode43: "4:3 Native",
-        mode169: "16:9 Fit",
-        crop: "Crop Edges",
-        stretch: "Full Stretch",
-        full: "Fullscreen",
-        snap: "Screenshot",
-        settings: "⚙️ Settings",
-        settingsTitle: "Settings",
-        zoom: "Zoom Level",
-        panX: "Pan Horizontal (X)",
-        panY: "Pan Vertical (Y)",
-        bright: "Brightness",
-        contrast: "Contrast",
-        volume: "Volume Gain Boost",
-        reset: "Reset All",
-        connected: "Capture card connected!",
-        error: "Unable to access video device"
-      },
-      id: {
-        title: "Penampil PS2",
-        connect: "Hubungkan",
-        disconnect: "Putuskan",
-        mode43: "4:3 Asli",
-        mode169: "16:9 Pas",
-        crop: "Potong Pinggir",
-        stretch: "Layar Penuh",
-        full: "Layar Penuh (F)",
-        snap: "Tangkapan Layar",
-        settings: "⚙️ Pengaturan",
-        settingsTitle: "Pengaturan Display",
-        zoom: "Tingkat Zoom",
-        panX: "Geser Kiri/Kanan (X)",
-        panY: "Geser Atas/Bawah (Y)",
-        bright: "Kecerahan",
-        contrast: "Kontras",
-        volume: "Penguat Volume",
-        reset: "Reset Pengaturan",
-        connected: "Capture card terhubung!",
-        error: "Gagal mengakses capture card"
-      },
-      su: {
-        title: "Panyawang PS2",
-        connect: "Sambungkeun",
-        disconnect: "Pegatkeun",
-        mode43: "4:3 Asli",
-        mode169: "16:9 Pas",
-        crop: "Kerat Sisi Hideung",
-        stretch: "Layar Pinuh",
-        full: "Layar Pinuh (F)",
-        snap: "Potrét Layar",
-        settings: "⚙️ Setelan",
-        settingsTitle: "Setelan Layar",
-        zoom: "Tingkat Zoom",
-        panX: "Kénca/Katuhu (X)",
-        panY: "Luhur/Handap (Y)",
-        bright: "Cahaya",
-        contrast: "Bédana Warna",
-        volume: "Penguat Swara",
-        reset: "Puleangkeun",
-        connected: "Capture card parantos disambungkeun!",
-        error: "Teu tiasa muka capture card"
-      }
-    };
+            // Sync Header & Drawer Dropdowns
+            document.getElementById('langSelectHeader').value = lang;
+            document.getElementById('langSelectDrawer').value = lang;
 
-    let currentLang = localStorage.getItem('ps2_lang') || 'en';
-    let currentStream = null;
-    let audioCtx = null;
-    let gainNode = null;
-    let currentFit = 'contain';
+            const t = i18n[lang];
 
-    const video = document.getElementById('videoElement');
+            // Apply Text Contents
+            document.getElementById('txtAppTitle').textContent = t.appTitle;
+            document.getElementById('txtAppSubtitle').textContent = t.appSubtitle;
+            document.getElementById('txtRawAudio').textContent = t.rawAudio;
+            document.getElementById('txtBtnFullscreen').textContent = t.btnFullscreen;
+            document.getElementById('txtBtnScreenshot').textContent = t.btnScreenshot;
+            document.getElementById('txtBtnSettings').textContent = t.btnSettings;
 
-    function changeLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem('ps2_lang', lang);
-      document.getElementById('langSelect').value = lang;
+            document.getElementById('txtConnectPrompt').textContent = t.connectPrompt;
+            document.getElementById('txtConnectSub').textContent = t.connectSub;
+            document.getElementById('txtBtnConnectDirect').textContent = t.btnConnectDirect;
 
-      const t = i18n[lang];
-      document.getElementById('appTitle').innerText = t.title;
-      document.getElementById('btnConnect').innerText = currentStream ? t.disconnect : t.connect;
-      document.getElementById('btn43').innerText = t.mode43;
-      document.getElementById('btn169').innerText = t.mode169;
-      document.getElementById('btnCrop').innerText = t.crop;
-      document.getElementById('btnStretch').innerText = t.stretch;
-      document.getElementById('btnFull').innerText = t.full;
-      document.getElementById('btnSnap').innerText = t.snap;
-      document.getElementById('btnSettings').innerText = t.settings;
-      document.getElementById('txtSettingsTitle').innerText = t.settingsTitle;
-      document.getElementById('lblZoom').innerText = t.zoom;
-      document.getElementById('lblPanX').innerText = t.panX;
-      document.getElementById('lblPanY').innerText = t.panY;
-      document.getElementById('lblBright').innerText = t.bright;
-      document.getElementById('lblContrast').innerText = t.contrast;
-      document.getElementById('lblVolume').innerText = t.volume;
-      document.getElementById('btnReset').innerText = t.reset;
-    }
+            document.getElementById('txtHud43').textContent = t.hud43;
+            document.getElementById('txtHudCrop').textContent = t.hudCrop;
+            document.getElementById('txtHud169').textContent = t.hud169;
+            document.getElementById('txtHudStretch').textContent = t.hudStretch;
 
-    async function getDevices() {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoSelect = document.getElementById('videoSourceSelect');
-      videoSelect.innerHTML = '';
-      devices.filter(d => d.kind === 'videoinput').forEach(device => {
-        const opt = document.createElement('option');
-        opt.value = device.deviceId;
-        opt.text = device.label || `Capture Card (${videoSelect.length + 1})`;
-        videoSelect.appendChild(opt);
-      });
-    }
+            document.getElementById('txtDrawerTitle').textContent = t.drawerTitle;
+            document.getElementById('lblLanguageDrawer').children[1].textContent = t.lblLanguageDrawer;
+            document.getElementById('txtDeviceHeading').children[1].textContent = t.deviceHeading;
+            document.getElementById('lblVideoInput').textContent = t.lblVideoInput;
+            document.getElementById('lblAudioInput').textContent = t.lblAudioInput;
+            document.getElementById('txtBtnConnect').textContent = currentStream ? t.btnDisconnect : t.btnConnect;
 
-    async function startStream() {
-      if (currentStream) {
-        currentStream.getTracks().forEach(t => t.stop());
-        currentStream = null;
-        video.srcObject = null;
+            document.getElementById('txtAspectHeading').children[1].textContent = t.aspectHeading;
+            document.getElementById('txtBadgeAntiDistort').textContent = t.badgeAntiDistort;
+            document.getElementById('txtOpt43').textContent = t.opt43;
+            document.getElementById('txtOptCrop').textContent = t.optCrop;
+            document.getElementById('txtOpt169').textContent = t.opt169;
+            document.getElementById('txtOptStretch').textContent = t.optStretch;
+
+            document.getElementById('txtPresetsHeading').children[1].textContent = t.presetsHeading;
+            document.getElementById('txtPreset1080p').textContent = t.preset1080p;
+            document.getElementById('txtPreset480p').textContent = t.preset480p;
+            document.getElementById('txtPresetReset').textContent = t.presetReset;
+            document.getElementById('txtPresetStretch').textContent = t.presetStretch;
+
+            document.getElementById('txtPosHeading').children[1].textContent = t.posHeading;
+            document.getElementById('lblZoom').textContent = t.lblZoom;
+            document.getElementById('lblPanX').textContent = t.lblPanX;
+            document.getElementById('lblPanY').textContent = t.lblPanY;
+
+            document.getElementById('txtAudioHeading').children[1].textContent = t.audioHeading;
+            document.getElementById('txtColorHeading').children[1].textContent = t.colorHeading;
+            document.getElementById('lblBrightness').textContent = t.lblBrightness;
+            document.getElementById('lblContrast').textContent = t.lblContrast;
+            document.getElementById('lblSaturation').textContent = t.lblSaturation;
+
+            document.getElementById('txtKbdFullscreen').textContent = t.kbdFullscreen;
+            document.getElementById('txtKbdScreenshot').textContent = t.kbdScreenshot;
+            document.getElementById('txtKbdMute').textContent = t.kbdMute;
+            document.getElementById('txtKbdReset').textContent = t.kbdReset;
+        }
+
+        // DOM Elements
+        const videoElement = document.getElementById('ps2Video');
+        const viewportContainer = document.getElementById('viewportContainer');
+        const placeholderState = document.getElementById('placeholderState');
+        const scanlineEffect = document.getElementById('scanlineEffect');
+
+        const videoSourceSelect = document.getElementById('videoSourceSelect');
+        const audioSourceSelect = document.getElementById('audioSourceSelect');
+        const btnStartCapture = document.getElementById('btnStartCapture');
+        const btnStartCaptureDirect = document.getElementById('btnStartCaptureDirect');
+        const btnRefreshDevices = document.getElementById('btnRefreshDevices');
+
+        // Sliders & Values
+        const sliderZoom = document.getElementById('sliderZoom');
+        const sliderPanX = document.getElementById('sliderPanX');
+        const sliderPanY = document.getElementById('sliderPanY');
+        const sliderBrightness = document.getElementById('sliderBrightness');
+        const sliderContrast = document.getElementById('sliderContrast');
+        const sliderSaturate = document.getElementById('sliderSaturate');
+        const sliderVolume = document.getElementById('sliderVolume');
+
+        const valZoom = document.getElementById('valZoom');
+        const valPanX = document.getElementById('valPanX');
+        const valPanY = document.getElementById('valPanY');
+        const valBrightness = document.getElementById('valBrightness');
+        const valContrast = document.getElementById('valContrast');
+        const valSaturate = document.getElementById('valSaturate');
+        const valVolume = document.getElementById('valVolume');
+
+        // Preset Buttons
+        const btnPresetDefault = document.getElementById('btnPresetDefault');
+        const btnPresetGSM1080p = document.getElementById('btnPresetGSM1080p');
+        const btnPresetGSM480p = document.getElementById('btnPresetGSM480p');
+        const btnPresetFullStretch = document.getElementById('btnPresetFullStretch');
+
+        const btnResetPosOnly = document.getElementById('btnResetPosOnly');
+        const btnResetColorOnly = document.getElementById('btnResetColorOnly');
+
+        const btnAspect43 = document.getElementById('btnAspect43');
+        const btnAspectCrop = document.getElementById('btnAspectCrop');
+        const btnAspect169 = document.getElementById('btnAspect169');
+        const btnAspectFill = document.getElementById('btnAspectFill');
+
+        const btnMute = document.getElementById('btnMute');
+        const muteIcon = document.getElementById('muteIcon');
+        const btnFullscreen = document.getElementById('btnFullscreen');
+        const btnScreenshot = document.getElementById('btnScreenshot');
+        const btnToggleSidebar = document.getElementById('btnToggleSidebar');
+        const btnCloseSidebar = document.getElementById('btnCloseSidebar');
+        const controlSidebar = document.getElementById('controlSidebar');
+
+        const hudReset = document.getElementById('hudReset');
+        const hudAspect43 = document.getElementById('hudAspect43');
+        const hudAspectCrop = document.getElementById('hudAspectCrop');
+        const hudAspect169 = document.getElementById('hudAspect169');
+        const hudAspectStretch = document.getElementById('hudAspectStretch');
+        const hudScanlines = document.getElementById('hudScanlines');
+
+        const osdNotification = document.getElementById('osdNotification');
+        const osdText = document.getElementById('osdText');
+        const audioMeterCanvas = document.getElementById('audioMeterCanvas');
+
+        // Application State
+        let currentStream = null;
+        let audioCtx = null;
+        let mediaStreamSource = null;
+        let gainNode = null;
+        let analyser = null;
+        let animFrameId = null;
+
+        let transformState = {
+            zoom: 1.0,
+            panX: 0,
+            panY: 0,
+            brightness: 100,
+            contrast: 100,
+            saturate: 100,
+            aspect: '4:3',
+            isMuted: false,
+            volume: 1.0,
+            scanlines: false
+        };
+
+        // Initialize Lucide Icons & i18n
+        lucide.createIcons();
         changeLanguage(currentLang);
-        return;
-      }
 
-      const deviceId = document.getElementById('videoSourceSelect').value;
-      const constraints = {
-        video: { deviceId: deviceId ? { exact: deviceId } : undefined, width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 60 } },
-        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
-      };
+        window.addEventListener('DOMContentLoaded', () => {
+            getDevices();
+            setAspect('4:3');
+        });
 
-      try {
-        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-        video.srcObject = currentStream;
+        // 1. DEVICE ENUMERATION & CAPTURE ENGINE
+        async function getDevices() {
+            try {
+                const tempStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }).catch(() => null);
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                
+                const t = i18n[currentLang];
+                videoSourceSelect.innerHTML = `<option value="">${t.selectVideoDefault}</option>`;
+                audioSourceSelect.innerHTML = `<option value="">${t.selectAudioDefault}</option>`;
 
-        // Raw Stereo Audio setup
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const source = audioCtx.createMediaStreamSource(currentStream);
-        gainNode = audioCtx.createGain();
-        source.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
+                devices.forEach(device => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
 
-        document.getElementById('btnConnect').innerText = i18n[currentLang].disconnect;
-        showToast(i18n[currentLang].connected);
-      } catch (err) {
-        showToast(i18n[currentLang].error);
-      }
-    }
+                    if (device.kind === 'videoinput') {
+                        option.text = device.label || `HDMI Video Device (${videoSourceSelect.length})`;
+                        videoSourceSelect.appendChild(option);
+                    } else if (device.kind === 'audioinput') {
+                        option.text = device.label || `HDMI Audio Device (${audioSourceSelect.length})`;
+                        audioSourceSelect.appendChild(option);
+                    }
+                });
 
-    function setMode(mode) {
-      if (mode === '43') {
-        video.style.objectFit = 'contain';
-        video.style.aspectRatio = '4 / 3';
-      } else if (mode === '169') {
-        video.style.objectFit = 'contain';
-        video.style.aspectRatio = '16 / 9';
-      } else if (mode === 'crop') {
-        video.style.objectFit = 'cover';
-        video.style.aspectRatio = '16 / 9';
-      } else if (mode === 'stretch') {
-        video.style.objectFit = 'fill';
-        video.style.aspectRatio = 'auto';
-      }
-    }
+                if (videoSourceSelect.options.length > 1) videoSourceSelect.selectedIndex = 1;
+                if (audioSourceSelect.options.length > 1) audioSourceSelect.selectedIndex = 1;
 
-    function updateTransform() {
-      const zoom = document.getElementById('zoomVal').value;
-      const panX = document.getElementById('panXVal').value;
-      const panY = document.getElementById('panYVal').value;
-      video.style.transform = `scale(${zoom}) translate(${panX}px, ${panY}px)`;
-    }
+                if (tempStream) {
+                    tempStream.getTracks().forEach(track => track.stop());
+                }
 
-    function updateFilters() {
-      const bright = document.getElementById('brightVal').value;
-      const contrast = document.getElementById('contrastVal').value;
-      video.style.filter = `brightness(${bright}) contrast(${contrast})`;
-    }
+            } catch (err) {
+                console.error("Error enumerating devices:", err);
+                showOSD(i18n[currentLang].toastError);
+            }
+        }
 
-    function updateVolume() {
-      if (gainNode) gainNode.gain.value = document.getElementById('volumeVal').value;
-    }
+        btnRefreshDevices.addEventListener('click', getDevices);
 
-    function resetAdjustments() {
-      document.getElementById('zoomVal').value = 1;
-      document.getElementById('panXVal').value = 0;
-      document.getElementById('panYVal').value = 0;
-      document.getElementById('brightVal').value = 1;
-      document.getElementById('contrastVal').value = 1;
-      document.getElementById('volumeVal').value = 1;
-      updateTransform();
-      updateFilters();
-      updateVolume();
-      setMode('43');
-    }
+        async function startCapture() {
+            const videoId = videoSourceSelect.value;
+            const audioId = audioSourceSelect.value;
 
-    function toggleFullscreen() {
-      const elem = document.getElementById('viewport');
-      if (!document.fullscreenElement) {
-        elem.requestFullscreen().catch(err => {});
-      } else {
-        document.exitFullscreen();
-      }
-    }
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+                videoElement.srcObject = null;
+                placeholderState.classList.remove('hidden');
+                document.getElementById('txtBtnConnect').textContent = i18n[currentLang].btnConnect;
+                showOSD(i18n[currentLang].toastDisconnected);
+                return;
+            }
 
-    function takeScreenshot() {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth || 1920;
-      canvas.height = video.videoHeight || 1080;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const link = document.createElement('a');
-      link.download = `PS2_Screenshot_${Date.now()}.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-    }
+            // RAW UNPROCESSED AUDIO CONSTRAINTS
+            const audioConstraints = audioId ? {
+                deviceId: { exact: audioId },
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false,
+                channelCount: { ideal: 2 },
+                sampleRate: { ideal: 48000 }
+            } : {
+                echoCancellation: false,
+                noiseSuppression: false,
+                autoGainControl: false
+            };
 
-    function toggleDrawer() {
-      document.getElementById('settingsDrawer').classList.toggle('open');
-    }
+            const constraints = {
+                video: videoId ? { 
+                    deviceId: { exact: videoId }, 
+                    width: { ideal: 1920, min: 1280 }, 
+                    height: { ideal: 1080, min: 720 }, 
+                    frameRate: { ideal: 60, min: 30 } 
+                } : {
+                    width: { ideal: 1920, min: 1280 }, 
+                    height: { ideal: 1080, min: 720 }, 
+                    frameRate: { ideal: 60, min: 30 }
+                },
+                audio: audioConstraints
+            };
 
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.innerText = msg;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2500);
-    }
+            try {
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                
+                const videoTrack = currentStream.getVideoTracks()[0];
+                if (videoTrack && videoTrack.applyConstraints) {
+                    await videoTrack.applyConstraints({
+                        width: { ideal: 1920, min: 1280 },
+                        height: { ideal: 1080, min: 720 },
+                        frameRate: { ideal: 60, min: 30 }
+                    }).catch(e => console.log("Constraint fallback:", e));
+                }
+                
+                videoElement.srcObject = currentStream;
+                videoElement.muted = true; // Audio routed via Web Audio API
 
-    navigator.mediaDevices.addEventListener('devicechange', getDevices);
-    getDevices();
-    changeLanguage(currentLang);
+                placeholderState.classList.add('hidden');
+                document.getElementById('txtBtnConnect').textContent = i18n[currentLang].btnDisconnect;
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'f' || e.key === 'F') toggleFullscreen();
-      if (e.key === 's' || e.key === 'S') takeScreenshot();
-      if (e.key === 'r' || e.key === 'R') resetAdjustments();
-    });
-  </script>
+                setupAudioPipeline(currentStream);
+                showOSD(i18n[currentLang].toastConnected);
+            } catch (err) {
+                console.error("Error starting stream:", err);
+                showOSD(i18n[currentLang].toastError);
+            }
+        }
+
+        btnStartCapture.addEventListener('click', startCapture);
+        btnStartCaptureDirect.addEventListener('click', startCapture);
+
+        // 2. AUDIO PIPELINE & METERING
+        function setupAudioPipeline(stream) {
+            const audioTracks = stream.getAudioTracks();
+            if (audioTracks.length === 0) return;
+
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 });
+            }
+
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            if (mediaStreamSource) mediaStreamSource.disconnect();
+            if (gainNode) gainNode.disconnect();
+            if (analyser) analyser.disconnect();
+
+            mediaStreamSource = audioCtx.createMediaStreamSource(stream);
+            gainNode = audioCtx.createGain();
+            analyser = audioCtx.createAnalyser();
+
+            analyser.fftSize = 64;
+
+            mediaStreamSource.connect(gainNode);
+            gainNode.connect(analyser);
+            analyser.connect(audioCtx.destination);
+
+            gainNode.gain.value = transformState.isMuted ? 0 : transformState.volume;
+
+            drawAudioMeter();
+        }
+
+        function drawAudioMeter() {
+            if (!analyser) return;
+            const canvasCtx = audioMeterCanvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+
+            function render() {
+                animFrameId = requestAnimationFrame(render);
+                analyser.getByteFrequencyData(dataArray);
+
+                let sum = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    sum += dataArray[i];
+                }
+                let average = sum / bufferLength;
+                let volumePercent = average / 255;
+
+                canvasCtx.clearRect(0, 0, audioMeterCanvas.width, audioMeterCanvas.height);
+                canvasCtx.fillStyle = '#1C1B1F';
+                canvasCtx.fillRect(0, 0, audioMeterCanvas.width, audioMeterCanvas.height);
+
+                let barWidth = audioMeterCanvas.width * Math.min(volumePercent * 2, 1);
+                let gradient = canvasCtx.createLinearGradient(0, 0, audioMeterCanvas.width, 0);
+                gradient.addColorStop(0, '#A6F4C5');
+                gradient.addColorStop(0.7, '#A8C7FA');
+                gradient.addColorStop(1, '#F2B8B5');
+
+                canvasCtx.fillStyle = transformState.isMuted ? '#49454F' : gradient;
+                canvasCtx.fillRect(0, 0, barWidth, audioMeterCanvas.height);
+            }
+
+            if (animFrameId) cancelAnimationFrame(animFrameId);
+            render();
+        }
+
+        // 3. TRANSFORM & ASPECT MATRIX
+        function applyTransforms() {
+            videoElement.style.filter = `brightness(${transformState.brightness}%) contrast(${transformState.contrast}%) saturate(${transformState.saturate}%)`;
+            videoElement.style.transform = `translate(${transformState.panX}px, ${transformState.panY}px) scale(${transformState.zoom})`;
+
+            videoElement.style.removeProperty('aspect-ratio');
+            videoElement.style.removeProperty('width');
+            videoElement.style.removeProperty('height');
+            videoElement.style.removeProperty('object-fit');
+            videoElement.style.removeProperty('max-width');
+            videoElement.style.removeProperty('max-height');
+
+            if (transformState.aspect === '4:3') {
+                videoElement.style.aspectRatio = '4 / 3';
+                videoElement.style.maxHeight = '100%';
+                videoElement.style.maxWidth = '100%';
+                videoElement.style.width = 'auto';
+                videoElement.style.height = 'auto';
+                videoElement.style.objectFit = 'contain';
+            } else if (transformState.aspect === 'crop') {
+                videoElement.style.width = '100%';
+                videoElement.style.height = '100%';
+                videoElement.style.objectFit = 'cover';
+            } else if (transformState.aspect === '16:9') {
+                videoElement.style.aspectRatio = '16 / 9';
+                videoElement.style.maxHeight = '100%';
+                videoElement.style.maxWidth = '100%';
+                videoElement.style.width = 'auto';
+                videoElement.style.height = 'auto';
+                videoElement.style.objectFit = 'contain';
+            } else if (transformState.aspect === 'fill') {
+                videoElement.style.width = '100%';
+                videoElement.style.height = '100%';
+                videoElement.style.objectFit = 'fill';
+            } else {
+                videoElement.style.maxWidth = '100%';
+                videoElement.style.maxHeight = '100%';
+                videoElement.style.objectFit = 'contain';
+            }
+
+            valZoom.textContent = `${parseFloat(transformState.zoom).toFixed(2)}x`;
+            valPanX.textContent = `${transformState.panX}px`;
+            valPanY.textContent = `${transformState.panY}px`;
+            valBrightness.textContent = `${transformState.brightness}%`;
+            valContrast.textContent = `${transformState.contrast}%`;
+            valSaturate.textContent = `${transformState.saturate}%`;
+
+            sliderZoom.value = transformState.zoom;
+            sliderPanX.value = transformState.panX;
+            sliderPanY.value = transformState.panY;
+            sliderBrightness.value = transformState.brightness;
+            sliderContrast.value = transformState.contrast;
+            sliderSaturate.value = transformState.saturate;
+        }
+
+        function setAspect(mode) {
+            transformState.aspect = mode;
+            
+            document.querySelectorAll('.aspect-btn').forEach(btn => {
+                btn.classList.remove('bg-pixel-blue', 'text-pixel-bg', 'border-pixel-blue');
+                btn.classList.add('bg-pixel-card', 'text-pixel-textPrimary', 'border-pixel-border/60');
+                const check = btn.querySelector('.aspect-check');
+                if (check) check.classList.add('hidden');
+            });
+
+            let activeBtn = btnAspect43;
+            if (mode === '4:3') activeBtn = btnAspect43;
+            if (mode === 'crop') activeBtn = btnAspectCrop;
+            if (mode === '16:9') activeBtn = btnAspect169;
+            if (mode === 'fill') activeBtn = btnAspectFill;
+
+            if (activeBtn) {
+                activeBtn.classList.replace('bg-pixel-card', 'bg-pixel-blue');
+                activeBtn.classList.replace('text-pixel-textPrimary', 'text-pixel-bg');
+                activeBtn.classList.replace('border-pixel-border/60', 'border-pixel-blue');
+                const activeCheck = activeBtn.querySelector('.aspect-check');
+                if (activeCheck) activeCheck.classList.remove('hidden');
+            }
+
+            applyTransforms();
+            showOSD(i18n[currentLang].toastAspect + mode.toUpperCase());
+        }
+
+        btnAspect43.addEventListener('click', () => setAspect('4:3'));
+        if (btnAspectCrop) btnAspectCrop.addEventListener('click', () => setAspect('crop'));
+        btnAspect169.addEventListener('click', () => setAspect('16:9'));
+        btnAspectFill.addEventListener('click', () => setAspect('fill'));
+
+        hudAspect43.addEventListener('click', () => setAspect('4:3'));
+        if (hudAspectCrop) hudAspectCrop.addEventListener('click', () => setAspect('crop'));
+        hudAspect169.addEventListener('click', () => setAspect('16:9'));
+        hudAspectStretch.addEventListener('click', () => setAspect('fill'));
+
+        // 4. PRESETS
+        btnPresetDefault.addEventListener('click', () => {
+            transformState.zoom = 1.0;
+            transformState.panX = 0;
+            transformState.panY = 0;
+            setAspect('4:3');
+        });
+
+        btnPresetGSM1080p.addEventListener('click', () => {
+            transformState.zoom = 1.08;
+            transformState.panX = 18;
+            transformState.panY = -12;
+            setAspect('16:9');
+        });
+
+        btnPresetGSM480p.addEventListener('click', () => {
+            transformState.zoom = 1.02;
+            transformState.panX = 0;
+            transformState.panY = 0;
+            setAspect('4:3');
+        });
+
+        btnPresetFullStretch.addEventListener('click', () => {
+            transformState.zoom = 1.0;
+            transformState.panX = 0;
+            transformState.panY = 0;
+            setAspect('fill');
+        });
+
+        btnResetPosOnly.addEventListener('click', resetPosition);
+        hudReset.addEventListener('click', resetPosition);
+
+        function resetPosition() {
+            transformState.zoom = 1.0;
+            transformState.panX = 0;
+            transformState.panY = 0;
+            applyTransforms();
+            showOSD(i18n[currentLang].toastReset);
+        }
+
+        btnResetColorOnly.addEventListener('click', () => {
+            transformState.brightness = 100;
+            transformState.contrast = 100;
+            transformState.saturate = 100;
+            applyTransforms();
+            showOSD(i18n[currentLang].toastReset);
+        });
+
+        // Scanlines
+        hudScanlines.addEventListener('click', () => {
+            transformState.scanlines = !transformState.scanlines;
+            scanlineEffect.style.opacity = transformState.scanlines ? '1' : '0';
+            showOSD(`Scanlines: ${transformState.scanlines ? 'ON' : 'OFF'}`);
+        });
+
+        // 5. SLIDER EVENT LISTENERS
+        sliderVolume.addEventListener('input', (e) => {
+            transformState.volume = parseFloat(e.target.value);
+            valVolume.textContent = `${Math.round(transformState.volume * 100)}%`;
+            if (gainNode && !transformState.isMuted) {
+                gainNode.gain.value = transformState.volume;
+            }
+        });
+
+        sliderZoom.addEventListener('input', (e) => {
+            transformState.zoom = parseFloat(e.target.value);
+            applyTransforms();
+        });
+
+        sliderPanX.addEventListener('input', (e) => {
+            transformState.panX = parseInt(e.target.value);
+            applyTransforms();
+        });
+
+        sliderPanY.addEventListener('input', (e) => {
+            transformState.panY = parseInt(e.target.value);
+            applyTransforms();
+        });
+
+        sliderBrightness.addEventListener('input', (e) => {
+            transformState.brightness = parseInt(e.target.value);
+            applyTransforms();
+        });
+
+        sliderContrast.addEventListener('input', (e) => {
+            transformState.contrast = parseInt(e.target.value);
+            applyTransforms();
+        });
+
+        sliderSaturate.addEventListener('input', (e) => {
+            transformState.saturate = parseInt(e.target.value);
+            applyTransforms();
+        });
+
+        btnMute.addEventListener('click', toggleMute);
+
+        function toggleMute() {
+            transformState.isMuted = !transformState.isMuted;
+            if (gainNode) {
+                gainNode.gain.value = transformState.isMuted ? 0 : transformState.volume;
+            }
+            if (transformState.isMuted) {
+                muteIcon.setAttribute('data-lucide', 'volume-x');
+                btnMute.classList.add('text-red-400', 'border-red-500/50');
+                showOSD(i18n[currentLang].toastMuted);
+            } else {
+                muteIcon.setAttribute('data-lucide', 'volume-2');
+                btnMute.classList.remove('text-red-400', 'border-red-500/50');
+                showOSD(i18n[currentLang].toastActive);
+            }
+            lucide.createIcons();
+        }
+
+        // 6. SCREENSHOT TOOL
+        btnScreenshot.addEventListener('click', takeScreenshot);
+
+        function takeScreenshot() {
+            if (!videoElement.srcObject || videoElement.readyState < 2) {
+                showOSD(i18n[currentLang].toastError);
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = videoElement.videoWidth || 1920;
+            canvas.height = videoElement.videoHeight || 1080;
+
+            ctx.filter = `brightness(${transformState.brightness}%) contrast(${transformState.contrast}%) saturate(${transformState.saturate}%)`;
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+            const link = document.createElement('a');
+            const dateStr = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            link.download = `PS2_Capture_${dateStr}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+
+            showOSD(i18n[currentLang].toastScreenshot);
+        }
+
+        // 7. FULLSCREEN & SIDEBAR CONTROLS
+        btnFullscreen.addEventListener('click', toggleFullscreen);
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                viewportContainer.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        btnToggleSidebar.addEventListener('click', () => {
+            controlSidebar.classList.toggle('hidden');
+        });
+        btnCloseSidebar.addEventListener('click', () => {
+            controlSidebar.classList.add('hidden');
+        });
+
+        // OSD Toast Helper
+        let osdTimeout = null;
+        function showOSD(msg) {
+            osdText.textContent = msg;
+            osdNotification.classList.remove('opacity-0');
+            if (osdTimeout) clearTimeout(osdTimeout);
+            osdTimeout = setTimeout(() => {
+                osdNotification.classList.add('opacity-0');
+            }, 2500);
+        }
+
+        // Keyboard Shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+            switch (e.key.toLowerCase()) {
+                case 'f':
+                    e.preventDefault();
+                    toggleFullscreen();
+                    break;
+                case 's':
+                    e.preventDefault();
+                    takeScreenshot();
+                    break;
+                case 'm':
+                    e.preventDefault();
+                    toggleMute();
+                    break;
+                case 'r':
+                    e.preventDefault();
+                    resetPosition();
+                    break;
+            }
+        });
+    </script>
 </body>
 </html>

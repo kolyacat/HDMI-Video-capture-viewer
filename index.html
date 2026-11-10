@@ -417,6 +417,24 @@
                         <input type="range" id="sliderZoom" min="0.5" max="2.5" step="0.01" value="1.00" class="w-full">
                     </div>
 
+                    <!-- Horizontal Stretch (Scale X) -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center text-xs">
+                            <span id="lblScaleX" class="text-pixel-textPrimary">Horizontal Stretch (Left/Right)</span>
+                            <span id="valScaleX" class="font-mono text-pixel-blue font-bold">1.00x</span>
+                        </div>
+                        <input type="range" id="sliderScaleX" min="0.5" max="2.0" step="0.01" value="1.00" class="w-full">
+                    </div>
+
+                    <!-- Vertical Stretch (Scale Y) -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-center text-xs">
+                            <span id="lblScaleY" class="text-pixel-textPrimary">Vertical Stretch (Top/Bottom)</span>
+                            <span id="valScaleY" class="font-mono text-pixel-blue font-bold">1.00x</span>
+                        </div>
+                        <input type="range" id="sliderScaleY" min="0.5" max="2.0" step="0.01" value="1.00" class="w-full">
+                    </div>
+
                     <!-- Pan X -->
                     <div class="space-y-1">
                         <div class="flex justify-between items-center text-xs">
@@ -572,6 +590,8 @@
                 presetStretch: "Full Stretch",
                 posHeading: "Position & Scale",
                 lblZoom: "Zoom Scale",
+                lblScaleX: "Horizontal Stretch (Left/Right)",
+                lblScaleY: "Vertical Stretch (Top/Bottom)",
                 lblPanX: "Horizontal Pan (X)",
                 lblPanY: "Vertical Pan (Y)",
                 audioHeading: "Volume Control",
@@ -635,6 +655,8 @@
                 presetStretch: "Tarik Penuh",
                 posHeading: "Posisi & Ukuran",
                 lblZoom: "Tingkat Zoom",
+                lblScaleX: "Luaskan Horisontal (Kiri/Kanan)",
+                lblScaleY: "Luaskan Vertikal (Atas/Bawah)",
                 lblPanX: "Geser Horisontal (X)",
                 lblPanY: "Geser Vertikal (Y)",
                 audioHeading: "Pengaturan Volume",
@@ -698,6 +720,8 @@
                 presetStretch: "Tarik Pinuh",
                 posHeading: "Posisi & Ukuran",
                 lblZoom: "Tingkat Zoom",
+                lblScaleX: "Papangkeun Kénca/Katuhu",
+                lblScaleY: "Papangkeun Luhur/Handap",
                 lblPanX: "Geser Kénca/Katuhu (X)",
                 lblPanY: "Geser Luhur/Handap (Y)",
                 audioHeading: "Setelan Swara",
@@ -778,6 +802,8 @@
 
             document.getElementById('txtPosHeading').children[1].textContent = t.posHeading;
             document.getElementById('lblZoom').textContent = t.lblZoom;
+            document.getElementById('lblScaleX').textContent = t.lblScaleX;
+            document.getElementById('lblScaleY').textContent = t.lblScaleY;
             document.getElementById('lblPanX').textContent = t.lblPanX;
             document.getElementById('lblPanY').textContent = t.lblPanY;
 
@@ -810,6 +836,8 @@
 
         // Sliders & Value Counters
         const sliderZoom = document.getElementById('sliderZoom');
+        const sliderScaleX = document.getElementById('sliderScaleX');
+        const sliderScaleY = document.getElementById('sliderScaleY');
         const sliderPanX = document.getElementById('sliderPanX');
         const sliderPanY = document.getElementById('sliderPanY');
         const sliderBrightness = document.getElementById('sliderBrightness');
@@ -818,6 +846,8 @@
         const sliderVolume = document.getElementById('sliderVolume');
 
         const valZoom = document.getElementById('valZoom');
+        const valScaleX = document.getElementById('valScaleX');
+        const valScaleY = document.getElementById('valScaleY');
         const valPanX = document.getElementById('valPanX');
         const valPanY = document.getElementById('valPanY');
         const valBrightness = document.getElementById('valBrightness');
@@ -861,6 +891,8 @@
         // Application Transform & Audio State
         let transformState = {
             zoom: 1.0,
+            scaleX: 1.0,
+            scaleY: 1.0,
             panX: 0,
             panY: 0,
             brightness: 100,
@@ -882,6 +914,8 @@
         // Apply Visual Transform Styles & Fit Rules
         function applyTransforms() {
             valZoom.textContent = transformState.zoom.toFixed(2) + 'x';
+            valScaleX.textContent = transformState.scaleX.toFixed(2) + 'x';
+            valScaleY.textContent = transformState.scaleY.toFixed(2) + 'x';
             valPanX.textContent = transformState.panX + 'px';
             valPanY.textContent = transformState.panY + 'px';
             valBrightness.textContent = transformState.brightness + '%';
@@ -889,7 +923,9 @@
             valSaturate.textContent = transformState.saturate + '%';
             valVolume.textContent = Math.round(transformState.volume * 100) + '%';
 
-            videoElement.style.transform = `scale(${transformState.zoom}) translate(${transformState.panX}px, ${transformState.panY}px)`;
+            const effectiveScaleX = (transformState.zoom * transformState.scaleX).toFixed(3);
+            const effectiveScaleY = (transformState.zoom * transformState.scaleY).toFixed(3);
+            videoElement.style.transform = `scale(${effectiveScaleX}, ${effectiveScaleY}) translate(${transformState.panX}px, ${transformState.panY}px)`;
             videoElement.style.filter = `brightness(${transformState.brightness}%) contrast(${transformState.contrast}%) saturate(${transformState.saturate}%)`;
 
             if (transformState.aspectMode === '43') {
@@ -1274,6 +1310,16 @@
             applyTransforms();
         });
 
+        sliderScaleX.addEventListener('input', (e) => {
+            transformState.scaleX = parseFloat(e.target.value);
+            applyTransforms();
+        });
+
+        sliderScaleY.addEventListener('input', (e) => {
+            transformState.scaleY = parseFloat(e.target.value);
+            applyTransforms();
+        });
+
         sliderPanX.addEventListener('input', (e) => {
             transformState.panX = parseInt(e.target.value);
             applyTransforms();
@@ -1329,9 +1375,13 @@
         // Reset Helpers & Quick Presets
         function resetPosition() {
             transformState.zoom = 1.0;
+            transformState.scaleX = 1.0;
+            transformState.scaleY = 1.0;
             transformState.panX = 0;
             transformState.panY = 0;
             sliderZoom.value = 1.0;
+            sliderScaleX.value = 1.0;
+            sliderScaleY.value = 1.0;
             sliderPanX.value = 0;
             sliderPanY.value = 0;
             applyTransforms();

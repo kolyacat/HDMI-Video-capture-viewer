@@ -304,6 +304,16 @@
                             </select>
                         </div>
 
+                        <div>
+                            <label id="lblVideoResolution" class="block text-[11px] text-pixel-textSecondary font-medium mb-1">Video Resolution & FPS</label>
+                            <select id="videoResolutionSelect" class="w-full bg-pixel-card border border-pixel-border/60 text-xs rounded-2xl p-2.5 text-pixel-textPrimary focus:outline-none focus:border-pixel-blue cursor-pointer">
+                                <option value="auto" id="optResAuto">Auto / Default</option>
+                                <option value="1080p60" id="optRes1080p">1080p @ 60 FPS (Full HD)</option>
+                                <option value="720p60" id="optRes720p" selected>720p @ 60 FPS (HD - Low Delay)</option>
+                                <option value="480p60" id="optRes480p">480p @ 60 FPS (SD)</option>
+                            </select>
+                        </div>
+
                         <div class="pt-1 flex gap-2">
                             <button id="btnStartCapture" class="flex-1 py-2 bg-pixel-blue text-pixel-bg hover:opacity-90 rounded-full font-bold transition flex items-center justify-center gap-1.5 text-xs shadow-md">
                                 <i data-lucide="power" class="w-3.5 h-3.5"></i>
@@ -542,6 +552,11 @@
                 deviceHeading: "Device Selector",
                 lblVideoInput: "Video Input Device",
                 lblAudioInput: "Audio Input Device",
+                lblVideoResolution: "Video Resolution & FPS",
+                optResAuto: "Auto / Default",
+                optRes1080p: "1080p @ 60 FPS (Full HD)",
+                optRes720p: "720p @ 60 FPS (HD - Low Delay)",
+                optRes480p: "480p @ 60 FPS (SD)",
                 selectVideoDefault: "-- Select Video Input --",
                 selectAudioDefault: "-- Select Audio Input --",
                 aspectHeading: "Aspect Ratio Controls",
@@ -568,14 +583,15 @@
                 kbdScreenshot: "Screenshot",
                 kbdMute: "Mute",
                 kbdReset: "Reset",
-                toastConnected: "HDMI Stream Connected (1080p HD & Screen Awake)",
+                toastConnected: "HDMI Stream Connected (Screen Awake)",
                 toastDisconnected: "Stream Disconnected",
                 toastError: "Failed to connect stream",
                 toastScreenshot: "Screenshot Saved",
                 toastMuted: "Audio Muted",
                 toastActive: "Audio Active",
                 toastReset: "Position & Color Reset",
-                toastAspect: "Aspect Mode: "
+                toastAspect: "Aspect Mode: ",
+                toastResChanged: "Resolution updated to: "
             },
             id: {
                 appTitle: "Penampil Layar HDMI Video Capture",
@@ -598,6 +614,11 @@
                 deviceHeading: "Pilih Perangkat Input",
                 lblVideoInput: "Perangkat Input Video",
                 lblAudioInput: "Perangkat Input Audio",
+                lblVideoResolution: "Resolusi Video & FPS",
+                optResAuto: "Otomatis / Bawaan",
+                optRes1080p: "1080p @ 60 FPS (Full HD)",
+                optRes720p: "720p @ 60 FPS (HD - Rendah Lag)",
+                optRes480p: "480p @ 60 FPS (SD)",
                 selectVideoDefault: "-- Pilih Input Video --",
                 selectAudioDefault: "-- Pilih Input Audio --",
                 aspectHeading: "Kontrol Rasio Layar",
@@ -631,7 +652,8 @@
                 toastMuted: "Audio Dibungkam",
                 toastActive: "Audio Aktif",
                 toastReset: "Pengaturan Layar Direset",
-                toastAspect: "Mode Rasio: "
+                toastAspect: "Mode Rasio: ",
+                toastResChanged: "Resolusi diubah ke: "
             },
             su: {
                 appTitle: "Panyawang Layar HDMI Video Capture",
@@ -654,6 +676,11 @@
                 deviceHeading: "Pilih Perangkat Input",
                 lblVideoInput: "Alat Input Pidéo",
                 lblAudioInput: "Alat Input Swara",
+                lblVideoResolution: "Resolusi Pidéo & FPS",
+                optResAuto: "Otomatis / Bawaan",
+                optRes1080p: "1080p @ 60 FPS (Full HD)",
+                optRes720p: "720p @ 60 FPS (HD - Rendah Lag)",
+                optRes480p: "480p @ 60 FPS (SD)",
                 selectVideoDefault: "-- Pilih Input Pidéo --",
                 selectAudioDefault: "-- Pilih Input Swara --",
                 aspectHeading: "Kontrol Rasio Layar",
@@ -687,7 +714,8 @@
                 toastMuted: "Swara Dipareumkeun",
                 toastActive: "Swara Hurung",
                 toastReset: "Setelan Layar Dipuleangkeun",
-                toastAspect: "Mode Rasio: "
+                toastAspect: "Mode Rasio: ",
+                toastResChanged: "Resolusi dirobih ka: "
             }
         };
 
@@ -725,6 +753,11 @@
             document.getElementById('txtDeviceHeading').children[1].textContent = t.deviceHeading;
             document.getElementById('lblVideoInput').textContent = t.lblVideoInput;
             document.getElementById('lblAudioInput').textContent = t.lblAudioInput;
+            document.getElementById('lblVideoResolution').textContent = t.lblVideoResolution;
+            document.getElementById('optResAuto').textContent = t.optResAuto;
+            document.getElementById('optRes1080p').textContent = t.optRes1080p;
+            document.getElementById('optRes720p').textContent = t.optRes720p;
+            document.getElementById('optRes480p').textContent = t.optRes480p;
             document.getElementById('txtBtnConnect').textContent = currentStream ? t.btnDisconnect : t.btnConnect;
 
             document.getElementById('txtAspectHeading').children[1].textContent = t.aspectHeading;
@@ -765,6 +798,7 @@
 
         const videoSourceSelect = document.getElementById('videoSourceSelect');
         const audioSourceSelect = document.getElementById('audioSourceSelect');
+        const videoResolutionSelect = document.getElementById('videoResolutionSelect');
         const btnStartCapture = document.getElementById('btnStartCapture');
         const btnStartCaptureDirect = document.getElementById('btnStartCaptureDirect');
         const btnRefreshDevices = document.getElementById('btnRefreshDevices');
@@ -898,6 +932,7 @@
         async function startCapture() {
             const videoId = videoSourceSelect.value;
             const audioId = audioSourceSelect.value;
+            const resVal = videoResolutionSelect.value;
 
             if (currentStream) {
                 releaseWakeLock();
@@ -924,17 +959,32 @@
                 autoGainControl: false
             };
 
+            // DYNAMIC RESOLUTION & FPS CONSTRAINTS
+            let videoConstraints = {
+                deviceId: videoId ? { exact: videoId } : undefined
+            };
+
+            if (resVal === '1080p60') {
+                videoConstraints.width = { ideal: 1920 };
+                videoConstraints.height = { ideal: 1080 };
+                videoConstraints.frameRate = { ideal: 60, min: 30 };
+            } else if (resVal === '720p60') {
+                videoConstraints.width = { ideal: 1280 };
+                videoConstraints.height = { ideal: 720 };
+                videoConstraints.frameRate = { ideal: 60, min: 30 };
+            } else if (resVal === '480p60') {
+                videoConstraints.width = { ideal: 720 };
+                videoConstraints.height = { ideal: 480 };
+                videoConstraints.frameRate = { ideal: 60, min: 30 };
+            } else {
+                // Auto / Default
+                videoConstraints.width = { ideal: 1920, min: 1280 };
+                videoConstraints.height = { ideal: 1080, min: 720 };
+                videoConstraints.frameRate = { ideal: 60, min: 30 };
+            }
+
             const constraints = {
-                video: videoId ? { 
-                    deviceId: { exact: videoId }, 
-                    width: { ideal: 1920, min: 1280 }, 
-                    height: { ideal: 1080, min: 720 }, 
-                    frameRate: { ideal: 60, min: 30 } 
-                } : {
-                    width: { ideal: 1920, min: 1280 }, 
-                    height: { ideal: 1080, min: 720 }, 
-                    frameRate: { ideal: 60, min: 30 }
-                },
+                video: videoConstraints,
                 audio: audioConstraints
             };
 
@@ -943,11 +993,7 @@
                 
                 const videoTrack = currentStream.getVideoTracks()[0];
                 if (videoTrack && videoTrack.applyConstraints) {
-                    await videoTrack.applyConstraints({
-                        width: { ideal: 1920, min: 1280 },
-                        height: { ideal: 1080, min: 720 },
-                        frameRate: { ideal: 60, min: 30 }
-                    }).catch(e => console.log("Constraint fallback:", e));
+                    await videoTrack.applyConstraints(videoConstraints).catch(e => console.log("Constraint fallback:", e));
                 }
                 
                 videoElement.srcObject = currentStream;
@@ -968,227 +1014,14 @@
         btnStartCapture.addEventListener('click', startCapture);
         btnStartCaptureDirect.addEventListener('click', startCapture);
 
-        // 2. AUDIO PIPELINE & METERING
-        function setupAudioPipeline(stream) {
-            const audioTracks = stream.getAudioTracks();
-            if (audioTracks.length === 0) return;
-
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 });
-            }
-
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-
-            if (mediaStreamSource) mediaStreamSource.disconnect();
-            if (gainNode) gainNode.disconnect();
-            if (analyser) analyser.disconnect();
-
-            mediaStreamSource = audioCtx.createMediaStreamSource(stream);
-            gainNode = audioCtx.createGain();
-            analyser = audioCtx.createAnalyser();
-
-            analyser.fftSize = 64;
-
-            mediaStreamSource.connect(gainNode);
-            gainNode.connect(analyser);
-            analyser.connect(audioCtx.destination);
-
-            gainNode.gain.value = transformState.isMuted ? 0 : transformState.volume;
-
-            drawAudioMeter();
-        }
-
-        function drawAudioMeter() {
-            if (!analyser) return;
-            const canvasCtx = audioMeterCanvas.getContext('2d');
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-
-            function render() {
-                animFrameId = requestAnimationFrame(render);
-                analyser.getByteFrequencyData(dataArray);
-
-                let sum = 0;
-                for (let i = 0; i < bufferLength; i++) {
-                    sum += dataArray[i];
-                }
-                let average = sum / bufferLength;
-                let volumePercent = average / 255;
-
-                canvasCtx.clearRect(0, 0, audioMeterCanvas.width, audioMeterCanvas.height);
-                canvasCtx.fillStyle = '#1C1B1F';
-                canvasCtx.fillRect(0, 0, audioMeterCanvas.width, audioMeterCanvas.height);
-
-                let barWidth = audioMeterCanvas.width * Math.min(volumePercent * 2, 1);
-                let gradient = canvasCtx.createLinearGradient(0, 0, audioMeterCanvas.width, 0);
-                gradient.addColorStop(0, '#A6F4C5');
-                gradient.addColorStop(0.7, '#A8C7FA');
-                gradient.addColorStop(1, '#F2B8B5');
-
-                canvasCtx.fillStyle = transformState.isMuted ? '#49454F' : gradient;
-                canvasCtx.fillRect(0, 0, barWidth, audioMeterCanvas.height);
-            }
-
-            if (animFrameId) cancelAnimationFrame(animFrameId);
-            render();
-        }
-
-        // 3. TRANSFORM & ASPECT MATRIX
-        function applyTransforms() {
-            videoElement.style.filter = `brightness(${transformState.brightness}%) contrast(${transformState.contrast}%) saturate(${transformState.saturate}%)`;
-            videoElement.style.transform = `translate(${transformState.panX}px, ${transformState.panY}px) scale(${transformState.zoom})`;
-
-            videoElement.style.removeProperty('aspect-ratio');
-            videoElement.style.removeProperty('width');
-            videoElement.style.removeProperty('height');
-            videoElement.style.removeProperty('object-fit');
-            videoElement.style.removeProperty('max-width');
-            videoElement.style.removeProperty('max-height');
-
-            if (transformState.aspect === '4:3') {
-                videoElement.style.aspectRatio = '4 / 3';
-                videoElement.style.maxHeight = '100%';
-                videoElement.style.maxWidth = '100%';
-                videoElement.style.width = 'auto';
-                videoElement.style.height = '100%';
-                videoElement.style.objectFit = 'contain';
-            } else if (transformState.aspect === 'crop') {
-                videoElement.style.width = '100%';
-                videoElement.style.height = '100%';
-                videoElement.style.objectFit = 'cover';
-            } else if (transformState.aspect === '16:9') {
-                videoElement.style.aspectRatio = '16 / 9';
-                videoElement.style.maxHeight = '100%';
-                videoElement.style.maxWidth = '100%';
-                videoElement.style.width = '100%';
-                videoElement.style.height = '100%';
-                videoElement.style.objectFit = 'contain';
-            } else if (transformState.aspect === 'fill') {
-                videoElement.style.width = '100%';
-                videoElement.style.height = '100%';
-                videoElement.style.objectFit = 'fill';
-            } else {
-                videoElement.style.maxWidth = '100%';
-                videoElement.style.maxHeight = '100%';
-                videoElement.style.objectFit = 'contain';
-            }
-
-            valZoom.textContent = `${parseFloat(transformState.zoom).toFixed(2)}x`;
-            valPanX.textContent = `${transformState.panX}px`;
-            valPanY.textContent = `${transformState.panY}px`;
-            valBrightness.textContent = `${transformState.brightness}%`;
-            valContrast.textContent = `${transformState.contrast}%`;
-            valSaturate.textContent = `${transformState.saturate}%`;
-
-            sliderZoom.value = transformState.zoom;
-            sliderPanX.value = transformState.panX;
-            sliderPanY.value = transformState.panY;
-            sliderBrightness.value = transformState.brightness;
-            sliderContrast.value = transformState.contrast;
-            sliderSaturate.value = transformState.saturate;
-        }
-
-        function setAspect(mode) {
-            transformState.aspect = mode;
-            
-            document.querySelectorAll('.aspect-btn').forEach(btn => {
-                btn.classList.remove('bg-pixel-blue', 'text-pixel-bg', 'border-pixel-blue');
-                btn.classList.add('bg-pixel-card', 'text-pixel-textPrimary', 'border-pixel-border/60');
-                const check = btn.querySelector('.aspect-check');
-                if (check) check.classList.add('hidden');
-            });
-
-            let activeBtn = btnAspect43;
-            if (mode === '4:3') activeBtn = btnAspect43;
-            if (mode === 'crop') activeBtn = btnAspectCrop;
-            if (mode === '16:9') activeBtn = btnAspect169;
-            if (mode === 'fill') activeBtn = btnAspectFill;
-
-            if (activeBtn) {
-                activeBtn.classList.replace('bg-pixel-card', 'bg-pixel-blue');
-                activeBtn.classList.replace('text-pixel-textPrimary', 'text-pixel-bg');
-                activeBtn.classList.replace('border-pixel-border/60', 'border-pixel-blue');
-                const activeCheck = activeBtn.querySelector('.aspect-check');
-                if (activeCheck) activeCheck.classList.remove('hidden');
-            }
-
-            applyTransforms();
-            showOSD(i18n[currentLang].toastAspect + mode.toUpperCase());
-        }
-
-        btnAspect43.addEventListener('click', () => setAspect('4:3'));
-        if (btnAspectCrop) btnAspectCrop.addEventListener('click', () => setAspect('crop'));
-        btnAspect169.addEventListener('click', () => setAspect('16:9'));
-        btnAspectFill.addEventListener('click', () => setAspect('fill'));
-
-        hudAspect43.addEventListener('click', () => setAspect('4:3'));
-        if (hudAspectCrop) hudAspectCrop.addEventListener('click', () => setAspect('crop'));
-        hudAspect169.addEventListener('click', () => setAspect('16:9'));
-        hudAspectStretch.addEventListener('click', () => setAspect('fill'));
-
-        // 4. PRESETS
-        btnPresetDefault.addEventListener('click', () => {
-            transformState.zoom = 1.0;
-            transformState.panX = 0;
-            transformState.panY = 0;
-            setAspect('4:3');
-        });
-
-        btnPresetGSM1080p.addEventListener('click', () => {
-            transformState.zoom = 1.05;
-            transformState.panX = 0;
-            transformState.panY = 0;
-            setAspect('16:9');
-        });
-
-        btnPresetGSM480p.addEventListener('click', () => {
-            transformState.zoom = 1.0;
-            transformState.panX = 0;
-            transformState.panY = 0;
-            setAspect('4:3');
-        });
-
-        btnPresetFullStretch.addEventListener('click', () => {
-            transformState.zoom = 1.0;
-            transformState.panX = 0;
-            transformState.panY = 0;
-            setAspect('fill');
-        });
-
-        btnResetPosOnly.addEventListener('click', resetPosition);
-        hudReset.addEventListener('click', resetPosition);
-
-        function resetPosition() {
-            transformState.zoom = 1.0;
-            transformState.panX = 0;
-            transformState.panY = 0;
-            applyTransforms();
-            showOSD(i18n[currentLang].toastReset);
-        }
-
-        btnResetColorOnly.addEventListener('click', () => {
-            transformState.brightness = 100;
-            transformState.contrast = 100;
-            transformState.saturate = 100;
-            applyTransforms();
-            showOSD(i18n[currentLang].toastReset);
-        });
-
-        // Scanlines
-        hudScanlines.addEventListener('click', () => {
-            transformState.scanlines = !transformState.scanlines;
-            scanlineEffect.style.opacity = transformState.scanlines ? '1' : '0';
-            showOSD(`Scanlines: ${transformState.scanlines ? 'ON' : 'OFF'}`);
-        });
-
-        // 5. SLIDER EVENT LISTENERS
-        sliderVolume.addEventListener('input', (e) => {
-            transformState.volume = parseFloat(e.target.value);
-            valVolume.textContent = `${Math.round(transformState.volume * 100)}%`;
-            if (gainNode && !transformState.isMuted) {
-                gainNode.gain.value = transformState.volume;
+        // Auto restart capture with new constraints when resolution changes
+        videoResolutionSelect.addEventListener('change', async () => {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+                await startCapture();
+                const selectedText = videoResolutionSelect.options[videoResolutionSelect.selectedIndex].text;
+                showOSD(i18n[currentLang].toastResChanged + selectedText.split(' ')[0]);
             }
         });
 

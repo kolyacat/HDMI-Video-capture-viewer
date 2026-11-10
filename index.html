@@ -568,7 +568,7 @@
                 kbdScreenshot: "Screenshot",
                 kbdMute: "Mute",
                 kbdReset: "Reset",
-                toastConnected: "HDMI Stream Connected (1080p HD)",
+                toastConnected: "HDMI Stream Connected (1080p HD & Screen Awake)",
                 toastDisconnected: "Stream Disconnected",
                 toastError: "Failed to connect stream",
                 toastScreenshot: "Screenshot Saved",
@@ -624,7 +624,7 @@
                 kbdScreenshot: "Foto Layar",
                 kbdMute: "Bungkam",
                 kbdReset: "Reset",
-                toastConnected: "Sinyal HDMI Terhubung (1080p HD)",
+                toastConnected: "Sinyal HDMI Terhubung (Layar Tetap Menyala)",
                 toastDisconnected: "Sinyal Terputus",
                 toastError: "Gagal menghubungkan sinyal video",
                 toastScreenshot: "Foto Layar Berhasil Disimpan",
@@ -680,7 +680,7 @@
                 kbdScreenshot: "Potrét Layar",
                 kbdMute: "Pareum Swara",
                 kbdReset: "Puleangkeun",
-                toastConnected: "Sinyal HDMI Parantos Disambungkeun (1080p HD)",
+                toastConnected: "Sinyal HDMI Disambungkeun (Layar Dijaga Caang)",
                 toastDisconnected: "Sinyal Dipegatkeun",
                 toastError: "Teu tiasa nyambungkeun pidéo",
                 toastScreenshot: "Potrét Layar Parantos Disimpen",
@@ -826,27 +826,35 @@
         let gainNode = null;
         let analyser = null;
         let animFrameId = null;
+        let wakeLock = null; // Screen Wake Lock API Instance
 
-        let transformState = {
-            zoom: 1.0,
-            panX: 0,
-            panY: 0,
-            brightness: 100,
-            contrast: 100,
-            saturate: 100,
-            aspect: '4:3',
-            isMuted: false,
-            volume: 1.0,
-            scanlines: false
-        };
+        // Screen Wake Lock API (Prevents display from sleeping during active capture)
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator && currentStream) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => {
+                        wakeLock = null;
+                    });
+                } catch (err) {
+                    console.log(`Screen Wake Lock Error: ${err.name}, ${err.message}`);
+                }
+            }
+        }
 
-        // Initialize Lucide Icons & i18n
-        lucide.createIcons();
-        changeLanguage(currentLang);
+        function releaseWakeLock() {
+            if (wakeLock !== null) {
+                wakeLock.release().then(() => {
+                    wakeLock = null;
+                });
+            }
+        }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            getDevices();
-            setAspect('4:3');
+        // Auto re-acquire wake lock if tab visibility changes back to visible
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock === null && document.visibilityState === 'visible' && currentStream) {
+                await requestWakeLock();
+            }
         });
 
         // 1. DEVICE ENUMERATION & CAPTURE ENGINE
@@ -892,6 +900,7 @@
             const audioId = audioSourceSelect.value;
 
             if (currentStream) {
+                releaseWakeLock();
                 currentStream.getTracks().forEach(track => track.stop());
                 currentStream = null;
                 videoElement.srcObject = null;
@@ -948,6 +957,7 @@
                 document.getElementById('txtBtnConnect').textContent = i18n[currentLang].btnDisconnect;
 
                 setupAudioPipeline(currentStream);
+                await requestWakeLock(); // Activate Screen Wake Lock
                 showOSD(i18n[currentLang].toastConnected);
             } catch (err) {
                 console.error("Error starting stream:", err);

@@ -110,10 +110,12 @@
             background-size: 100% 4px;
         }
 
-        /* Crisp High Definition Rendering */
+        /* Hardware Accelerated & Smooth Anti-Aliased Video Canvas */
         #hdmiVideo {
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
+            image-rendering: auto; /* Default smooth bilinear interpolation to eliminate jagged/over-sharp edges */
+            will-change: transform; /* Hint GPU for high 60fps transform performance */
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
         }
     </style>
 </head>
@@ -202,7 +204,7 @@
                     </button>
                 </div>
 
-                <!-- VIDEO ELEMENT (TRANSFORM BOUND INSIDE 16:9 CONTAINER) -->
+                <!-- VIDEO ELEMENT (HARDWARE ACCELERATED 3D TRANSFORM) -->
                 <div id="screenWrapper" class="relative w-full h-full flex items-center justify-center overflow-hidden">
                     <video id="hdmiVideo" autoplay playsinline class="max-w-full max-h-full origin-center transition-all duration-75 object-contain">
                     </video>
@@ -311,6 +313,15 @@
                                 <option value="1080p60" id="optRes1080p">1080p @ 60 FPS (Full HD)</option>
                                 <option value="720p60" id="optRes720p" selected>720p @ 60 FPS (HD - Low Delay)</option>
                                 <option value="480p60" id="optRes480p">480p @ 60 FPS (SD)</option>
+                            </select>
+                        </div>
+
+                        <!-- VIDEO SMOOTHING / ANTI-ALIAS TOGGLE -->
+                        <div>
+                            <label id="lblVideoSmoothing" class="block text-[11px] text-pixel-textSecondary font-medium mb-1">Video Rendering Filter</label>
+                            <select id="videoSmoothingSelect" class="w-full bg-pixel-card border border-pixel-border/60 text-xs rounded-2xl p-2.5 text-pixel-textPrimary focus:outline-none focus:border-pixel-blue cursor-pointer">
+                                <option value="smooth" id="optSmooth" selected>Smooth (Bilinear / Anti-Jagged)</option>
+                                <option value="crisp" id="optCrisp">Crisp (Sharp / Pixelated)</option>
                             </select>
                         </div>
 
@@ -571,10 +582,13 @@
                 lblVideoInput: "Video Input Device",
                 lblAudioInput: "Audio Input Device",
                 lblVideoResolution: "Video Resolution & FPS",
+                lblVideoSmoothing: "Video Rendering Filter",
                 optResAuto: "Auto / Default",
                 optRes1080p: "1080p @ 60 FPS (Full HD)",
                 optRes720p: "720p @ 60 FPS (HD - Low Delay)",
                 optRes480p: "480p @ 60 FPS (SD)",
+                optSmooth: "Smooth (Bilinear / Anti-Jagged)",
+                optCrisp: "Crisp (Sharp / Pixelated)",
                 selectVideoDefault: "-- Select Video Input --",
                 selectAudioDefault: "-- Select Audio Input --",
                 aspectHeading: "Aspect Ratio Controls",
@@ -612,7 +626,8 @@
                 toastReset: "Position & Color Reset",
                 toastAspect: "Aspect Mode: ",
                 toastResChanged: "Resolution updated to: ",
-                toastSwitched: "Switched to: "
+                toastSwitched: "Switched to: ",
+                toastFilterChanged: "Filter set to: "
             },
             id: {
                 appTitle: "Penampil Layar HDMI Video Capture",
@@ -636,10 +651,13 @@
                 lblVideoInput: "Perangkat Input Video",
                 lblAudioInput: "Perangkat Input Audio",
                 lblVideoResolution: "Resolusi Video & FPS",
+                lblVideoSmoothing: "Mode Kehalusan Gambar",
                 optResAuto: "Otomatis / Bawaan",
                 optRes1080p: "1080p @ 60 FPS (Full HD)",
                 optRes720p: "720p @ 60 FPS (HD - Rendah Lag)",
                 optRes480p: "480p @ 60 FPS (SD)",
+                optSmooth: "Halus (Bilinear / Bebas Bergerigi)",
+                optCrisp: "Tajam (Pixelated / Bergerigi)",
                 selectVideoDefault: "-- Pilih Input Video --",
                 selectAudioDefault: "-- Pilih Input Audio --",
                 aspectHeading: "Kontrol Rasio Layar",
@@ -677,7 +695,8 @@
                 toastReset: "Pengaturan Layar Direset",
                 toastAspect: "Mode Rasio: ",
                 toastResChanged: "Resolusi diubah ke: ",
-                toastSwitched: "Beralih ke: "
+                toastSwitched: "Beralih ke: ",
+                toastFilterChanged: "Filter diubah ke: "
             },
             su: {
                 appTitle: "Panyawang Layar HDMI Video Capture",
@@ -701,10 +720,13 @@
                 lblVideoInput: "Alat Input Pidéo",
                 lblAudioInput: "Alat Input Swara",
                 lblVideoResolution: "Resolusi Pidéo & FPS",
+                lblVideoSmoothing: "Mode Kehalusan Pidéo",
                 optResAuto: "Otomatis / Bawaan",
                 optRes1080p: "1080p @ 60 FPS (Full HD)",
                 optRes720p: "720p @ 60 FPS (HD - Rendah Lag)",
                 optRes480p: "480p @ 60 FPS (SD)",
+                optSmooth: "Lemes (Bilinear / Bebas Bergerigi)",
+                optCrisp: "Seukeut (Pixelated / Bergerigi)",
                 selectVideoDefault: "-- Pilih Input Pidéo --",
                 selectAudioDefault: "-- Pilih Input Swara --",
                 aspectHeading: "Kontrol Rasio Layar",
@@ -742,7 +764,8 @@
                 toastReset: "Setelan Layar Dipuleangkeun",
                 toastAspect: "Mode Rasio: ",
                 toastResChanged: "Resolusi dirobih ka: ",
-                toastSwitched: "Ngarobih ka: "
+                toastSwitched: "Ngarobih ka: ",
+                toastFilterChanged: "Filter dirobih ka: "
             }
         };
 
@@ -781,10 +804,13 @@
             document.getElementById('lblVideoInput').textContent = t.lblVideoInput;
             document.getElementById('lblAudioInput').textContent = t.lblAudioInput;
             document.getElementById('lblVideoResolution').textContent = t.lblVideoResolution;
+            document.getElementById('lblVideoSmoothing').textContent = t.lblVideoSmoothing;
             document.getElementById('optResAuto').textContent = t.optResAuto;
             document.getElementById('optRes1080p').textContent = t.optRes1080p;
             document.getElementById('optRes720p').textContent = t.optRes720p;
             document.getElementById('optRes480p').textContent = t.optRes480p;
+            document.getElementById('optSmooth').textContent = t.optSmooth;
+            document.getElementById('optCrisp').textContent = t.optCrisp;
             document.getElementById('txtBtnConnect').textContent = currentStream ? t.btnDisconnect : t.btnConnect;
 
             document.getElementById('txtAspectHeading').children[1].textContent = t.aspectHeading;
@@ -830,6 +856,7 @@
         const videoSourceSelect = document.getElementById('videoSourceSelect');
         const audioSourceSelect = document.getElementById('audioSourceSelect');
         const videoResolutionSelect = document.getElementById('videoResolutionSelect');
+        const videoSmoothingSelect = document.getElementById('videoSmoothingSelect');
         const btnStartCapture = document.getElementById('btnStartCapture');
         const btnStartCaptureDirect = document.getElementById('btnStartCaptureDirect');
         const btnRefreshDevices = document.getElementById('btnRefreshDevices');
@@ -900,6 +927,7 @@
             saturate: 100,
             volume: 1.0,
             isMuted: false,
+            smoothing: 'smooth', // 'smooth' (bilinear) or 'crisp' (pixelated)
             aspectMode: '43' // '43', 'crop', '169', 'fill'
         };
 
@@ -911,7 +939,7 @@
         let animFrameId = null;
         let wakeLock = null; // Screen Wake Lock instance
 
-        // Apply Visual Transform Styles & Fit Rules
+        // Apply Visual Transform Styles & Fit Rules with GPU Hardware Acceleration
         function applyTransforms() {
             valZoom.textContent = transformState.zoom.toFixed(2) + 'x';
             valScaleX.textContent = transformState.scaleX.toFixed(2) + 'x';
@@ -923,10 +951,25 @@
             valSaturate.textContent = transformState.saturate + '%';
             valVolume.textContent = Math.round(transformState.volume * 100) + '%';
 
-            const effectiveScaleX = (transformState.zoom * transformState.scaleX).toFixed(3);
-            const effectiveScaleY = (transformState.zoom * transformState.scaleY).toFixed(3);
-            videoElement.style.transform = `scale(${effectiveScaleX}, ${effectiveScaleY}) translate(${transformState.panX}px, ${transformState.panY}px)`;
-            videoElement.style.filter = `brightness(${transformState.brightness}%) contrast(${transformState.contrast}%) saturate(${transformState.saturate}%)`;
+            const effectiveScaleX = (transformState.zoom * transformState.scaleX).toFixed(4);
+            const effectiveScaleY = (transformState.zoom * transformState.scaleY).toFixed(4);
+
+            // 3D Hardware Accelerated Transform (Bypasses CPU redraws for 60FPS fluid motion)
+            videoElement.style.transform = `translate3d(${transformState.panX}px, ${transformState.panY}px, 0px) scale3d(${effectiveScaleX}, ${effectiveScaleY}, 1)`;
+
+            // Performance Filter Bypass: Only apply CSS filter when values differ from 100%
+            if (transformState.brightness === 100 && transformState.contrast === 100 && transformState.saturate === 100) {
+                videoElement.style.filter = 'none';
+            } else {
+                videoElement.style.filter = `brightness(${transformState.brightness}%) contrast(${transformState.contrast}%) saturate(${transformState.saturate}%)`;
+            }
+
+            // Image Smoothing Switch (Bilinear smooth vs Crisp pixelated)
+            if (transformState.smoothing === 'smooth') {
+                videoElement.style.imageRendering = 'auto';
+            } else {
+                videoElement.style.imageRendering = 'pixelated';
+            }
 
             if (transformState.aspectMode === '43') {
                 videoElement.style.objectFit = 'contain';
@@ -1221,6 +1264,13 @@
             }
         });
 
+        videoSmoothingSelect.addEventListener('change', (e) => {
+            transformState.smoothing = e.target.value;
+            applyTransforms();
+            const filterLabel = e.target.options[e.target.selectedIndex].text.split(' ')[0];
+            showOSD(i18n[currentLang].toastFilterChanged + filterLabel);
+        });
+
         // 3. RAW STEREO AUDIO PIPELINE & VU METER CANVAS
         function setupAudioPipeline(stream) {
             const audioTracks = stream.getAudioTracks();
@@ -1402,6 +1452,8 @@
             resetPosition();
             resetColor();
             transformState.aspectMode = '43';
+            transformState.smoothing = 'smooth';
+            videoSmoothingSelect.value = 'smooth';
             transformState.volume = 1.0;
             transformState.isMuted = false;
             sliderVolume.value = 1.0;
@@ -1456,7 +1508,10 @@
             canvas.width = videoElement.videoWidth || 1920;
             canvas.height = videoElement.videoHeight || 1080;
 
-            ctx.filter = `brightness(${transformState.brightness}%) contrast(${transformState.contrast}%) saturate(${transformState.saturate}%)`;
+            if (transformState.brightness !== 100 || transformState.contrast !== 100 || transformState.saturate !== 100) {
+                ctx.filter = `brightness(${transformState.brightness}%) contrast(${transformState.contrast}%) saturate(${transformState.saturate}%)`;
+            }
+
             ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
             const link = document.createElement('a');

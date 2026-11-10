@@ -292,14 +292,14 @@
                     <div class="space-y-2">
                         <div>
                             <label id="lblVideoInput" class="block text-[11px] text-pixel-textSecondary font-medium mb-1">Video Input Device</label>
-                            <select id="videoSourceSelect" class="w-full bg-pixel-card border border-pixel-border/60 text-xs rounded-2xl p-2.5 text-pixel-textPrimary focus:outline-none focus:border-pixel-blue">
+                            <select id="videoSourceSelect" class="w-full bg-pixel-card border border-pixel-border/60 text-xs rounded-2xl p-2.5 text-pixel-textPrimary focus:outline-none focus:border-pixel-blue cursor-pointer">
                                 <option value="">-- Select Video Input --</option>
                             </select>
                         </div>
 
                         <div>
                             <label id="lblAudioInput" class="block text-[11px] text-pixel-textSecondary font-medium mb-1">Audio Input Device</label>
-                            <select id="audioSourceSelect" class="w-full bg-pixel-card border border-pixel-border/60 text-xs rounded-2xl p-2.5 text-pixel-textPrimary focus:outline-none focus:border-pixel-blue">
+                            <select id="audioSourceSelect" class="w-full bg-pixel-card border border-pixel-border/60 text-xs rounded-2xl p-2.5 text-pixel-textPrimary focus:outline-none focus:border-pixel-blue cursor-pointer">
                                 <option value="">-- Select Audio Input --</option>
                             </select>
                         </div>
@@ -585,13 +585,14 @@
                 kbdReset: "Reset",
                 toastConnected: "HDMI Stream Connected (Screen Awake)",
                 toastDisconnected: "Stream Disconnected",
-                toastError: "Failed to connect stream",
+                toastError: "Failed to connect stream / device busy",
                 toastScreenshot: "Screenshot Saved",
                 toastMuted: "Audio Muted",
                 toastActive: "Audio Active",
                 toastReset: "Position & Color Reset",
                 toastAspect: "Aspect Mode: ",
-                toastResChanged: "Resolution updated to: "
+                toastResChanged: "Resolution updated to: ",
+                toastSwitched: "Switched to: "
             },
             id: {
                 appTitle: "Penampil Layar HDMI Video Capture",
@@ -647,13 +648,14 @@
                 kbdReset: "Reset",
                 toastConnected: "Sinyal HDMI Terhubung (Layar Tetap Menyala)",
                 toastDisconnected: "Sinyal Terputus",
-                toastError: "Gagal menghubungkan sinyal video",
+                toastError: "Gagal menghubungkan sinyal / perangkat sibuk",
                 toastScreenshot: "Foto Layar Berhasil Disimpan",
                 toastMuted: "Audio Dibungkam",
                 toastActive: "Audio Aktif",
                 toastReset: "Pengaturan Layar Direset",
                 toastAspect: "Mode Rasio: ",
-                toastResChanged: "Resolusi diubah ke: "
+                toastResChanged: "Resolusi diubah ke: ",
+                toastSwitched: "Beralih ke: "
             },
             su: {
                 appTitle: "Panyawang Layar HDMI Video Capture",
@@ -715,7 +717,8 @@
                 toastActive: "Swara Hurung",
                 toastReset: "Setelan Layar Dipuleangkeun",
                 toastAspect: "Mode Rasio: ",
-                toastResChanged: "Resolusi dirobih ka: "
+                toastResChanged: "Resolusi dirobih ka: ",
+                toastSwitched: "Ngarobih ka: "
             }
         };
 
@@ -788,6 +791,8 @@
             document.getElementById('txtKbdScreenshot').textContent = t.kbdScreenshot;
             document.getElementById('txtKbdMute').textContent = t.kbdMute;
             document.getElementById('txtKbdReset').textContent = t.kbdReset;
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         // DOM Elements
@@ -803,7 +808,7 @@
         const btnStartCaptureDirect = document.getElementById('btnStartCaptureDirect');
         const btnRefreshDevices = document.getElementById('btnRefreshDevices');
 
-        // Sliders & Values
+        // Sliders & Value Counters
         const sliderZoom = document.getElementById('sliderZoom');
         const sliderPanX = document.getElementById('sliderPanX');
         const sliderPanY = document.getElementById('sliderPanY');
@@ -853,14 +858,88 @@
         const osdText = document.getElementById('osdText');
         const audioMeterCanvas = document.getElementById('audioMeterCanvas');
 
-        // Application State
+        // Application Transform & Audio State
+        let transformState = {
+            zoom: 1.0,
+            panX: 0,
+            panY: 0,
+            brightness: 100,
+            contrast: 100,
+            saturate: 100,
+            volume: 1.0,
+            isMuted: false,
+            aspectMode: '43' // '43', 'crop', '169', 'fill'
+        };
+
         let currentStream = null;
         let audioCtx = null;
         let mediaStreamSource = null;
         let gainNode = null;
         let analyser = null;
         let animFrameId = null;
-        let wakeLock = null; // Screen Wake Lock API Instance
+        let wakeLock = null; // Screen Wake Lock instance
+
+        // Apply Visual Transform Styles & Fit Rules
+        function applyTransforms() {
+            valZoom.textContent = transformState.zoom.toFixed(2) + 'x';
+            valPanX.textContent = transformState.panX + 'px';
+            valPanY.textContent = transformState.panY + 'px';
+            valBrightness.textContent = transformState.brightness + '%';
+            valContrast.textContent = transformState.contrast + '%';
+            valSaturate.textContent = transformState.saturate + '%';
+            valVolume.textContent = Math.round(transformState.volume * 100) + '%';
+
+            videoElement.style.transform = `scale(${transformState.zoom}) translate(${transformState.panX}px, ${transformState.panY}px)`;
+            videoElement.style.filter = `brightness(${transformState.brightness}%) contrast(${transformState.contrast}%) saturate(${transformState.saturate}%)`;
+
+            if (transformState.aspectMode === '43') {
+                videoElement.style.objectFit = 'contain';
+                videoElement.style.aspectRatio = '4 / 3';
+            } else if (transformState.aspectMode === 'crop') {
+                videoElement.style.objectFit = 'cover';
+                videoElement.style.aspectRatio = '16 / 9';
+            } else if (transformState.aspectMode === '169') {
+                videoElement.style.objectFit = 'contain';
+                videoElement.style.aspectRatio = '16 / 9';
+            } else if (transformState.aspectMode === 'fill') {
+                videoElement.style.objectFit = 'fill';
+                videoElement.style.aspectRatio = '16 / 9';
+            }
+
+            updateAspectUI(transformState.aspectMode);
+        }
+
+        function updateAspectUI(mode) {
+            const aspectBtns = [
+                { btn: btnAspect43, mode: '43' },
+                { btn: btnAspectCrop, mode: 'crop' },
+                { btn: btnAspect169, mode: '169' },
+                { btn: btnAspectFill, mode: 'fill' }
+            ];
+
+            aspectBtns.forEach(item => {
+                const checkIcon = item.btn.querySelector('.aspect-check');
+                if (item.mode === mode) {
+                    item.btn.className = "aspect-btn py-2 px-3 bg-pixel-blue text-pixel-bg border border-pixel-blue text-xs rounded-2xl font-bold transition text-left flex flex-col shadow-sm";
+                    if (checkIcon) checkIcon.classList.remove('hidden');
+                } else {
+                    item.btn.className = "aspect-btn py-2 px-3 bg-pixel-card border border-pixel-border/60 text-pixel-textPrimary text-xs rounded-2xl font-bold transition text-left flex flex-col hover:bg-pixel-cardHover";
+                    if (checkIcon) checkIcon.classList.add('hidden');
+                }
+            });
+        }
+
+        function setAspectMode(mode) {
+            transformState.aspectMode = mode;
+            applyTransforms();
+            const modeNames = {
+                '43': i18n[currentLang].hud43,
+                'crop': i18n[currentLang].hudCrop,
+                '169': i18n[currentLang].hud169,
+                'fill': i18n[currentLang].hudStretch
+            };
+            showOSD(i18n[currentLang].toastAspect + (modeNames[mode] || mode));
+        }
 
         // Screen Wake Lock API (Prevents display from sleeping during active capture)
         async function requestWakeLock() {
@@ -884,41 +963,88 @@
             }
         }
 
-        // Auto re-acquire wake lock if tab visibility changes back to visible
         document.addEventListener('visibilitychange', async () => {
             if (wakeLock === null && document.visibilityState === 'visible' && currentStream) {
                 await requestWakeLock();
             }
         });
 
-        // 1. DEVICE ENUMERATION & CAPTURE ENGINE
+        // 1. DEVICE PERMISSION, ENUMERATION & AUTO-DETECTION ENGINE
         async function getDevices() {
             try {
-                const tempStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true }).catch(() => null);
+                // Request camera/mic permission upfront to unlock real hardware labels
+                let permStream = null;
+                try {
+                    permStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                } catch (pErr) {
+                    try {
+                        permStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    } catch (vErr) {
+                        console.warn("Could not acquire upfront camera permissions", vErr);
+                    }
+                }
+
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 
+                // Release temporary permission stream right away
+                if (permStream) {
+                    permStream.getTracks().forEach(track => track.stop());
+                }
+
                 const t = i18n[currentLang];
+                const prevSelectedVideo = videoSourceSelect.value;
+                const prevSelectedAudio = audioSourceSelect.value;
+
                 videoSourceSelect.innerHTML = `<option value="">${t.selectVideoDefault}</option>`;
                 audioSourceSelect.innerHTML = `<option value="">${t.selectAudioDefault}</option>`;
+
+                let detectedCaptureVideoId = null;
+                let detectedCaptureAudioId = null;
+
+                const captureKeywords = ['capture', 'hdmi', 'usb video', 'cam link', 'fhd camera', 'video capture', 'usb camera', 'u capture'];
 
                 devices.forEach(device => {
                     const option = document.createElement('option');
                     option.value = device.deviceId;
+                    const labelLower = (device.label || '').toLowerCase();
 
                     if (device.kind === 'videoinput') {
-                        option.text = device.label || `HDMI Video Device (${videoSourceSelect.length})`;
+                        option.text = device.label || `Video Input Device (${videoSourceSelect.length})`;
                         videoSourceSelect.appendChild(option);
+
+                        // Auto-detection logic for HDMI Capture Card
+                        if (!detectedCaptureVideoId && captureKeywords.some(kw => labelLower.includes(kw))) {
+                            if (!labelLower.includes('integrated') && !labelLower.includes('built-in') && !labelLower.includes('facetime')) {
+                                detectedCaptureVideoId = device.deviceId;
+                            }
+                        }
                     } else if (device.kind === 'audioinput') {
-                        option.text = device.label || `HDMI Audio Device (${audioSourceSelect.length})`;
+                        option.text = device.label || `Audio Input Device (${audioSourceSelect.length})`;
                         audioSourceSelect.appendChild(option);
+
+                        if (!detectedCaptureAudioId && captureKeywords.some(kw => labelLower.includes(kw))) {
+                            if (!labelLower.includes('internal') && !labelLower.includes('built-in') && !labelLower.includes('realtek')) {
+                                detectedCaptureAudioId = device.deviceId;
+                            }
+                        }
                     }
                 });
 
-                if (videoSourceSelect.options.length > 1) videoSourceSelect.selectedIndex = 1;
-                if (audioSourceSelect.options.length > 1) audioSourceSelect.selectedIndex = 1;
+                // Auto Pre-Selection
+                if (prevSelectedVideo && [...videoSourceSelect.options].some(o => o.value === prevSelectedVideo)) {
+                    videoSourceSelect.value = prevSelectedVideo;
+                } else if (detectedCaptureVideoId) {
+                    videoSourceSelect.value = detectedCaptureVideoId;
+                } else if (videoSourceSelect.options.length > 1) {
+                    videoSourceSelect.selectedIndex = 1;
+                }
 
-                if (tempStream) {
-                    tempStream.getTracks().forEach(track => track.stop());
+                if (prevSelectedAudio && [...audioSourceSelect.options].some(o => o.value === prevSelectedAudio)) {
+                    audioSourceSelect.value = prevSelectedAudio;
+                } else if (detectedCaptureAudioId) {
+                    audioSourceSelect.value = detectedCaptureAudioId;
+                } else if (audioSourceSelect.options.length > 1) {
+                    audioSourceSelect.selectedIndex = 1;
                 }
 
             } catch (err) {
@@ -928,7 +1054,9 @@
         }
 
         btnRefreshDevices.addEventListener('click', getDevices);
+        navigator.mediaDevices.addEventListener('devicechange', getDevices);
 
+        // 2. LIVE STREAM CAPTURE ENGINE
         async function startCapture() {
             const videoId = videoSourceSelect.value;
             const audioId = audioSourceSelect.value;
@@ -945,7 +1073,12 @@
                 return;
             }
 
-            // RAW UNPROCESSED AUDIO CONSTRAINTS
+            if (!videoId) {
+                showOSD(i18n[currentLang].selectVideoDefault);
+                return;
+            }
+
+            // Raw Unprocessed Stereo Audio Constraints
             const audioConstraints = audioId ? {
                 deviceId: { exact: audioId },
                 echoCancellation: false,
@@ -959,9 +1092,9 @@
                 autoGainControl: false
             };
 
-            // DYNAMIC RESOLUTION & FPS CONSTRAINTS
+            // Video Constraints based on Resolution Selector
             let videoConstraints = {
-                deviceId: videoId ? { exact: videoId } : undefined
+                deviceId: { exact: videoId }
             };
 
             if (resVal === '1080p60') {
@@ -977,7 +1110,6 @@
                 videoConstraints.height = { ideal: 480 };
                 videoConstraints.frameRate = { ideal: 60, min: 30 };
             } else {
-                // Auto / Default
                 videoConstraints.width = { ideal: 1920, min: 1280 };
                 videoConstraints.height = { ideal: 1080, min: 720 };
                 videoConstraints.frameRate = { ideal: 60, min: 30 };
@@ -991,30 +1123,58 @@
             try {
                 currentStream = await navigator.mediaDevices.getUserMedia(constraints);
                 
-                const videoTrack = currentStream.getVideoTracks()[0];
-                if (videoTrack && videoTrack.applyConstraints) {
-                    await videoTrack.applyConstraints(videoConstraints).catch(e => console.log("Constraint fallback:", e));
-                }
-                
                 videoElement.srcObject = currentStream;
-                videoElement.muted = true; // Audio routed via Web Audio API
+                videoElement.muted = true; // Audio output handled by Web Audio API Node
 
                 placeholderState.classList.add('hidden');
                 document.getElementById('txtBtnConnect').textContent = i18n[currentLang].btnDisconnect;
 
                 setupAudioPipeline(currentStream);
-                await requestWakeLock(); // Activate Screen Wake Lock
+                await requestWakeLock();
                 showOSD(i18n[currentLang].toastConnected);
             } catch (err) {
                 console.error("Error starting stream:", err);
-                showOSD(i18n[currentLang].toastError);
+                // Fallback without exact device ID if constraint fails
+                try {
+                    currentStream = await navigator.mediaDevices.getUserMedia({
+                        video: { deviceId: videoId },
+                        audio: audioId ? { deviceId: audioId } : true
+                    });
+                    videoElement.srcObject = currentStream;
+                    videoElement.muted = true;
+                    placeholderState.classList.add('hidden');
+                    document.getElementById('txtBtnConnect').textContent = i18n[currentLang].btnDisconnect;
+                    setupAudioPipeline(currentStream);
+                    await requestWakeLock();
+                    showOSD(i18n[currentLang].toastConnected);
+                } catch (fallbackErr) {
+                    showOSD(i18n[currentLang].toastError);
+                }
             }
         }
 
         btnStartCapture.addEventListener('click', startCapture);
         btnStartCaptureDirect.addEventListener('click', startCapture);
 
-        // Auto restart capture with new constraints when resolution changes
+        // LIVE INPUT SWITCHING: Instant device & resolution switching on dropdown selection
+        videoSourceSelect.addEventListener('change', async () => {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+                await startCapture();
+                const selectedLabel = videoSourceSelect.options[videoSourceSelect.selectedIndex].text;
+                showOSD(i18n[currentLang].toastSwitched + selectedLabel.split('(')[0]);
+            }
+        });
+
+        audioSourceSelect.addEventListener('change', async () => {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+                await startCapture();
+            }
+        });
+
         videoResolutionSelect.addEventListener('change', async () => {
             if (currentStream) {
                 currentStream.getTracks().forEach(track => track.stop());
@@ -1024,6 +1184,90 @@
                 showOSD(i18n[currentLang].toastResChanged + selectedText.split(' ')[0]);
             }
         });
+
+        // 3. RAW STEREO AUDIO PIPELINE & VU METER CANVAS
+        function setupAudioPipeline(stream) {
+            const audioTracks = stream.getAudioTracks();
+            if (audioTracks.length === 0) return;
+
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                if (mediaStreamSource) {
+                    mediaStreamSource.disconnect();
+                }
+
+                mediaStreamSource = audioCtx.createMediaStreamSource(stream);
+                gainNode = audioCtx.createGain();
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 64;
+
+                gainNode.gain.value = transformState.isMuted ? 0 : transformState.volume;
+
+                mediaStreamSource.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                gainNode.connect(analyser);
+
+                drawAudioMeter();
+            } catch (e) {
+                console.error("Audio pipeline error:", e);
+            }
+        }
+
+        function drawAudioMeter() {
+            if (!analyser || !audioMeterCanvas) return;
+            const ctx = audioMeterCanvas.getContext('2d');
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+
+            function renderFrame() {
+                if (!currentStream) {
+                    ctx.clearRect(0, 0, audioMeterCanvas.width, audioMeterCanvas.height);
+                    return;
+                }
+                animFrameId = requestAnimationFrame(renderFrame);
+                analyser.getByteFrequencyData(dataArray);
+
+                let sum = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    sum += dataArray[i];
+                }
+                const average = sum / bufferLength;
+                const level = Math.min(1, average / 128);
+
+                ctx.clearRect(0, 0, audioMeterCanvas.width, audioMeterCanvas.height);
+                ctx.fillStyle = '#49454F';
+                ctx.fillRect(0, 0, audioMeterCanvas.width, audioMeterCanvas.height);
+
+                const fillWidth = level * audioMeterCanvas.width;
+                const gradient = ctx.createLinearGradient(0, 0, audioMeterCanvas.width, 0);
+                gradient.addColorStop(0, '#A6F4C5');
+                gradient.addColorStop(0.7, '#A8C7FA');
+                gradient.addColorStop(1, '#F2B8B5');
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, fillWidth, audioMeterCanvas.height);
+            }
+
+            if (animFrameId) cancelAnimationFrame(animFrameId);
+            renderFrame();
+        }
+
+        // 4. ASPECT RATIO & TRANSFORM EVENT LISTENERS
+        btnAspect43.addEventListener('click', () => setAspectMode('43'));
+        btnAspectCrop.addEventListener('click', () => setAspectMode('crop'));
+        btnAspect169.addEventListener('click', () => setAspectMode('169'));
+        btnAspectFill.addEventListener('click', () => setAspectMode('fill'));
+
+        hudAspect43.addEventListener('click', () => setAspectMode('43'));
+        hudAspectCrop.addEventListener('click', () => setAspectMode('crop'));
+        hudAspect169.addEventListener('click', () => setAspectMode('169'));
+        hudAspectStretch.addEventListener('click', () => setAspectMode('fill'));
 
         sliderZoom.addEventListener('input', (e) => {
             transformState.zoom = parseFloat(e.target.value);
@@ -1055,6 +1299,14 @@
             applyTransforms();
         });
 
+        sliderVolume.addEventListener('input', (e) => {
+            transformState.volume = parseFloat(e.target.value);
+            if (gainNode && !transformState.isMuted) {
+                gainNode.gain.value = transformState.volume;
+            }
+            applyTransforms();
+        });
+
         btnMute.addEventListener('click', toggleMute);
 
         function toggleMute() {
@@ -1071,10 +1323,75 @@
                 btnMute.classList.remove('text-red-400', 'border-red-500/50');
                 showOSD(i18n[currentLang].toastActive);
             }
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        // 6. SCREENSHOT TOOL
+        // Reset Helpers & Quick Presets
+        function resetPosition() {
+            transformState.zoom = 1.0;
+            transformState.panX = 0;
+            transformState.panY = 0;
+            sliderZoom.value = 1.0;
+            sliderPanX.value = 0;
+            sliderPanY.value = 0;
+            applyTransforms();
+            showOSD(i18n[currentLang].toastReset);
+        }
+
+        function resetColor() {
+            transformState.brightness = 100;
+            transformState.contrast = 100;
+            transformState.saturate = 100;
+            sliderBrightness.value = 100;
+            sliderContrast.value = 100;
+            sliderSaturate.value = 100;
+            applyTransforms();
+        }
+
+        function resetAllDefaults() {
+            resetPosition();
+            resetColor();
+            transformState.aspectMode = '43';
+            transformState.volume = 1.0;
+            transformState.isMuted = false;
+            sliderVolume.value = 1.0;
+            if (gainNode) gainNode.gain.value = 1.0;
+            applyTransforms();
+        }
+
+        btnResetPosOnly.addEventListener('click', resetPosition);
+        btnResetColorOnly.addEventListener('click', resetColor);
+        btnPresetDefault.addEventListener('click', resetAllDefaults);
+        hudReset.addEventListener('click', resetAllDefaults);
+
+        btnPresetGSM1080p.addEventListener('click', () => {
+            resetPosition();
+            setAspectMode('169');
+        });
+
+        btnPresetGSM480p.addEventListener('click', () => {
+            resetPosition();
+            setAspectMode('43');
+        });
+
+        btnPresetFullStretch.addEventListener('click', () => {
+            resetPosition();
+            setAspectMode('fill');
+        });
+
+        let scanlinesActive = false;
+        hudScanlines.addEventListener('click', () => {
+            scanlinesActive = !scanlinesActive;
+            if (scanlinesActive) {
+                scanlineEffect.classList.remove('opacity-0');
+                scanlineEffect.classList.add('opacity-100');
+            } else {
+                scanlineEffect.classList.remove('opacity-100');
+                scanlineEffect.classList.add('opacity-0');
+            }
+        });
+
+        // 5. SCREENSHOT TOOL
         btnScreenshot.addEventListener('click', takeScreenshot);
 
         function takeScreenshot() {
@@ -1101,7 +1418,7 @@
             showOSD(i18n[currentLang].toastScreenshot);
         }
 
-        // 7. FULLSCREEN & SIDEBAR CONTROLS
+        // 6. FULLSCREEN & SIDEBAR CONTROLS
         btnFullscreen.addEventListener('click', toggleFullscreen);
 
         function toggleFullscreen() {
@@ -1153,6 +1470,13 @@
                     break;
             }
         });
+
+        // Initial Setup on Page Load
+        window.onload = function() {
+            getDevices();
+            changeLanguage(currentLang);
+            applyTransforms();
+        };
     </script>
 </body>
 </html>

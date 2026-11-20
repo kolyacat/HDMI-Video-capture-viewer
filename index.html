@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark" data-theme="liquid-glass">
+<html lang="en" data-theme="liquid">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,338 +12,200 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* ==========================================================================
-           DUAL-THEME DESIGN TOKENS:
-           1. Default: iOS Liquid Glass (data-theme="liquid-glass")
-           2. Preserved: Google Pixel Material You (data-theme="material-you")
-           ========================================================================== */
-        :root,
-        [data-theme="liquid-glass"] {
-            --font-ui: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', sans-serif;
-            --bg-canvas: #07090e;
-            --surface-bg: rgba(18, 22, 32, 0.55);
-            --card-bg: rgba(255, 255, 255, 0.07);
-            --card-hover: rgba(255, 255, 255, 0.14);
-            --input-bg: rgba(255, 255, 255, 0.08);
-            --glass-blur: blur(28px) saturate(185%);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.22);
-            --glass-divider: rgba(255, 255, 255, 0.14);
-            --glass-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.42), inset 0 -1px 1px rgba(255, 255, 255, 0.08), 0 12px 36px rgba(0, 0, 0, 0.45);
-            --pill-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 4px 16px rgba(0, 0, 0, 0.3);
-            --accent-primary: #0A84FF;
-            --accent-secondary: #64D2FF;
-            --accent-container: rgba(10, 132, 255, 0.24);
-            --on-accent: #FFFFFF;
-            --badge-green: #30D158;
-            --badge-green-bg: rgba(48, 209, 88, 0.16);
-            --badge-green-border: rgba(48, 209, 88, 0.38);
-            --text-primary: #F5F7FA;
-            --text-secondary: rgba(235, 240, 245, 0.68);
-            --orb-opacity: 1;
-            --sheen-opacity: 1;
+        :root {
             color-scheme: dark;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
         }
 
-        [data-theme="material-you"] {
-            --font-ui: 'Inter', 'Roboto', 'Segoe UI', sans-serif;
-            --bg-canvas: #131316;
-            --surface-bg: #1C1B1F;
-            --card-bg: #2B2930;
-            --card-hover: #36343B;
-            --input-bg: #2B2930;
+        /* =====================================================================
+           THEME 1: LIQUID GLASS (iOS) - DEFAULT
+           ===================================================================== */
+        html[data-theme="liquid"] {
+            --bg-app: #07090e;
+            --glass-bg: rgba(24, 28, 38, 0.55);
+            --glass-blur: blur(18px) saturate(175%);
+            --glass-border: rgba(255, 255, 255, 0.22);
+            --glass-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.34), 0 12px 32px rgba(0, 0, 0, 0.45);
+            
+            /* Lightweight inner card (NO backdrop-filter inside scroll containers) */
+            --card-bg: rgba(255, 255, 255, 0.06);
+            --card-border: rgba(255, 255, 255, 0.14);
+            --card-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+            --card-radius: 20px;
+
+            /* Pill Buttons & Inputs */
+            --pill-bg: rgba(255, 255, 255, 0.09);
+            --pill-hover: rgba(255, 255, 255, 0.16);
+            --pill-border: rgba(255, 255, 255, 0.18);
+            --pill-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
+
+            /* iOS Liquid Blue Active / Accent */
+            --accent-bg: rgba(10, 132, 255, 0.38);
+            --accent-hover: rgba(10, 132, 255, 0.48);
+            --accent-text: #ffffff;
+            --accent-border: rgba(100, 210, 255, 0.65);
+            --accent-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.45), 0 4px 14px rgba(10, 132, 255, 0.28);
+            --accent-highlight: #64d2ff;
+
+            /* Typography & Badges */
+            --text-primary: #f5f7fa;
+            --text-secondary: rgba(235, 240, 250, 0.68);
+            --badge-green-bg: rgba(48, 209, 88, 0.16);
+            --badge-green-text: #63e685;
+            --badge-green-border: rgba(48, 209, 88, 0.38);
+            --slider-accent: #0a84ff;
+            --option-bg: #141822;
+        }
+
+        /* =====================================================================
+           THEME 2: GOOGLE PIXEL MATERIAL YOU (MONET) DARK THEME - PRESERVED
+           ===================================================================== */
+        html[data-theme="monet"] {
+            --bg-app: #131316;
+            --glass-bg: #1C1B1F;
             --glass-blur: none;
-            --glass-border: 1px solid rgba(73, 69, 79, 0.65);
-            --glass-divider: rgba(73, 69, 79, 0.45);
-            --glass-shadow: 0 10px 28px rgba(0, 0, 0, 0.48);
+            --glass-border: #49454F;
+            --glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+            --card-bg: #2B2930;
+            --card-border: #49454F;
+            --card-shadow: none;
+            --card-radius: 24px;
+
+            --pill-bg: #2B2930;
+            --pill-hover: #36343B;
+            --pill-border: #49454F;
             --pill-shadow: none;
-            --accent-primary: #A8C7FA;
-            --accent-secondary: #D0BCFF;
-            --accent-container: #004A77;
-            --on-accent: #131316;
-            --badge-green: #A6F4C5;
-            --badge-green-bg: rgba(6, 78, 59, 0.72);
-            --badge-green-border: rgba(16, 185, 129, 0.35);
+
+            --accent-bg: #D0BCFF;
+            --accent-hover: #E8DEF8;
+            --accent-text: #381E72;
+            --accent-border: #D0BCFF;
+            --accent-shadow: none;
+            --accent-highlight: #A8C7FA;
+
             --text-primary: #E6E1E5;
             --text-secondary: #CAC4D0;
-            --orb-opacity: 0;
-            --sheen-opacity: 0;
-            color-scheme: dark;
+            --badge-green-bg: rgba(166, 244, 197, 0.12);
+            --badge-green-text: #A6F4C5;
+            --badge-green-border: rgba(166, 244, 197, 0.3);
+            --slider-accent: #A8C7FA;
+            --option-bg: #2B2930;
         }
 
         * {
             box-sizing: border-box;
+            font-family: var(--font-sans);
         }
 
         body {
-            background-color: var(--bg-canvas);
+            background-color: var(--bg-app);
             color: var(--text-primary);
-            font-family: var(--font-ui);
-            transition: background-color 0.35s ease, color 0.3s ease;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.25s ease, color 0.2s ease;
         }
 
-        /* ==========================================================================
-           AMBIENT LIQUID AURORA LIGHT ORBS (iOS Liquid Glass Theme Only)
-           ========================================================================== */
-        .ambient-orbs {
+        /* Static GPU-Composited Ambient Light Layer for Liquid Glass Refraction */
+        .ambient-backdrop {
             position: fixed;
             inset: 0;
-            overflow: hidden;
             pointer-events: none;
             z-index: 0;
-            opacity: var(--orb-opacity);
-            transition: opacity 0.45s ease;
+            transform: translateZ(0);
+            background:
+                radial-gradient(circle at 16% 18%, rgba(10, 132, 255, 0.16) 0%, transparent 46%),
+                radial-gradient(circle at 84% 78%, rgba(94, 92, 230, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 52% 45%, rgba(100, 210, 255, 0.06) 0%, transparent 45%);
+            opacity: 1;
+            transition: opacity 0.25s ease;
         }
 
-        .liquid-orb {
-            position: absolute;
-            border-radius: 9999px;
-            filter: blur(95px);
-            will-change: transform;
+        html[data-theme="monet"] .ambient-backdrop {
+            opacity: 0;
         }
 
-        .orb-sapphire {
-            width: 44vw;
-            height: 44vw;
-            min-width: 320px;
-            min-height: 320px;
-            top: -12%;
-            left: -8%;
-            background: radial-gradient(circle, rgba(10, 132, 255, 0.32) 0%, rgba(10, 132, 255, 0) 70%);
-            animation: driftOrbOne 22s ease-in-out infinite alternate;
-        }
-
-        .orb-indigo {
-            width: 48vw;
-            height: 48vw;
-            min-width: 340px;
-            min-height: 340px;
-            bottom: -16%;
-            right: -6%;
-            background: radial-gradient(circle, rgba(94, 92, 230, 0.30) 0%, rgba(94, 92, 230, 0) 70%);
-            animation: driftOrbTwo 26s ease-in-out infinite alternate;
-        }
-
-        .orb-cyan {
-            width: 36vw;
-            height: 36vw;
-            min-width: 260px;
-            min-height: 260px;
-            top: 38%;
-            left: 42%;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.20) 0%, rgba(56, 189, 248, 0) 70%);
-            animation: driftOrbThree 19s ease-in-out infinite alternate;
-        }
-
-        @keyframes driftOrbOne {
-            0% { transform: translate3d(0, 0, 0) scale(1); }
-            100% { transform: translate3d(7vw, 6vh, 0) scale(1.12); }
-        }
-
-        @keyframes driftOrbTwo {
-            0% { transform: translate3d(0, 0, 0) scale(1.05); }
-            100% { transform: translate3d(-8vw, -7vh, 0) scale(0.95); }
-        }
-
-        @keyframes driftOrbThree {
-            0% { transform: translate3d(-4vw, 3vh, 0) scale(0.95); }
-            100% { transform: translate3d(5vw, -5vh, 0) scale(1.1); }
-        }
-
-        /* Hide ambient orbs in Fullscreen mode */
-        :fullscreen .ambient-orbs {
-            display: none !important;
-        }
-
-        /* ==========================================================================
-           GLASSMORPHISM & SURFACE UTILITIES
-           ========================================================================== */
-        .theme-surface {
-            background: var(--surface-bg);
+        /* Top-Level Frosted Glass Surface (Header & HUD Only) */
+        .glass-surface {
+            background-color: var(--glass-bg);
             backdrop-filter: var(--glass-blur);
             -webkit-backdrop-filter: var(--glass-blur);
-            border: var(--glass-border);
+            border-color: var(--glass-border);
             box-shadow: var(--glass-shadow);
-            transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
+            transition: background-color 0.25s ease, border-color 0.25s ease;
         }
 
-        .theme-header {
-            background: var(--surface-bg);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            border-bottom: var(--glass-border);
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.28);
-            transition: background 0.3s ease, border-color 0.3s ease;
-        }
-
-        .theme-footer {
-            background: var(--surface-bg);
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            border-top: var(--glass-border);
-            transition: background 0.3s ease, border-color 0.3s ease;
-        }
-
-        .theme-card {
-            background: var(--card-bg);
-            border: var(--glass-border);
+        /* Glossy Pill Controls & Selectors */
+        .ui-pill {
+            background-color: var(--pill-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--pill-border);
             box-shadow: var(--pill-shadow);
-            color: var(--text-primary);
-            transition: all 0.22s ease;
+            border-radius: 9999px;
+            transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
         }
-
-        .theme-card:hover {
-            background: var(--card-hover);
+        .ui-pill:hover {
+            background-color: var(--pill-hover);
         }
-
-        .theme-input {
-            background-color: var(--input-bg);
-            border: var(--glass-border);
-            color: var(--text-primary);
-            box-shadow: var(--pill-shadow);
-            transition: all 0.2s ease;
-        }
-
-        .theme-input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-        }
-
-        .theme-input option {
-            background-color: #141822;
-            color: #F5F7FA;
-        }
-
-        .theme-divider {
-            border-color: var(--glass-divider);
-        }
-
-        .theme-text-primary {
-            color: var(--text-primary);
-        }
-
-        .theme-text-secondary {
-            color: var(--text-secondary);
-        }
-
-        .theme-accent-text {
-            color: var(--accent-primary);
-        }
-
-        .theme-secondary-accent {
-            color: var(--accent-secondary);
-        }
-
-        /* Glossy Liquid Pill Buttons with Light-Sheen Hover Effect */
-        .theme-pill-primary {
-            background: var(--accent-primary);
-            color: var(--on-accent);
-            border: 1px solid rgba(255, 255, 255, 0.28);
-            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.45), 0 6px 20px rgba(10, 132, 255, 0.28);
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.16s ease, filter 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        [data-theme="material-you"] .theme-pill-primary {
-            border-color: transparent;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        .theme-pill-primary:hover {
-            filter: brightness(1.08);
-        }
-
-        .theme-pill-primary:active,
-        .theme-card:active {
+        .ui-pill:active {
             transform: scale(0.97);
         }
 
-        .theme-pill-container {
-            background: var(--accent-container);
-            color: var(--accent-secondary);
-            border: 1px solid rgba(100, 210, 255, 0.32);
+        .ui-pill-accent {
+            background-color: var(--accent-bg);
+            color: var(--accent-text);
+            border: 1px solid var(--accent-border);
+            box-shadow: var(--accent-shadow);
+            border-radius: 9999px;
+            transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+        }
+        .ui-pill-accent:hover {
+            background-color: var(--accent-hover);
+        }
+        .ui-pill-accent:active {
+            transform: scale(0.97);
+        }
+
+        /* Native Select & Option Styling */
+        .ui-select {
+            background-color: var(--pill-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--pill-border);
             box-shadow: var(--pill-shadow);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.2s ease;
+            transition: background-color 0.18s ease, border-color 0.18s ease;
+        }
+        .ui-select:hover, .ui-select:focus {
+            background-color: var(--pill-hover);
+            border-color: var(--accent-highlight);
+            outline: none;
+        }
+        .ui-select option {
+            background-color: var(--option-bg);
+            color: var(--text-primary);
         }
 
-        [data-theme="material-you"] .theme-pill-container {
-            color: var(--accent-primary);
-            border-color: rgba(168, 199, 250, 0.35);
-        }
-
-        .theme-pill-container:hover {
-            filter: brightness(1.12);
-        }
-
-        /* Specular Sheen Sweep on Hover for Liquid Glass Buttons */
-        .liquid-sheen {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .liquid-sheen::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -120%;
-            width: 70%;
-            height: 100%;
-            background: linear-gradient(
-                115deg,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, 0.26) 50%,
-                rgba(255, 255, 255, 0) 100%
-            );
-            opacity: var(--sheen-opacity);
-            transform: skewX(-20deg);
-            transition: left 0.55s ease;
-            pointer-events: none;
-        }
-
-        .liquid-sheen:hover::after {
-            left: 150%;
-        }
-
-        .theme-badge-green {
-            color: var(--badge-green);
-            background: var(--badge-green-bg);
+        /* Status Badge */
+        .badge-green {
+            background-color: var(--badge-green-bg);
+            color: var(--badge-green-text);
             border: 1px solid var(--badge-green-border);
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 7px;
-            height: 7px;
+        .text-highlight {
+            color: var(--accent-highlight);
         }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.22);
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.38);
+        .text-sub {
+            color: var(--text-secondary);
         }
 
-        /* Range Slider Styling */
-        input[type=range] {
-            accent-color: var(--accent-primary);
-            height: 6px;
-            border-radius: 9999px;
-            cursor: pointer;
-        }
-
-        /* ==========================================================================
-           STRICT 16:9 VIEWPORT CONTAINER LOCK
-           ========================================================================== */
+        /* =====================================================================
+           STRICT 16:9 VIEWPORT FRAME (LOCKED CONTAINER)
+           ===================================================================== */
         .viewport-frame {
             aspect-ratio: 16 / 9 !important;
             width: 100%;
-            max-height: calc(100vh - 145px);
-            max-width: min(100%, calc((100vh - 145px) * (16 / 9)));
+            max-height: calc(100vh - 110px);
+            max-width: calc((100vh - 110px) * (16 / 9));
             margin: auto;
             position: relative;
             display: flex;
@@ -351,13 +213,12 @@
             justify-content: center;
             overflow: hidden;
             background-color: #000000;
-            border-radius: 1.75rem;
-            border: var(--glass-border);
-            box-shadow: var(--glass-shadow);
-            transition: border-radius 0.25s ease, box-shadow 0.3s ease;
+            border-radius: 26px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.65);
+            transition: border-color 0.25s ease;
         }
 
-        /* Fullscreen Mode Override - Expands cleanly to 100vw x 100vh */
         :fullscreen .viewport-frame,
         #viewportContainer:fullscreen .viewport-frame,
         .viewport-frame:fullscreen {
@@ -371,63 +232,167 @@
             aspect-ratio: auto !important;
         }
 
+        /* =====================================================================
+           ZERO-LAG GPU SLIDE-OVER SETTINGS DRAWER
+           ===================================================================== */
+        .settings-drawer {
+            position: fixed;
+            top: 72px;
+            right: 12px;
+            bottom: 42px;
+            width: 344px;
+            max-width: calc(100vw - 24px);
+            border-radius: 24px;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+
+            background-color: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+
+            /* GPU-only transform animation (zero layout reflow) */
+            transform: translate3d(calc(100% + 28px), 0, 0);
+            opacity: 0;
+            pointer-events: none;
+            will-change: transform;
+            contain: layout style;
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease, background-color 0.25s ease, border-color 0.25s ease;
+        }
+
+        .settings-drawer.open {
+            transform: translate3d(0, 0, 0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Dedicated Scroll Layer - Isolated from video playback & blur passes */
+        .drawer-scroll-body {
+            flex: 1;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            transform: translateZ(0);
+            padding: 14px;
+        }
+
+        /* Lightweight Inner Setting Cards - ZERO backdrop-filter for 120fps scrolling */
+        .setting-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+            border-radius: var(--card-radius);
+            padding: 14px;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        /* Slim Custom Scrollbar */
+        .drawer-scroll-body::-webkit-scrollbar {
+            width: 5px;
+        }
+        .drawer-scroll-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .drawer-scroll-body::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.22);
+            border-radius: 9999px;
+        }
+        .drawer-scroll-body::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.38);
+        }
+
+        /* Range Sliders */
+        input[type=range] {
+            accent-color: var(--slider-accent);
+            height: 6px;
+            border-radius: 9999px;
+            cursor: pointer;
+        }
+
+        /* CRT Scanline Overlay */
         .scanline-overlay {
             background: linear-gradient(
                 to bottom,
-                rgba(255, 255, 255, 0),
-                rgba(255, 255, 255, 0) 50%,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
                 rgba(0, 0, 0, 0.35) 50%,
                 rgba(0, 0, 0, 0.35)
             );
             background-size: 100% 4px;
         }
 
-        /* Hardware Accelerated Video Canvas */
+        /* Hardware-Accelerated Video Element */
         #hdmiVideo {
             image-rendering: auto;
             will-change: transform;
             backface-visibility: hidden;
             transform-style: preserve-3d;
         }
+
+        /* Active HUD Item Highlight */
+        .hud-btn {
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 9999px;
+            transition: background-color 0.18s ease, color 0.18s ease;
+        }
+        .hud-btn:hover {
+            color: var(--text-primary);
+            background-color: var(--pill-hover);
+        }
+        .hud-btn.active {
+            background-color: var(--accent-bg);
+            color: var(--accent-text);
+            font-weight: 700;
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col overflow-x-hidden select-none relative">
+<body class="min-h-screen flex flex-col select-none relative">
 
-    <!-- AMBIENT LIQUID AURORA ORBS (iOS Liquid Glass Theme) -->
-    <div class="ambient-orbs" aria-hidden="true">
-        <div class="liquid-orb orb-sapphire"></div>
-        <div class="liquid-orb orb-indigo"></div>
-        <div class="liquid-orb orb-cyan"></div>
-    </div>
+    <!-- STATIC GPU AMBIENT REFRACTION BACKDROP -->
+    <div class="ambient-backdrop" aria-hidden="true"></div>
 
-    <!-- TOP APP BAR -->
-    <header class="h-16 theme-header px-4 sm:px-6 flex items-center justify-between z-30 shrink-0 relative">
-        <div class="flex items-center space-x-3">
-            <div class="p-2.5 theme-pill-container rounded-full">
-                <i data-lucide="tv-2" class="w-5 h-5"></i>
+    <!-- TOP APP BAR (SINGLE-LAYER FROSTED GLASS) -->
+    <header class="glass-surface h-16 border-b px-3 sm:px-5 flex items-center justify-between gap-2 z-30 shrink-0 relative">
+        <!-- Brand -->
+        <div class="flex items-center space-x-2.5 min-w-0">
+            <div class="p-2.5 ui-pill-accent shrink-0 flex items-center justify-center">
+                <i data-lucide="tv-2" class="w-4 h-4"></i>
             </div>
-            <div class="flex flex-col">
-                <h1 id="txtAppTitle" class="font-bold text-sm tracking-wide theme-text-primary leading-tight">
+            <div class="flex flex-col min-w-0">
+                <h1 id="txtAppTitle" class="font-bold text-xs sm:text-sm tracking-tight leading-tight truncate">
                     HDMI Video Capture Viewer
                 </h1>
-                <p id="txtAppSubtitle" class="text-[10px] theme-text-secondary leading-tight">
-                    Universal Video Stream & Aspect Recalibration Tool
+                <p id="txtAppSubtitle" class="text-[10px] text-sub leading-tight truncate hidden sm:block">
+                    Universal Video Stream &amp; Aspect Recalibration Tool
                 </p>
             </div>
         </div>
 
-        <!-- Header Actions & Language Selector -->
-        <div class="flex items-center space-x-2 sm:space-x-2.5">
-            <!-- Live Audio VU Meter Chip -->
-            <div class="hidden md:flex items-center space-x-2 theme-card rounded-full px-3 py-1">
-                <span id="txtRawAudio" class="text-[9px] font-bold theme-badge-green px-2 py-0.5 rounded-full">Raw Stereo</span>
-                <i data-lucide="volume-2" class="w-3.5 h-3.5 theme-text-secondary"></i>
-                <canvas id="audioMeterCanvas" width="42" height="8" class="rounded-full bg-black/50"></canvas>
+        <!-- Header Controls -->
+        <div class="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+            <!-- Live Raw Stereo Audio Meter Chip -->
+            <div class="hidden xl:flex items-center space-x-2 ui-pill px-3 py-1">
+                <span id="txtRawAudio" class="badge-green text-[9px] font-bold px-2 py-0.5 rounded-full">Raw Stereo</span>
+                <i data-lucide="volume-2" class="w-3.5 h-3.5 text-sub"></i>
+                <canvas id="audioMeterCanvas" width="44" height="8" class="rounded-full bg-black/50"></canvas>
             </div>
 
-            <!-- Language Dropdown Header -->
+            <!-- Theme Pill Selector (Header) -->
             <div class="relative">
-                <select id="langSelectHeader" onchange="changeLanguage(this.value)" class="theme-input text-xs rounded-full px-3 py-1.5 cursor-pointer">
+                <select id="themeSelectHeader" onchange="changeTheme(this.value)" title="UI Theme" class="ui-select text-[11px] sm:text-xs rounded-full px-2.5 sm:px-3 py-1.5 cursor-pointer font-medium">
+                    <option value="liquid" id="optThemeLiquidHeader">🫧 Liquid Glass (iOS)</option>
+                    <option value="monet" id="optThemeMonetHeader">🎨 Pixel Material You (Monet)</option>
+                </select>
+            </div>
+
+            <!-- Language Pill Selector (Header) -->
+            <div class="relative">
+                <select id="langSelectHeader" onchange="changeLanguage(this.value)" title="Language" class="ui-select text-[11px] sm:text-xs rounded-full px-2.5 sm:px-3 py-1.5 cursor-pointer font-medium">
                     <option value="en">🇬🇧 English</option>
                     <option value="id">🇮🇩 Indonesia</option>
                     <option value="su">🇮🇩 Sunda</option>
@@ -435,436 +400,404 @@
             </div>
 
             <!-- Fullscreen Button -->
-            <button id="btnFullscreen" title="Fullscreen (F)" class="px-3.5 py-1.5 theme-card liquid-sheen rounded-full flex items-center gap-1.5 text-xs font-medium">
+            <button id="btnFullscreen" title="Fullscreen (F)" class="ui-pill px-3 py-1.5 text-xs font-medium flex items-center gap-1.5 cursor-pointer">
                 <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
-                <span id="txtBtnFullscreen" class="hidden sm:inline">Fullscreen</span>
+                <span id="txtBtnFullscreen" class="hidden md:inline">Fullscreen</span>
             </button>
 
             <!-- Screenshot Button -->
-            <button id="btnScreenshot" title="Screenshot (S)" class="px-3.5 py-1.5 theme-pill-container liquid-sheen rounded-full flex items-center gap-1.5 text-xs font-bold">
-                <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-                <span id="txtBtnScreenshot" class="hidden sm:inline">Screenshot</span>
+            <button id="btnScreenshot" title="Screenshot (S)" class="ui-pill px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="camera" class="w-3.5 h-3.5 text-highlight"></i>
+                <span id="txtBtnScreenshot" class="hidden md:inline">Screenshot</span>
             </button>
 
-            <!-- Toggle Settings Drawer Button -->
-            <button id="btnToggleSidebar" class="px-4 py-1.5 theme-pill-primary liquid-sheen rounded-full flex items-center gap-1.5 text-xs font-bold">
-                <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+            <!-- Settings Drawer Toggle Button -->
+            <button id="btnToggleSidebar" class="ui-pill-accent px-3.5 py-1.5 text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
                 <span id="txtBtnSettings">Settings</span>
             </button>
         </div>
     </header>
 
-    <!-- MAIN CONTENT AREA -->
-    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative p-3 sm:p-4 gap-4 items-center justify-center z-10">
+    <!-- MAIN VIEWPORT STAGE -->
+    <div class="flex-1 flex items-center justify-center relative p-3 sm:p-4 z-10 overflow-hidden">
+        <main id="viewportContainer" class="flex-1 flex items-center justify-center relative w-full h-full min-h-0 min-w-0">
 
-        <!-- DISPLAY SCREEN AREA (STRICT 16:9 VIEWPORT BOUNDS) -->
-        <main id="viewportContainer" class="flex-1 flex items-center justify-center relative overflow-hidden min-h-0 min-w-0 w-full h-full">
-            
-            <!-- STRICT 16:9 CONTAINER -->
+            <!-- STRICT 16:9 LOCKED VIEWPORT FRAME -->
             <div class="viewport-frame">
-                
+
                 <!-- CRT Scanline Overlay -->
-                <div id="scanlineEffect" class="scanline-overlay absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-300 z-10"></div>
+                <div id="scanlineEffect" class="scanline-overlay absolute inset-0 pointer-events-none opacity-0 z-10" style="transition: opacity 0.25s ease;"></div>
 
-                <!-- Setup / Connect Placeholder -->
-                <div id="placeholderState" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20 theme-surface">
-                    <div class="w-16 h-16 theme-pill-container rounded-full flex items-center justify-center mb-4">
-                        <i data-lucide="tv" class="w-8 h-8 animate-pulse"></i>
+                <!-- Connect Prompt Overlay -->
+                <div id="placeholderState" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20 bg-black/80">
+                    <div class="w-16 h-16 ui-pill-accent rounded-full flex items-center justify-center mb-4">
+                        <i data-lucide="tv" class="w-8 h-8"></i>
                     </div>
-                    
-                    <div class="flex flex-col items-center mb-5">
-                        <h2 id="txtConnectPrompt" class="text-base font-bold theme-text-primary">Connect HDMI Capture Device</h2>
-                        <span id="txtConnectSub" class="text-xs theme-secondary-accent font-medium mt-1">Plug your HDMI Video Capture Card & click Connect</span>
-                    </div>
-
-                    <button id="btnStartCaptureDirect" class="px-6 py-2.5 theme-pill-primary liquid-sheen font-bold rounded-full flex items-center gap-2 text-xs">
+                    <h2 id="txtConnectPrompt" class="text-base sm:text-lg font-bold tracking-tight">Connect HDMI Capture Device</h2>
+                    <p id="txtConnectSub" class="text-xs text-highlight font-medium mt-1 mb-5 max-w-md">
+                        Plug your HDMI Video Capture Card &amp; click Connect Stream
+                    </p>
+                    <button id="btnStartCaptureDirect" class="ui-pill-accent px-6 py-2.5 font-bold flex items-center gap-2 text-xs sm:text-sm cursor-pointer">
                         <i data-lucide="play" class="w-4 h-4 fill-current"></i>
                         <span id="txtBtnConnectDirect">Connect Stream</span>
                     </button>
                 </div>
 
-                <!-- VIDEO ELEMENT (HARDWARE ACCELERATED 3D TRANSFORM) -->
+                <!-- GPU-ACCELERATED VIDEO STREAM ELEMENT -->
                 <div id="screenWrapper" class="relative w-full h-full flex items-center justify-center overflow-hidden">
-                    <video id="hdmiVideo" autoplay playsinline class="max-w-full max-h-full origin-center transition-all duration-75 object-contain">
-                    </video>
+                    <video id="hdmiVideo" autoplay playsinline class="max-w-full max-h-full origin-center object-contain"></video>
                 </div>
 
                 <!-- OSD TOAST NOTIFICATION -->
-                <div id="osdNotification" class="absolute top-4 left-4 theme-surface text-xs px-4 py-2 rounded-full opacity-0 transition-opacity duration-300 pointer-events-none z-20 flex items-center gap-2">
-                    <i data-lucide="sparkles" class="w-4 h-4 theme-accent-text"></i>
-                    <span id="osdText" class="font-medium theme-text-primary">Settings Updated</span>
+                <div id="osdNotification" class="glass-surface border absolute top-4 left-4 text-xs px-4 py-2 rounded-full opacity-0 pointer-events-none z-20 flex items-center gap-2" style="transition: opacity 0.25s ease;">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5 text-highlight"></i>
+                    <span id="osdText" class="font-semibold">Settings Updated</span>
                 </div>
 
-                <!-- Floating Bottom Quick Pill Bar -->
-                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 theme-surface rounded-full px-4 py-2 flex items-center gap-2.5 sm:gap-3 z-20 opacity-85 hover:opacity-100 transition-opacity duration-300 max-w-[95%] overflow-x-auto">
-                    <button id="hudReset" title="Reset All (R)" class="theme-text-secondary hover:theme-text-primary transition shrink-0">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                <!-- FLOATING BOTTOM PILL HUD BAR (SINGLE-LAYER FROSTED GLASS) -->
+                <div class="glass-surface border absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full px-2.5 py-1.5 flex items-center gap-1 sm:gap-1.5 z-20 max-w-[95vw] overflow-x-auto">
+                    <button id="hudReset" title="Reset All (R)" class="hud-btn flex items-center justify-center cursor-pointer shrink-0">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                     </button>
 
-                    <div class="h-4 w-px bg-white/20 shrink-0"></div>
+                    <div class="h-4 w-px bg-white/15 shrink-0"></div>
 
-                    <button id="hudAspect43" class="theme-text-secondary hover:theme-accent-text transition text-xs font-bold flex items-center gap-1 shrink-0">
-                        <span style="color: var(--badge-green);" id="txtHud43">4:3 Native</span>
+                    <button id="hudAspect43" class="hud-btn active text-[11px] whitespace-nowrap cursor-pointer shrink-0">
+                        <span id="txtHud43">4:3 Native</span>
                     </button>
 
-                    <div class="h-4 w-px bg-white/20 shrink-0"></div>
-
-                    <button id="hudAspectCrop" class="theme-text-secondary hover:theme-accent-text transition text-xs font-bold flex items-center gap-1 shrink-0">
-                        <span class="theme-accent-text" id="txtHudCrop">Crop Edges</span>
-                    </button>
-
-                    <div class="h-4 w-px bg-white/20 shrink-0"></div>
-
-                    <button id="hudAspect169" class="theme-text-secondary hover:theme-accent-text transition text-xs font-medium shrink-0">
+                    <button id="hudAspect169" class="hud-btn text-[11px] whitespace-nowrap cursor-pointer shrink-0">
                         <span id="txtHud169">16:9 Fit</span>
                     </button>
 
-                    <div class="h-4 w-px bg-white/20 shrink-0"></div>
+                    <button id="hudAspectCrop" class="hud-btn text-[11px] whitespace-nowrap cursor-pointer shrink-0">
+                        <span id="txtHudCrop">Crop Edges</span>
+                    </button>
 
-                    <button id="hudAspectStretch" class="theme-text-secondary hover:theme-accent-text transition text-xs font-medium shrink-0">
+                    <button id="hudAspectStretch" class="hud-btn text-[11px] whitespace-nowrap cursor-pointer shrink-0">
                         <span id="txtHudStretch">Full Stretch</span>
                     </button>
 
-                    <div class="h-4 w-px bg-white/20 shrink-0"></div>
+                    <div class="h-4 w-px bg-white/15 shrink-0"></div>
 
-                    <button id="hudScanlines" title="Toggle CRT Scanlines" class="theme-text-secondary hover:theme-accent-text transition shrink-0">
-                        <i data-lucide="grid" class="w-4 h-4"></i>
+                    <button id="hudScanlines" title="Toggle CRT Scanlines (C)" class="hud-btn flex items-center justify-center cursor-pointer shrink-0">
+                        <i data-lucide="grid" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ZERO-LAG GPU SLIDE-OVER SETTINGS DRAWER -->
+    <aside id="controlSidebar" class="settings-drawer open" aria-label="Settings Panel">
+        <!-- Drawer Header (No backdrop-filter here to avoid nested blur pass) -->
+        <div class="px-4 py-3.5 border-b border-white/15 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2 font-bold text-sm">
+                <i data-lucide="sliders" class="w-4 h-4 text-highlight"></i>
+                <span id="txtDrawerTitle">Settings Panel</span>
+            </div>
+            <button id="btnCloseSidebar" title="Close Settings" class="ui-pill p-1.5 flex items-center justify-center cursor-pointer">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Isolated 120fps GPU-Composited Scrollable Body -->
+        <div class="drawer-scroll-body space-y-3">
+
+            <!-- CARD 1: APPEARANCE & LANGUAGE -->
+            <div class="setting-card space-y-3">
+                <div class="flex items-center gap-1.5 text-xs font-bold">
+                    <i data-lucide="palette" class="w-3.5 h-3.5 text-highlight"></i>
+                    <span id="txtAppearanceHeading">Appearance &amp; Language</span>
+                </div>
+
+                <!-- Theme Selector -->
+                <div>
+                    <label id="lblThemeDrawer" class="block text-[11px] text-sub font-medium mb-1">Interface Theme</label>
+                    <select id="themeSelectDrawer" onchange="changeTheme(this.value)" class="ui-select w-full text-xs rounded-2xl px-3 py-2 cursor-pointer font-medium">
+                        <option value="liquid" id="optThemeLiquidDrawer">🫧 Liquid Glass (iOS)</option>
+                        <option value="monet" id="optThemeMonetDrawer">🎨 Pixel Material You (Monet)</option>
+                    </select>
+                </div>
+
+                <!-- Language Selector -->
+                <div>
+                    <label id="lblLanguageDrawer" class="block text-[11px] text-sub font-medium mb-1">Language</label>
+                    <select id="langSelectDrawer" onchange="changeLanguage(this.value)" class="ui-select w-full text-xs rounded-2xl px-3 py-2 cursor-pointer font-medium">
+                        <option value="en">🇬🇧 English</option>
+                        <option value="id">🇮🇩 Bahasa Indonesia</option>
+                        <option value="su">🇮🇩 Bahasa Sunda</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- CARD 2: DEVICE & STREAM INPUT -->
+            <div class="setting-card space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold flex items-center gap-1.5">
+                        <i data-lucide="webcam" class="w-3.5 h-3.5 text-highlight"></i>
+                        <span id="txtDeviceHeading">Capture Device &amp; Stream</span>
+                    </span>
+                    <span id="txtWakeLockBadge" class="badge-green text-[9px] font-bold px-2 py-0.5 rounded-full hidden">Screen Awake</span>
+                </div>
+
+                <div>
+                    <label id="lblVideoInput" class="block text-[11px] text-sub font-medium mb-1">Video Input Device</label>
+                    <select id="videoSourceSelect" class="ui-select w-full text-xs rounded-2xl px-3 py-2 cursor-pointer">
+                        <option value="">-- Select Video Input --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label id="lblAudioInput" class="block text-[11px] text-sub font-medium mb-1">Audio Input Device</label>
+                    <select id="audioSourceSelect" class="ui-select w-full text-xs rounded-2xl px-3 py-2 cursor-pointer">
+                        <option value="">-- Select Audio Input --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label id="lblVideoResolution" class="block text-[11px] text-sub font-medium mb-1">Video Resolution &amp; FPS</label>
+                    <select id="videoResolutionSelect" class="ui-select w-full text-xs rounded-2xl px-3 py-2 cursor-pointer">
+                        <option value="720p60" id="optRes720p" selected>720p @ 60 FPS (HD - Low Delay)</option>
+                        <option value="1080p60" id="optRes1080p">1080p @ 60 FPS (Full HD)</option>
+                        <option value="480p60" id="optRes480p">480p @ 60 FPS (SD)</option>
+                        <option value="auto" id="optResAuto">Auto / Default</option>
+                    </select>
+                </div>
+
+                <div class="pt-1 flex gap-2">
+                    <button id="btnStartCapture" class="ui-pill-accent flex-1 py-2 font-bold flex items-center justify-center gap-1.5 text-xs cursor-pointer">
+                        <i data-lucide="power" class="w-3.5 h-3.5"></i>
+                        <span id="txtBtnConnect">Connect Stream</span>
+                    </button>
+                    <button id="btnRefreshDevices" title="Refresh Devices" class="ui-pill px-3 py-2 flex items-center justify-center cursor-pointer">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
                     </button>
                 </div>
             </div>
 
-        </main>
-
-        <!-- SETTINGS SIDEBAR DRAWER -->
-        <aside id="controlSidebar" class="w-full lg:w-80 theme-surface rounded-3xl flex flex-col z-20 shrink-0 h-auto max-h-[55vh] lg:max-h-[calc(100vh-110px)] overflow-y-auto">
-            
-            <div class="p-4 border-b theme-divider flex items-center justify-between sticky top-0 z-10 backdrop-blur-xl rounded-t-3xl" style="background: var(--surface-bg);">
-                <div class="flex items-center gap-2 font-bold theme-text-primary text-sm">
-                    <i data-lucide="settings-2" class="w-4 h-4 theme-accent-text"></i>
-                    <span id="txtDrawerTitle">Settings Panel</span>
-                </div>
-                <button id="btnCloseSidebar" class="lg:hidden p-1 theme-text-secondary hover:theme-text-primary">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-
-            <div class="p-4 space-y-5">
-
-                <!-- 0. DUAL-THEME SWITCHER & LANGUAGE -->
-                <div class="space-y-3">
-                    <!-- Theme Switcher -->
-                    <div class="space-y-1.5">
-                        <label id="lblThemeDrawer" class="block text-xs font-bold theme-text-primary flex items-center gap-1.5">
-                            <i data-lucide="palette" class="w-3.5 h-3.5 theme-accent-text"></i>
-                            <span>Appearance Theme</span>
-                        </label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button id="btnThemeLiquidGlass" onclick="changeTheme('liquid-glass')" class="py-2 px-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 transition liquid-sheen theme-pill-primary">
-                                <span>💧</span>
-                                <span id="txtThemeLiquid">iOS Liquid Glass</span>
-                            </button>
-                            <button id="btnThemeMaterialYou" onclick="changeTheme('material-you')" class="py-2 px-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 transition liquid-sheen theme-card">
-                                <span>🎨</span>
-                                <span id="txtThemePixel">Pixel Material You</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Language Selector -->
-                    <div class="space-y-1.5">
-                        <label id="lblLanguageDrawer" class="block text-xs font-bold theme-text-primary flex items-center gap-1.5">
-                            <i data-lucide="globe" class="w-3.5 h-3.5 theme-accent-text"></i>
-                            <span>Language</span>
-                        </label>
-                        <select id="langSelectDrawer" onchange="changeLanguage(this.value)" class="w-full theme-input text-xs rounded-2xl p-2.5 cursor-pointer">
-                            <option value="en">🇬🇧 English</option>
-                            <option value="id">🇮🇩 Bahasa Indonesia</option>
-                            <option value="su">🇮🇩 Bahasa Sunda</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- 1. DEVICE SELECTOR & RESOLUTION -->
-                <div class="space-y-2.5 pt-3 border-t theme-divider">
-                    <span id="txtDeviceHeading" class="text-xs font-bold theme-text-primary flex items-center gap-1.5">
-                        <i data-lucide="webcam" class="w-3.5 h-3.5 theme-accent-text"></i>
-                        <span>Device Selector</span>
+            <!-- CARD 3: ASPECT RATIO & QUICK PRESETS -->
+            <div class="setting-card space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold flex items-center gap-1.5">
+                        <i data-lucide="ratio" class="w-3.5 h-3.5 text-highlight"></i>
+                        <span id="txtAspectHeading">Aspect Ratio Controls</span>
                     </span>
-
-                    <div class="space-y-2">
-                        <div>
-                            <label id="lblVideoInput" class="block text-[11px] theme-text-secondary font-medium mb-1">Video Input Device</label>
-                            <select id="videoSourceSelect" class="w-full theme-input text-xs rounded-2xl p-2.5 cursor-pointer">
-                                <option value="">-- Select Video Input --</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label id="lblAudioInput" class="block text-[11px] theme-text-secondary font-medium mb-1">Audio Input Device</label>
-                            <select id="audioSourceSelect" class="w-full theme-input text-xs rounded-2xl p-2.5 cursor-pointer">
-                                <option value="">-- Select Audio Input --</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label id="lblVideoResolution" class="block text-[11px] theme-text-secondary font-medium mb-1">Video Resolution & FPS</label>
-                            <select id="videoResolutionSelect" class="w-full theme-input text-xs rounded-2xl p-2.5 cursor-pointer">
-                                <option value="auto" id="optResAuto">Auto / Default</option>
-                                <option value="1080p60" id="optRes1080p">1080p @ 60 FPS (Full HD)</option>
-                                <option value="720p60" id="optRes720p" selected>720p @ 60 FPS (HD - Low Delay)</option>
-                                <option value="480p60" id="optRes480p">480p @ 60 FPS (SD)</option>
-                            </select>
-                        </div>
-
-                        <!-- Video Rendering Filter -->
-                        <div>
-                            <label id="lblVideoSmoothing" class="block text-[11px] theme-text-secondary font-medium mb-1">Video Rendering Filter</label>
-                            <select id="videoSmoothingSelect" class="w-full theme-input text-xs rounded-2xl p-2.5 cursor-pointer">
-                                <option value="smooth" id="optSmooth" selected>Smooth (Bilinear)</option>
-                                <option value="crisp" id="optCrisp">Crisp (Pixelated)</option>
-                            </select>
-                        </div>
-
-                        <div class="pt-1 flex gap-2">
-                            <button id="btnStartCapture" class="flex-1 py-2.5 theme-pill-primary liquid-sheen rounded-full font-bold flex items-center justify-center gap-1.5 text-xs">
-                                <i data-lucide="power" class="w-3.5 h-3.5"></i>
-                                <span id="txtBtnConnect">Connect Stream</span>
-                            </button>
-
-                            <button id="btnRefreshDevices" title="Refresh Devices" class="px-3.5 py-2.5 theme-card liquid-sheen rounded-full flex items-center justify-center">
-                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <span id="txtBadgeAntiDistort" class="badge-green text-[9px] font-bold px-2 py-0.5 rounded-full">16:9 Locked</span>
                 </div>
 
-                <!-- 2. ASPECT RATIO (ANTI-DISTORTION) -->
-                <div class="space-y-2.5 pt-3 border-t theme-divider">
-                    <div class="flex items-center justify-between">
-                        <span id="txtAspectHeading" class="text-xs font-bold theme-text-primary flex items-center gap-1.5">
-                            <i data-lucide="aspect-ratio" class="w-3.5 h-3.5 theme-secondary-accent"></i>
-                            <span>Aspect Ratio Controls</span>
-                        </span>
-                        <span id="txtBadgeAntiDistort" class="text-[9px] font-bold theme-badge-green px-2 py-0.5 rounded-full">Anti-Distortion</span>
-                    </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="btnAspect43" class="aspect-btn ui-pill-accent py-2 px-3 text-xs font-bold text-left flex items-center justify-between cursor-pointer">
+                        <span id="txtOpt43">4:3 Native</span>
+                        <i data-lucide="check" class="w-3.5 h-3.5 aspect-check"></i>
+                    </button>
 
-                    <div class="grid grid-cols-2 gap-2">
-                        <button id="btnAspect43" class="aspect-btn py-2 px-3 rounded-2xl text-xs font-bold transition text-left flex flex-col liquid-sheen theme-pill-primary">
-                            <span class="flex items-center justify-between text-xs font-bold w-full">
-                                <span id="txtOpt43">4:3 Native</span>
-                                <i data-lucide="check" class="w-3 h-3 aspect-check"></i>
-                            </span>
-                        </button>
-                        
-                        <button id="btnAspectCrop" class="aspect-btn py-2 px-3 rounded-2xl text-xs font-bold transition text-left flex flex-col liquid-sheen theme-card">
-                            <span class="flex items-center justify-between text-xs font-bold w-full">
-                                <span id="txtOptCrop">Crop Edges</span>
-                                <i data-lucide="check" class="w-3 h-3 aspect-check hidden"></i>
-                            </span>
-                        </button>
+                    <button id="btnAspect169" class="aspect-btn ui-pill py-2 px-3 text-xs font-semibold text-left flex items-center justify-between cursor-pointer">
+                        <span id="txtOpt169">16:9 Fit</span>
+                        <i data-lucide="check" class="w-3.5 h-3.5 aspect-check hidden"></i>
+                    </button>
 
-                        <button id="btnAspect169" class="aspect-btn py-2 px-3 rounded-2xl text-xs font-bold transition text-left flex flex-col liquid-sheen theme-card">
-                            <span class="flex items-center justify-between text-xs font-bold w-full">
-                                <span id="txtOpt169">16:9 Fit</span>
-                                <i data-lucide="check" class="w-3 h-3 aspect-check hidden"></i>
-                            </span>
-                        </button>
+                    <button id="btnAspectCrop" class="aspect-btn ui-pill py-2 px-3 text-xs font-semibold text-left flex items-center justify-between cursor-pointer">
+                        <span id="txtOptCrop">Crop Edges</span>
+                        <i data-lucide="check" class="w-3.5 h-3.5 aspect-check hidden"></i>
+                    </button>
 
-                        <button id="btnAspectFill" class="aspect-btn py-2 px-3 rounded-2xl text-xs font-bold transition text-left flex flex-col liquid-sheen theme-card">
-                            <span class="flex items-center justify-between text-xs font-bold w-full">
-                                <span id="txtOptStretch">Full Stretch</span>
-                                <i data-lucide="check" class="w-3 h-3 aspect-check hidden"></i>
-                            </span>
-                        </button>
-                    </div>
+                    <button id="btnAspectFill" class="aspect-btn ui-pill py-2 px-3 text-xs font-semibold text-left flex items-center justify-between cursor-pointer">
+                        <span id="txtOptStretch">Full Stretch</span>
+                        <i data-lucide="check" class="w-3.5 h-3.5 aspect-check hidden"></i>
+                    </button>
                 </div>
 
-                <!-- 3. QUICK DISPLAY PRESETS -->
-                <div class="space-y-2.5 pt-3 border-t theme-divider">
-                    <span id="txtPresetsHeading" class="text-xs font-bold theme-text-primary flex items-center gap-1.5">
-                        <i data-lucide="zap" class="w-3.5 h-3.5 theme-accent-text"></i>
-                        <span>Display Quick Presets</span>
-                    </span>
-                    
+                <!-- Display Quick Presets -->
+                <div class="pt-2 border-t border-white/10 space-y-2">
+                    <span id="txtPresetsHeading" class="block text-[11px] text-sub font-semibold">Display Quick Presets</span>
                     <div class="grid grid-cols-2 gap-2">
-                        <button id="btnPresetHD1080p" class="py-2 px-2.5 theme-pill-container liquid-sheen text-xs rounded-2xl font-bold text-left">
+                        <button id="btnPreset1080p" class="ui-pill py-1.5 px-3 text-[11px] font-semibold text-center cursor-pointer">
                             <span id="txtPreset1080p">Fit 1080p HD</span>
                         </button>
-
-                        <button id="btnPresetSD480p" class="py-2 px-2.5 theme-card liquid-sheen text-xs rounded-2xl font-bold text-left">
+                        <button id="btnPreset480p" class="ui-pill py-1.5 px-3 text-[11px] font-semibold text-center cursor-pointer">
                             <span id="txtPreset480p">Fit 480p SD</span>
                         </button>
-
-                        <button id="btnPresetDefault" class="py-2 px-2.5 theme-card liquid-sheen text-xs rounded-2xl font-bold text-left">
-                            <span id="txtPresetReset">Reset Default</span>
-                        </button>
-
-                        <button id="btnPresetFullStretch" class="py-2 px-2.5 theme-card liquid-sheen text-xs rounded-2xl font-bold text-left">
+                        <button id="btnPresetFullStretch" class="ui-pill py-1.5 px-3 text-[11px] font-semibold text-center cursor-pointer">
                             <span id="txtPresetStretch">Full Stretch</span>
                         </button>
-                    </div>
-                </div>
-
-                <!-- 4. GPU-ACCELERATED POSITION, ZOOM & STRETCH -->
-                <div class="space-y-3 pt-3 border-t theme-divider">
-                    <div class="flex items-center justify-between">
-                        <span id="txtPosHeading" class="text-xs font-bold theme-text-primary flex items-center gap-1.5">
-                            <i data-lucide="move" class="w-3.5 h-3.5 theme-accent-text"></i>
-                            <span>Position & Scale</span>
-                        </span>
-                        <button id="btnResetPosOnly" class="text-[10px] theme-accent-text hover:underline font-semibold">Reset</button>
-                    </div>
-
-                    <!-- Zoom Scale (1.00x - 2.00x) -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center text-xs">
-                            <span id="lblZoom" class="theme-text-primary">Zoom Scale</span>
-                            <span id="valZoom" class="font-mono theme-accent-text font-bold">1.00x</span>
-                        </div>
-                        <input type="range" id="sliderZoom" min="1.00" max="2.00" step="0.01" value="1.00" class="w-full">
-                    </div>
-
-                    <!-- Horizontal Stretch / Scale X (0.50x - 2.00x) -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center text-xs">
-                            <span id="lblScaleX" class="theme-text-primary">Horizontal Stretch (Scale X)</span>
-                            <span id="valScaleX" class="font-mono theme-accent-text font-bold">1.00x</span>
-                        </div>
-                        <input type="range" id="sliderScaleX" min="0.50" max="2.00" step="0.01" value="1.00" class="w-full">
-                    </div>
-
-                    <!-- Vertical Stretch / Scale Y (0.50x - 2.00x) -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center text-xs">
-                            <span id="lblScaleY" class="theme-text-primary">Vertical Stretch (Scale Y)</span>
-                            <span id="valScaleY" class="font-mono theme-accent-text font-bold">1.00x</span>
-                        </div>
-                        <input type="range" id="sliderScaleY" min="0.50" max="2.00" step="0.01" value="1.00" class="w-full">
-                    </div>
-
-                    <!-- Pan Horizontal X (-200px to 200px) -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center text-xs">
-                            <span id="lblPanX" class="theme-text-primary">Pan Horizontal (X)</span>
-                            <span id="valPanX" class="font-mono theme-accent-text font-bold">0px</span>
-                        </div>
-                        <input type="range" id="sliderPanX" min="-200" max="200" step="1" value="0" class="w-full">
-                    </div>
-
-                    <!-- Pan Vertical Y (-200px to 200px) -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center text-xs">
-                            <span id="lblPanY" class="theme-text-primary">Pan Vertical (Y)</span>
-                            <span id="valPanY" class="font-mono theme-accent-text font-bold">0px</span>
-                        </div>
-                        <input type="range" id="sliderPanY" min="-200" max="200" step="1" value="0" class="w-full">
-                    </div>
-                </div>
-
-                <!-- 5. RAW STEREO AUDIO CONTROLS -->
-                <div class="space-y-3 pt-3 border-t theme-divider">
-                    <div class="flex items-center justify-between">
-                        <span id="txtAudioHeading" class="text-xs font-bold theme-text-primary flex items-center gap-1.5">
-                            <i data-lucide="volume-2" class="w-3.5 h-3.5" style="color: var(--badge-green);"></i>
-                            <span>Volume Gain Boost</span>
-                        </span>
-                        <span class="text-[9px] theme-text-secondary">Max 200%</span>
-                    </div>
-
-                    <div class="flex items-center gap-3">
-                        <button id="btnMute" class="p-2.5 theme-card rounded-2xl">
-                            <i data-lucide="volume-2" id="muteIcon" class="w-4 h-4"></i>
-                        </button>
-
-                        <div class="flex-1 space-y-1">
-                            <input type="range" id="sliderVolume" min="0" max="2" step="0.01" value="1" class="w-full">
-                        </div>
-
-                        <span id="valVolume" class="font-mono text-xs theme-text-primary w-10 text-right">100%</span>
-                    </div>
-                </div>
-
-                <!-- 6. PICTURE & COLOR ADJUSTMENTS -->
-                <div class="space-y-3 pt-3 border-t theme-divider pb-3">
-                    <div class="flex items-center justify-between">
-                        <span id="txtColorHeading" class="text-xs font-bold theme-text-primary flex items-center gap-1.5">
-                            <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 theme-secondary-accent"></i>
-                            <span>Brightness & Color</span>
-                        </span>
-                        <button id="btnResetColorOnly" class="text-[10px] theme-accent-text hover:underline font-semibold">Reset</button>
-                    </div>
-
-                    <!-- Brightness (50% - 150%) -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center text-xs">
-                            <span id="lblBrightness" class="theme-text-primary">Brightness</span>
-                            <span id="valBrightness" class="font-mono theme-accent-text font-bold">100%</span>
-                        </div>
-                        <input type="range" id="sliderBrightness" min="50" max="150" step="1" value="100" class="w-full">
-                    </div>
-
-                    <!-- Contrast (50% - 150%) -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center text-xs">
-                            <span id="lblContrast" class="theme-text-primary">Contrast</span>
-                            <span id="valContrast" class="font-mono theme-accent-text font-bold">100%</span>
-                        </div>
-                        <input type="range" id="sliderContrast" min="50" max="150" step="1" value="100" class="w-full">
-                    </div>
-
-                    <!-- Saturation (50% - 150%) -->
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-center text-xs">
-                            <span id="lblSaturation" class="theme-text-primary">Saturation</span>
-                            <span id="valSaturate" class="font-mono theme-accent-text font-bold">100%</span>
-                        </div>
-                        <input type="range" id="sliderSaturate" min="50" max="150" step="1" value="100" class="w-full">
-                    </div>
-
-                    <!-- Reset All Button -->
-                    <div class="pt-2">
-                        <button id="btnResetAllDrawer" class="w-full py-2.5 theme-card liquid-sheen rounded-full font-bold flex items-center justify-center gap-1.5 text-xs">
-                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                            <span id="txtBtnResetAll">Reset All</span>
+                        <button id="btnPresetDefault" class="ui-pill py-1.5 px-3 text-[11px] font-semibold text-center cursor-pointer">
+                            <span id="txtPresetReset">Reset Default</span>
                         </button>
                     </div>
                 </div>
-
             </div>
-        </aside>
 
-    </div>
+            <!-- CARD 4: POSITION & INDEPENDENT EDGE STRETCH -->
+            <div class="setting-card space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold flex items-center gap-1.5">
+                        <i data-lucide="move" class="w-3.5 h-3.5 text-highlight"></i>
+                        <span id="txtPosHeading">Position &amp; Edge Stretch</span>
+                    </span>
+                    <button id="btnResetPosOnly" class="text-[11px] text-highlight font-semibold hover:underline cursor-pointer">Reset</button>
+                </div>
 
-    <!-- FOOTER SHORTCUTS BAR -->
-    <footer class="theme-footer px-5 py-2 text-[10px] theme-text-secondary flex flex-wrap items-center justify-between gap-2 z-30 shrink-0 relative">
-        <div class="flex items-center space-x-4">
+                <!-- Zoom Scale -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span id="lblZoom">Zoom Scale</span>
+                        <span id="valZoom" class="font-mono text-highlight font-bold">1.00x</span>
+                    </div>
+                    <input type="range" id="sliderZoom" min="0.5" max="2.5" step="0.01" value="1.00" class="w-full">
+                </div>
+
+                <!-- Horizontal Stretch (Scale X) -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span id="lblScaleX">Horizontal Stretch (Left/Right)</span>
+                        <span id="valScaleX" class="font-mono text-highlight font-bold">1.00x</span>
+                    </div>
+                    <input type="range" id="sliderScaleX" min="0.5" max="2.0" step="0.01" value="1.00" class="w-full">
+                </div>
+
+                <!-- Vertical Stretch (Scale Y) -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span id="lblScaleY">Vertical Stretch (Top/Bottom)</span>
+                        <span id="valScaleY" class="font-mono text-highlight font-bold">1.00x</span>
+                    </div>
+                    <input type="range" id="sliderScaleY" min="0.5" max="2.0" step="0.01" value="1.00" class="w-full">
+                </div>
+
+                <!-- Horizontal Pan (X) -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span id="lblPanX">Horizontal Pan (X)</span>
+                        <span id="valPanX" class="font-mono text-highlight font-bold">0px</span>
+                    </div>
+                    <input type="range" id="sliderPanX" min="-300" max="300" step="1" value="0" class="w-full">
+                </div>
+
+                <!-- Vertical Pan (Y) -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span id="lblPanY">Vertical Pan (Y)</span>
+                        <span id="valPanY" class="font-mono text-highlight font-bold">0px</span>
+                    </div>
+                    <input type="range" id="sliderPanY" min="-300" max="300" step="1" value="0" class="w-full">
+                </div>
+            </div>
+
+            <!-- CARD 5: RAW STEREO AUDIO & VOLUME BOOST -->
+            <div class="setting-card space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold flex items-center gap-1.5">
+                        <i data-lucide="volume-2" class="w-3.5 h-3.5 text-highlight"></i>
+                        <span id="txtAudioHeading">Raw Stereo Volume</span>
+                    </span>
+                    <span class="text-[10px] text-sub font-mono">0% – 200%</span>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <button id="btnMute" title="Mute / Unmute (M)" class="ui-pill p-2.5 flex items-center justify-center cursor-pointer shrink-0">
+                        <i data-lucide="volume-2" id="muteIcon" class="w-4 h-4"></i>
+                    </button>
+                    <input type="range" id="sliderVolume" min="0" max="2" step="0.01" value="1" class="flex-1">
+                    <span id="valVolume" class="font-mono text-xs text-highlight font-bold w-11 text-right">100%</span>
+                </div>
+            </div>
+
+            <!-- CARD 6: PICTURE, RENDERING FILTER & CRT SCANLINES -->
+            <div class="setting-card space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold flex items-center gap-1.5">
+                        <i data-lucide="sun-medium" class="w-3.5 h-3.5 text-highlight"></i>
+                        <span id="txtColorHeading">Picture &amp; Rendering</span>
+                    </span>
+                    <button id="btnResetColorOnly" class="text-[11px] text-highlight font-semibold hover:underline cursor-pointer">Reset</button>
+                </div>
+
+                <!-- Video Rendering Filter -->
+                <div>
+                    <label id="lblVideoSmoothing" class="block text-[11px] text-sub font-medium mb-1">Video Rendering Filter</label>
+                    <select id="videoSmoothingSelect" class="ui-select w-full text-xs rounded-2xl px-3 py-2 cursor-pointer">
+                        <option value="smooth" id="optSmooth" selected>Smooth (Bilinear)</option>
+                        <option value="crisp" id="optCrisp">Crisp (Pixelated)</option>
+                    </select>
+                </div>
+
+                <!-- Brightness -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span id="lblBrightness">Brightness</span>
+                        <span id="valBrightness" class="font-mono text-highlight font-bold">100%</span>
+                    </div>
+                    <input type="range" id="sliderBrightness" min="50" max="150" step="1" value="100" class="w-full">
+                </div>
+
+                <!-- Contrast -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span id="lblContrast">Contrast</span>
+                        <span id="valContrast" class="font-mono text-highlight font-bold">100%</span>
+                    </div>
+                    <input type="range" id="sliderContrast" min="50" max="150" step="1" value="100" class="w-full">
+                </div>
+
+                <!-- Saturation -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span id="lblSaturation">Saturation</span>
+                        <span id="valSaturate" class="font-mono text-highlight font-bold">100%</span>
+                    </div>
+                    <input type="range" id="sliderSaturate" min="0" max="200" step="1" value="100" class="w-full">
+                </div>
+
+                <!-- CRT Scanline Toggle Button -->
+                <div class="pt-1">
+                    <button id="btnToggleScanlinesDrawer" class="ui-pill w-full py-2 px-3 text-xs font-semibold flex items-center justify-between cursor-pointer">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="grid" class="w-3.5 h-3.5 text-highlight"></i>
+                            <span id="txtScanlineToggle">CRT Scanline Overlay</span>
+                        </span>
+                        <span id="txtScanlineState" class="font-mono text-[10px] text-sub">OFF</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- COMPACT FOOTER SHORTCUTS BAR -->
+    <footer class="glass-surface border-t px-4 py-1.5 text-[10px] text-sub flex flex-wrap items-center justify-between gap-2 z-30 shrink-0 relative">
+        <div class="flex items-center space-x-3 sm:space-x-4">
             <span class="flex items-center gap-1 font-mono">
-                <kbd class="theme-card px-1.5 py-0.5 rounded-md theme-text-primary">F</kbd>
+                <kbd class="ui-pill px-1.5 py-0.5 text-[9px] font-bold">F</kbd>
                 <span id="txtKbdFullscreen">Fullscreen</span>
             </span>
             <span class="flex items-center gap-1 font-mono">
-                <kbd class="theme-card px-1.5 py-0.5 rounded-md theme-text-primary">S</kbd>
+                <kbd class="ui-pill px-1.5 py-0.5 text-[9px] font-bold">S</kbd>
                 <span id="txtKbdScreenshot">Screenshot</span>
             </span>
             <span class="flex items-center gap-1 font-mono">
-                <kbd class="theme-card px-1.5 py-0.5 rounded-md theme-text-primary">M</kbd>
+                <kbd class="ui-pill px-1.5 py-0.5 text-[9px] font-bold">M</kbd>
                 <span id="txtKbdMute">Mute</span>
             </span>
             <span class="flex items-center gap-1 font-mono">
-                <kbd class="theme-card px-1.5 py-0.5 rounded-md theme-text-primary">R</kbd>
-                <span id="txtKbdReset">Reset All</span>
+                <kbd class="ui-pill px-1.5 py-0.5 text-[9px] font-bold">C</kbd>
+                <span id="txtKbdScanlines">Scanlines</span>
+            </span>
+            <span class="flex items-center gap-1 font-mono">
+                <kbd class="ui-pill px-1.5 py-0.5 text-[9px] font-bold">R</kbd>
+                <span id="txtKbdReset">Reset</span>
             </span>
         </div>
-        <div id="txtFooterEngine" class="font-mono text-[9px] theme-text-secondary">
-            IOS LIQUID GLASS &amp; PIXEL MONET ENGINE &bull; RAW STEREO &amp; 16:9 HDMI CAPTURE
+        <div class="font-mono text-[9px] text-sub hidden sm:block">
+            <span id="txtEngineFooter">LIQUID GLASS &amp; MONET ENGINE &bull; 48KHZ RAW STEREO</span>
         </div>
     </footer>
 
-    <!-- JAVASCRIPT ENGINE: DUAL-THEME, I18N, CAPTURE, WAKE LOCK, GPU TRANSFORMS & AUDIO -->
+    <!-- APPLICATION SCRIPT: DUAL THEME, I18N, CAPTURE, AUDIO, WAKE LOCK & GPU TRANSFORMS -->
     <script>
-        // ==========================================================================
-        // 1. MULTI-LANGUAGE LOCALIZATION DICTIONARY (EN / ID / SU)
-        // ==========================================================================
+        // 1. MULTI-LANGUAGE DICTIONARY (ENGLISH, INDONESIA, SUNDA)
         const i18n = {
             en: {
                 appTitle: "HDMI Video Capture Viewer",
@@ -874,71 +807,75 @@
                 btnScreenshot: "Screenshot",
                 btnSettings: "Settings",
                 connectPrompt: "Connect HDMI Capture Device",
-                connectSub: "Plug your HDMI Video Capture Card & click Connect",
+                connectSub: "Plug your HDMI Video Capture Card & click Connect Stream",
                 btnConnectDirect: "Connect Stream",
                 btnConnect: "Connect Stream",
                 btnDisconnect: "Disconnect Stream",
                 hud43: "4:3 Native",
-                hudCrop: "Crop Edges",
                 hud169: "16:9 Fit",
+                hudCrop: "Crop Edges",
                 hudStretch: "Full Stretch",
                 drawerTitle: "Settings Panel",
-                lblThemeDrawer: "Appearance Theme",
-                themeLiquid: "iOS Liquid Glass",
-                themePixel: "Pixel Material You",
+                appearanceHeading: "Appearance & Language",
+                lblThemeDrawer: "Interface Theme",
+                optThemeLiquid: "🫧 Liquid Glass (iOS)",
+                optThemeMonet: "🎨 Pixel Material You (Monet)",
                 lblLanguageDrawer: "Language",
-                deviceHeading: "Device Selector",
+                deviceHeading: "Capture Device & Stream",
+                wakeLockBadge: "Screen Awake",
                 lblVideoInput: "Video Input Device",
                 lblAudioInput: "Audio Input Device",
                 lblVideoResolution: "Video Resolution & FPS",
-                lblVideoSmoothing: "Video Rendering Filter",
-                optResAuto: "Auto / Default",
-                optRes1080p: "1080p @ 60 FPS (Full HD)",
                 optRes720p: "720p @ 60 FPS (HD - Low Delay)",
+                optRes1080p: "1080p @ 60 FPS (Full HD)",
                 optRes480p: "480p @ 60 FPS (SD)",
-                optSmooth: "Smooth (Bilinear)",
-                optCrisp: "Crisp (Pixelated)",
+                optResAuto: "Auto / Default",
                 selectVideoDefault: "-- Select Video Input --",
                 selectAudioDefault: "-- Select Audio Input --",
                 aspectHeading: "Aspect Ratio Controls",
-                badgeAntiDistort: "Anti-Distortion",
+                badgeAntiDistort: "16:9 Locked",
                 opt43: "4:3 Native",
-                optCrop: "Crop Edges",
                 opt169: "16:9 Fit",
+                optCrop: "Crop Edges",
                 optStretch: "Full Stretch",
                 presetsHeading: "Display Quick Presets",
                 preset1080p: "Fit 1080p HD",
                 preset480p: "Fit 480p SD",
-                presetReset: "Reset Default",
                 presetStretch: "Full Stretch",
-                posHeading: "Position & Scale",
+                presetReset: "Reset Default",
+                posHeading: "Position & Edge Stretch",
                 lblZoom: "Zoom Scale",
-                lblScaleX: "Horizontal Stretch (Scale X)",
-                lblScaleY: "Vertical Stretch (Scale Y)",
-                lblPanX: "Pan Horizontal (X)",
-                lblPanY: "Pan Vertical (Y)",
-                audioHeading: "Volume Gain Boost",
-                colorHeading: "Brightness & Color",
+                lblScaleX: "Horizontal Stretch (Left/Right)",
+                lblScaleY: "Vertical Stretch (Top/Bottom)",
+                lblPanX: "Horizontal Pan (X)",
+                lblPanY: "Vertical Pan (Y)",
+                audioHeading: "Raw Stereo Volume",
+                colorHeading: "Picture & Rendering",
+                lblVideoSmoothing: "Video Rendering Filter",
+                optSmooth: "Smooth (Bilinear)",
+                optCrisp: "Crisp (Pixelated)",
                 lblBrightness: "Brightness",
                 lblContrast: "Contrast",
                 lblSaturation: "Saturation",
-                btnResetAll: "Reset All",
+                scanlineToggle: "CRT Scanline Overlay",
                 kbdFullscreen: "Fullscreen",
                 kbdScreenshot: "Screenshot",
                 kbdMute: "Mute",
-                kbdReset: "Reset All",
+                kbdScanlines: "Scanlines",
+                kbdReset: "Reset",
                 toastConnected: "HDMI Stream Connected (Screen Awake)",
                 toastDisconnected: "Stream Disconnected",
-                toastError: "Unable to connect video capture device",
+                toastError: "Unable to access capture device",
                 toastScreenshot: "PNG Screenshot Saved",
                 toastMuted: "Audio Muted",
                 toastActive: "Audio Active",
                 toastReset: "All Settings Reset",
                 toastAspect: "Aspect Mode: ",
-                toastResChanged: "Resolution updated to: ",
-                toastSwitched: "Switched to: ",
-                toastFilterChanged: "Rendering Filter: ",
-                toastThemeChanged: "Theme switched to: "
+                toastResChanged: "Resolution: ",
+                toastSwitched: "Input: ",
+                toastFilterChanged: "Filter: ",
+                toastThemeChanged: "Theme: ",
+                toastScanlines: "CRT Scanlines: "
             },
             id: {
                 appTitle: "Penampil Layar HDMI Video Capture",
@@ -948,71 +885,75 @@
                 btnScreenshot: "Tangkapan Layar",
                 btnSettings: "Pengaturan",
                 connectPrompt: "Hubungkan Perangkat HDMI Capture",
-                connectSub: "Colokkan HDMI Video Capture Card & klik Hubungkan",
+                connectSub: "Colokkan HDMI Video Capture Card & klik Hubungkan Sinyal",
                 btnConnectDirect: "Hubungkan Sinyal",
                 btnConnect: "Hubungkan Sinyal",
                 btnDisconnect: "Putuskan Sinyal",
-                hud43: "4:3 Anti-Gepeng",
+                hud43: "4:3 Asli",
+                hud169: "16:9 Pas",
                 hudCrop: "Potong Pinggir",
-                hud169: "16:9 Pas Layar",
                 hudStretch: "Tarik Penuh",
                 drawerTitle: "Panel Pengaturan",
-                lblThemeDrawer: "Tema Tampilan",
-                themeLiquid: "iOS Liquid Glass",
-                themePixel: "Pixel Material You",
+                appearanceHeading: "Tampilan & Bahasa",
+                lblThemeDrawer: "Tema Antarmuka",
+                optThemeLiquid: "🫧 Liquid Glass (iOS)",
+                optThemeMonet: "🎨 Pixel Material You (Monet)",
                 lblLanguageDrawer: "Bahasa",
-                deviceHeading: "Pilih Perangkat Input",
+                deviceHeading: "Perangkat Input & Stream",
+                wakeLockBadge: "Layar Tetap Nyala",
                 lblVideoInput: "Perangkat Input Video",
                 lblAudioInput: "Perangkat Input Audio",
                 lblVideoResolution: "Resolusi Video & FPS",
-                lblVideoSmoothing: "Filter Render Video",
-                optResAuto: "Otomatis / Bawaan",
-                optRes1080p: "1080p @ 60 FPS (Full HD)",
                 optRes720p: "720p @ 60 FPS (HD - Rendah Lag)",
+                optRes1080p: "1080p @ 60 FPS (Full HD)",
                 optRes480p: "480p @ 60 FPS (SD)",
-                optSmooth: "Halus (Bilinear)",
-                optCrisp: "Tajam (Pixelated)",
+                optResAuto: "Otomatis / Bawaan",
                 selectVideoDefault: "-- Pilih Input Video --",
                 selectAudioDefault: "-- Pilih Input Audio --",
                 aspectHeading: "Kontrol Rasio Layar",
-                badgeAntiDistort: "Anti-Gepeng",
-                opt43: "4:3 Anti-Gepeng",
+                badgeAntiDistort: "Kunci 16:9",
+                opt43: "4:3 Asli",
+                opt169: "16:9 Pas",
                 optCrop: "Potong Pinggir",
-                opt169: "16:9 Pas Layar",
                 optStretch: "Tarik Penuh",
                 presetsHeading: "Preset Cepat Tampilan",
                 preset1080p: "Pas 1080p HD",
                 preset480p: "Pas 480p SD",
-                presetReset: "Reset Awal",
                 presetStretch: "Tarik Penuh",
-                posHeading: "Posisi & Skala",
+                presetReset: "Reset Awal",
+                posHeading: "Posisi & Perluasan Sisi",
                 lblZoom: "Tingkat Zoom",
-                lblScaleX: "Luaskan Horisontal (Scale X)",
-                lblScaleY: "Luaskan Vertikal (Scale Y)",
+                lblScaleX: "Luaskan Horisontal (Kiri/Kanan)",
+                lblScaleY: "Luaskan Vertikal (Atas/Bawah)",
                 lblPanX: "Geser Horisontal (X)",
                 lblPanY: "Geser Vertikal (Y)",
-                audioHeading: "Penguat Volume Audio",
-                colorHeading: "Kecerahan & Warna",
+                audioHeading: "Volume Stereo Asli",
+                colorHeading: "Gambar & Rendering",
+                lblVideoSmoothing: "Filter Rendering Video",
+                optSmooth: "Halus (Bilinear)",
+                optCrisp: "Tajam (Pixelated)",
                 lblBrightness: "Kecerahan",
                 lblContrast: "Kontras",
                 lblSaturation: "Saturasi Warna",
-                btnResetAll: "Reset Semua",
+                scanlineToggle: "Garis Layar CRT (Scanlines)",
                 kbdFullscreen: "Layar Penuh",
                 kbdScreenshot: "Foto Layar",
                 kbdMute: "Bungkam",
-                kbdReset: "Reset Semua",
+                kbdScanlines: "Scanlines",
+                kbdReset: "Reset",
                 toastConnected: "Sinyal HDMI Terhubung (Layar Tetap Menyala)",
                 toastDisconnected: "Sinyal Terputus",
-                toastError: "Gagal menghubungkan perangkat capture",
+                toastError: "Gagal mengakses perangkat capture",
                 toastScreenshot: "Foto Layar PNG Tersimpan",
                 toastMuted: "Audio Dibungkam",
                 toastActive: "Audio Aktif",
                 toastReset: "Semua Pengaturan Direset",
                 toastAspect: "Mode Rasio: ",
-                toastResChanged: "Resolusi diubah ke: ",
-                toastSwitched: "Beralih ke: ",
-                toastFilterChanged: "Filter Render: ",
-                toastThemeChanged: "Tema diubah ke: "
+                toastResChanged: "Resolusi: ",
+                toastSwitched: "Input: ",
+                toastFilterChanged: "Filter: ",
+                toastThemeChanged: "Tema: ",
+                toastScanlines: "CRT Scanlines: "
             },
             su: {
                 appTitle: "Panyawang Layar HDMI Video Capture",
@@ -1022,115 +963,109 @@
                 btnScreenshot: "Potrét Layar",
                 btnSettings: "Setelan",
                 connectPrompt: "Sambungkeun Alat HDMI Capture",
-                connectSub: "Colokkeun HDMI Video Capture Card & pencét Sambungkeun",
+                connectSub: "Colokkeun HDMI Video Capture Card & pencét Sambungkeun Sinyal",
                 btnConnectDirect: "Sambungkeun Sinyal",
                 btnConnect: "Sambungkeun Sinyal",
                 btnDisconnect: "Pegatkeun Sinyal",
-                hud43: "4:3 Cegah Gepeng",
+                hud43: "4:3 Asli",
+                hud169: "16:9 Pas",
                 hudCrop: "Kerat Sisi",
-                hud169: "16:9 Pas Layar",
                 hudStretch: "Tarik Pinuh",
                 drawerTitle: "Panel Setelan",
-                lblThemeDrawer: "Téma Tampilan",
-                themeLiquid: "iOS Liquid Glass",
-                themePixel: "Pixel Material You",
+                appearanceHeading: "Tampilan & Basa",
+                lblThemeDrawer: "Téma Antarmuka",
+                optThemeLiquid: "🫧 Liquid Glass (iOS)",
+                optThemeMonet: "🎨 Pixel Material You (Monet)",
                 lblLanguageDrawer: "Basa",
-                deviceHeading: "Pilih Perangkat Input",
+                deviceHeading: "Alat Input & Stream",
+                wakeLockBadge: "Layar Caang Terus",
                 lblVideoInput: "Alat Input Pidéo",
                 lblAudioInput: "Alat Input Swara",
                 lblVideoResolution: "Resolusi Pidéo & FPS",
-                lblVideoSmoothing: "Filter Render Pidéo",
-                optResAuto: "Otomatis / Bawaan",
-                optRes1080p: "1080p @ 60 FPS (Full HD)",
                 optRes720p: "720p @ 60 FPS (HD - Rendah Lag)",
+                optRes1080p: "1080p @ 60 FPS (Full HD)",
                 optRes480p: "480p @ 60 FPS (SD)",
-                optSmooth: "Lemes (Bilinear)",
-                optCrisp: "Seukeut (Pixelated)",
+                optResAuto: "Otomatis / Bawaan",
                 selectVideoDefault: "-- Pilih Input Pidéo --",
                 selectAudioDefault: "-- Pilih Input Swara --",
                 aspectHeading: "Kontrol Rasio Layar",
-                badgeAntiDistort: "Cegah Mérok",
-                opt43: "4:3 Cegah Mérok",
+                badgeAntiDistort: "Konci 16:9",
+                opt43: "4:3 Asli",
+                opt169: "16:9 Pas",
                 optCrop: "Kerat Sisi",
-                opt169: "16:9 Pas Layar",
                 optStretch: "Tarik Pinuh",
                 presetsHeading: "Setelan Enggal Tampilan",
                 preset1080p: "Pas 1080p HD",
                 preset480p: "Pas 480p SD",
-                presetReset: "Puleangkeun",
                 presetStretch: "Tarik Pinuh",
-                posHeading: "Posisi & Ukuran",
+                presetReset: "Puleangkeun",
+                posHeading: "Posisi & Ngalegaan Sisi",
                 lblZoom: "Tingkat Zoom",
-                lblScaleX: "Papangkeun Kénca/Katuhu (X)",
-                lblScaleY: "Papangkeun Luhur/Handap (Y)",
+                lblScaleX: "Legakeun Kénca/Katuhu",
+                lblScaleY: "Legakeun Luhur/Handap",
                 lblPanX: "Geser Kénca/Katuhu (X)",
                 lblPanY: "Geser Luhur/Handap (Y)",
-                audioHeading: "Pangkuat Swara",
-                colorHeading: "Cahaya & Warna",
+                audioHeading: "Volume Stereo Asli",
+                colorHeading: "Gambar & Rendering",
+                lblVideoSmoothing: "Filter Rendering Pidéo",
+                optSmooth: "Lemes (Bilinear)",
+                optCrisp: "Seukeut (Pixelated)",
                 lblBrightness: "Cahaya",
                 lblContrast: "Kontras",
                 lblSaturation: "Kerat Warna",
-                btnResetAll: "Puleangkeun Sadaya",
+                scanlineToggle: "Garis Layar CRT (Scanlines)",
                 kbdFullscreen: "Layar Pinuh",
                 kbdScreenshot: "Potrét Layar",
                 kbdMute: "Pareum Swara",
+                kbdScanlines: "Scanlines",
                 kbdReset: "Puleangkeun",
-                toastConnected: "Sinyal HDMI Disambungkeun (Layar Dijaga Caang)",
+                toastConnected: "Sinyal HDMI Disambungkeun (Layar Caang Terus)",
                 toastDisconnected: "Sinyal Dipegatkeun",
-                toastError: "Teu tiasa nyambungkeun alat pidéo",
-                toastScreenshot: "Potrét Layar PNG Parantos Disimpen",
+                toastError: "Teu tiasa muka alat capture",
+                toastScreenshot: "Potrét Layar PNG Disimpen",
                 toastMuted: "Swara Dipareumkeun",
                 toastActive: "Swara Hurung",
                 toastReset: "Sadaya Setelan Dipuleangkeun",
                 toastAspect: "Mode Rasio: ",
-                toastResChanged: "Resolusi dirobih ka: ",
-                toastSwitched: "Ngarobih ka: ",
-                toastFilterChanged: "Filter Render: ",
-                toastThemeChanged: "Téma dirobih ka: "
+                toastResChanged: "Resolusi: ",
+                toastSwitched: "Input: ",
+                toastFilterChanged: "Filter: ",
+                toastThemeChanged: "Téma: ",
+                toastScanlines: "CRT Scanlines: "
             }
         };
 
         let currentLang = localStorage.getItem('hdmi_viewer_lang') || 'en';
-        let currentTheme = localStorage.getItem('hdmi_viewer_theme') || 'liquid-glass';
-        let currentStream = null;
+        let currentTheme = localStorage.getItem('hdmi_viewer_theme') || 'liquid';
 
-        // ==========================================================================
-        // 2. DUAL-THEME ENGINE (iOS Liquid Glass & Google Pixel Material You)
-        // ==========================================================================
-        function changeTheme(theme, notify = true) {
-            currentTheme = (theme === 'material-you') ? 'material-you' : 'liquid-glass';
+        // 2. DUAL THEME ENGINE (LIQUID GLASS iOS vs PIXEL MATERIAL YOU MONET)
+        function changeTheme(theme, silent = false) {
+            currentTheme = (theme === 'monet') ? 'monet' : 'liquid';
             localStorage.setItem('hdmi_viewer_theme', currentTheme);
             document.documentElement.setAttribute('data-theme', currentTheme);
 
-            const btnLiquid = document.getElementById('btnThemeLiquidGlass');
-            const btnPixel = document.getElementById('btnThemeMaterialYou');
+            const headerSel = document.getElementById('themeSelectHeader');
+            const drawerSel = document.getElementById('themeSelectDrawer');
+            if (headerSel) headerSel.value = currentTheme;
+            if (drawerSel) drawerSel.value = currentTheme;
 
-            if (currentTheme === 'liquid-glass') {
-                btnLiquid.className = "py-2 px-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 transition liquid-sheen theme-pill-primary";
-                btnPixel.className = "py-2 px-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 transition liquid-sheen theme-card";
-            } else {
-                btnPixel.className = "py-2 px-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 transition liquid-sheen theme-pill-primary";
-                btnLiquid.className = "py-2 px-2.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 transition liquid-sheen theme-card";
-            }
-
-            if (notify) {
+            if (!silent) {
                 const t = i18n[currentLang];
-                const themeName = currentTheme === 'liquid-glass' ? t.themeLiquid : t.themePixel;
-                showOSD(t.toastThemeChanged + themeName);
+                const label = currentTheme === 'liquid' ? t.optThemeLiquid : t.optThemeMonet;
+                showOSD(t.toastThemeChanged + label);
             }
         }
 
-        // ==========================================================================
-        // 3. LANGUAGE SWITCHER (i18n)
-        // ==========================================================================
+        // 3. DYNAMIC LANGUAGE SWITCHER
         function changeLanguage(lang) {
-            currentLang = i18n[lang] ? lang : 'en';
-            localStorage.setItem('hdmi_viewer_lang', currentLang);
+            if (!i18n[lang]) lang = 'en';
+            currentLang = lang;
+            localStorage.setItem('hdmi_viewer_lang', lang);
 
-            document.getElementById('langSelectHeader').value = currentLang;
-            document.getElementById('langSelectDrawer').value = currentLang;
+            document.getElementById('langSelectHeader').value = lang;
+            document.getElementById('langSelectDrawer').value = lang;
 
-            const t = i18n[currentLang];
+            const t = i18n[lang];
 
             document.getElementById('txtAppTitle').textContent = t.appTitle;
             document.getElementById('txtAppSubtitle').textContent = t.appSubtitle;
@@ -1142,69 +1077,70 @@
             document.getElementById('txtConnectPrompt').textContent = t.connectPrompt;
             document.getElementById('txtConnectSub').textContent = t.connectSub;
             document.getElementById('txtBtnConnectDirect').textContent = t.btnConnectDirect;
+            document.getElementById('txtBtnConnect').textContent = currentStream ? t.btnDisconnect : t.btnConnect;
 
             document.getElementById('txtHud43').textContent = t.hud43;
-            document.getElementById('txtHudCrop').textContent = t.hudCrop;
             document.getElementById('txtHud169').textContent = t.hud169;
+            document.getElementById('txtHudCrop').textContent = t.hudCrop;
             document.getElementById('txtHudStretch').textContent = t.hudStretch;
 
             document.getElementById('txtDrawerTitle').textContent = t.drawerTitle;
-            document.getElementById('lblThemeDrawer').children[1].textContent = t.lblThemeDrawer;
-            document.getElementById('txtThemeLiquid').textContent = t.themeLiquid;
-            document.getElementById('txtThemePixel').textContent = t.themePixel;
-            document.getElementById('lblLanguageDrawer').children[1].textContent = t.lblLanguageDrawer;
+            document.getElementById('txtAppearanceHeading').textContent = t.appearanceHeading;
+            document.getElementById('lblThemeDrawer').textContent = t.lblThemeDrawer;
+            document.getElementById('optThemeLiquidHeader').textContent = t.optThemeLiquid;
+            document.getElementById('optThemeMonetHeader').textContent = t.optThemeMonet;
+            document.getElementById('optThemeLiquidDrawer').textContent = t.optThemeLiquid;
+            document.getElementById('optThemeMonetDrawer').textContent = t.optThemeMonet;
+            document.getElementById('lblLanguageDrawer').textContent = t.lblLanguageDrawer;
 
-            document.getElementById('txtDeviceHeading').children[1].textContent = t.deviceHeading;
+            document.getElementById('txtDeviceHeading').textContent = t.deviceHeading;
+            document.getElementById('txtWakeLockBadge').textContent = t.wakeLockBadge;
             document.getElementById('lblVideoInput').textContent = t.lblVideoInput;
             document.getElementById('lblAudioInput').textContent = t.lblAudioInput;
             document.getElementById('lblVideoResolution').textContent = t.lblVideoResolution;
-            document.getElementById('lblVideoSmoothing').textContent = t.lblVideoSmoothing;
-            document.getElementById('optResAuto').textContent = t.optResAuto;
-            document.getElementById('optRes1080p').textContent = t.optRes1080p;
             document.getElementById('optRes720p').textContent = t.optRes720p;
+            document.getElementById('optRes1080p').textContent = t.optRes1080p;
             document.getElementById('optRes480p').textContent = t.optRes480p;
-            document.getElementById('optSmooth').textContent = t.optSmooth;
-            document.getElementById('optCrisp').textContent = t.optCrisp;
-            document.getElementById('txtBtnConnect').textContent = currentStream ? t.btnDisconnect : t.btnConnect;
+            document.getElementById('optResAuto').textContent = t.optResAuto;
 
-            document.getElementById('txtAspectHeading').children[1].textContent = t.aspectHeading;
+            document.getElementById('txtAspectHeading').textContent = t.aspectHeading;
             document.getElementById('txtBadgeAntiDistort').textContent = t.badgeAntiDistort;
             document.getElementById('txtOpt43').textContent = t.opt43;
-            document.getElementById('txtOptCrop').textContent = t.optCrop;
             document.getElementById('txtOpt169').textContent = t.opt169;
+            document.getElementById('txtOptCrop').textContent = t.optCrop;
             document.getElementById('txtOptStretch').textContent = t.optStretch;
 
-            document.getElementById('txtPresetsHeading').children[1].textContent = t.presetsHeading;
+            document.getElementById('txtPresetsHeading').textContent = t.presetsHeading;
             document.getElementById('txtPreset1080p').textContent = t.preset1080p;
             document.getElementById('txtPreset480p').textContent = t.preset480p;
-            document.getElementById('txtPresetReset').textContent = t.presetReset;
             document.getElementById('txtPresetStretch').textContent = t.presetStretch;
+            document.getElementById('txtPresetReset').textContent = t.presetReset;
 
-            document.getElementById('txtPosHeading').children[1].textContent = t.posHeading;
+            document.getElementById('txtPosHeading').textContent = t.posHeading;
             document.getElementById('lblZoom').textContent = t.lblZoom;
             document.getElementById('lblScaleX').textContent = t.lblScaleX;
             document.getElementById('lblScaleY').textContent = t.lblScaleY;
             document.getElementById('lblPanX').textContent = t.lblPanX;
             document.getElementById('lblPanY').textContent = t.lblPanY;
 
-            document.getElementById('txtAudioHeading').children[1].textContent = t.audioHeading;
-            document.getElementById('txtColorHeading').children[1].textContent = t.colorHeading;
+            document.getElementById('txtAudioHeading').textContent = t.audioHeading;
+            document.getElementById('txtColorHeading').textContent = t.colorHeading;
+            document.getElementById('lblVideoSmoothing').textContent = t.lblVideoSmoothing;
+            document.getElementById('optSmooth').textContent = t.optSmooth;
+            document.getElementById('optCrisp').textContent = t.optCrisp;
             document.getElementById('lblBrightness').textContent = t.lblBrightness;
             document.getElementById('lblContrast').textContent = t.lblContrast;
             document.getElementById('lblSaturation').textContent = t.lblSaturation;
-            document.getElementById('txtBtnResetAll').textContent = t.btnResetAll;
+            document.getElementById('txtScanlineToggle').textContent = t.scanlineToggle;
 
             document.getElementById('txtKbdFullscreen').textContent = t.kbdFullscreen;
             document.getElementById('txtKbdScreenshot').textContent = t.kbdScreenshot;
             document.getElementById('txtKbdMute').textContent = t.kbdMute;
+            document.getElementById('txtKbdScanlines').textContent = t.kbdScanlines;
             document.getElementById('txtKbdReset').textContent = t.kbdReset;
-
-            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        // ==========================================================================
-        // 4. DOM REFERENCES & GPU-ACCELERATED TRANSFORM STATE
-        // ==========================================================================
+        // DOM References
         const videoElement = document.getElementById('hdmiVideo');
         const viewportContainer = document.getElementById('viewportContainer');
         const placeholderState = document.getElementById('placeholderState');
@@ -1218,6 +1154,7 @@
         const btnStartCaptureDirect = document.getElementById('btnStartCaptureDirect');
         const btnRefreshDevices = document.getElementById('btnRefreshDevices');
 
+        // Sliders & Value Readouts
         const sliderZoom = document.getElementById('sliderZoom');
         const sliderScaleX = document.getElementById('sliderScaleX');
         const sliderScaleY = document.getElementById('sliderScaleY');
@@ -1238,19 +1175,25 @@
         const valSaturate = document.getElementById('valSaturate');
         const valVolume = document.getElementById('valVolume');
 
-        const btnPresetDefault = document.getElementById('btnPresetDefault');
-        const btnPresetHD1080p = document.getElementById('btnPresetHD1080p');
-        const btnPresetSD480p = document.getElementById('btnPresetSD480p');
-        const btnPresetFullStretch = document.getElementById('btnPresetFullStretch');
+        // Aspect & Preset Controls
+        const btnAspect43 = document.getElementById('btnAspect43');
+        const btnAspect169 = document.getElementById('btnAspect169');
+        const btnAspectCrop = document.getElementById('btnAspectCrop');
+        const btnAspectFill = document.getElementById('btnAspectFill');
 
+        const hudReset = document.getElementById('hudReset');
+        const hudAspect43 = document.getElementById('hudAspect43');
+        const hudAspect169 = document.getElementById('hudAspect169');
+        const hudAspectCrop = document.getElementById('hudAspectCrop');
+        const hudAspectStretch = document.getElementById('hudAspectStretch');
+        const hudScanlines = document.getElementById('hudScanlines');
+
+        const btnPreset1080p = document.getElementById('btnPreset1080p');
+        const btnPreset480p = document.getElementById('btnPreset480p');
+        const btnPresetFullStretch = document.getElementById('btnPresetFullStretch');
+        const btnPresetDefault = document.getElementById('btnPresetDefault');
         const btnResetPosOnly = document.getElementById('btnResetPosOnly');
         const btnResetColorOnly = document.getElementById('btnResetColorOnly');
-        const btnResetAllDrawer = document.getElementById('btnResetAllDrawer');
-
-        const btnAspect43 = document.getElementById('btnAspect43');
-        const btnAspectCrop = document.getElementById('btnAspectCrop');
-        const btnAspect169 = document.getElementById('btnAspect169');
-        const btnAspectFill = document.getElementById('btnAspectFill');
 
         const btnMute = document.getElementById('btnMute');
         const muteIcon = document.getElementById('muteIcon');
@@ -1259,18 +1202,15 @@
         const btnToggleSidebar = document.getElementById('btnToggleSidebar');
         const btnCloseSidebar = document.getElementById('btnCloseSidebar');
         const controlSidebar = document.getElementById('controlSidebar');
-
-        const hudReset = document.getElementById('hudReset');
-        const hudAspect43 = document.getElementById('hudAspect43');
-        const hudAspectCrop = document.getElementById('hudAspectCrop');
-        const hudAspect169 = document.getElementById('hudAspect169');
-        const hudAspectStretch = document.getElementById('hudAspectStretch');
-        const hudScanlines = document.getElementById('hudScanlines');
+        const btnToggleScanlinesDrawer = document.getElementById('btnToggleScanlinesDrawer');
+        const txtScanlineState = document.getElementById('txtScanlineState');
+        const txtWakeLockBadge = document.getElementById('txtWakeLockBadge');
 
         const osdNotification = document.getElementById('osdNotification');
         const osdText = document.getElementById('osdText');
         const audioMeterCanvas = document.getElementById('audioMeterCanvas');
 
+        // State Object
         let transformState = {
             zoom: 1.0,
             scaleX: 1.0,
@@ -1282,10 +1222,12 @@
             saturate: 100,
             volume: 1.0,
             isMuted: false,
-            smoothing: 'smooth', // 'smooth' (Bilinear) or 'crisp' (Pixelated)
-            aspectMode: '43'     // '43', 'crop', '169', 'fill'
+            smoothing: 'smooth',
+            aspectMode: '43',
+            scanlines: false
         };
 
+        let currentStream = null;
         let audioCtx = null;
         let mediaStreamSource = null;
         let gainNode = null;
@@ -1293,6 +1235,7 @@
         let animFrameId = null;
         let wakeLock = null;
 
+        // 4. GPU-ACCELERATED VIDEO TRANSFORMS & ASPECT MODES
         function applyTransforms() {
             valZoom.textContent = transformState.zoom.toFixed(2) + 'x';
             valScaleX.textContent = transformState.scaleX.toFixed(2) + 'x';
@@ -1307,27 +1250,28 @@
             const effectiveScaleX = (transformState.zoom * transformState.scaleX).toFixed(4);
             const effectiveScaleY = (transformState.zoom * transformState.scaleY).toFixed(4);
 
-            // GPU-Accelerated 3D Transform
+            // GPU Hardware-accelerated 3D transform
             videoElement.style.transform = `translate3d(${transformState.panX}px, ${transformState.panY}px, 0px) scale3d(${effectiveScaleX}, ${effectiveScaleY}, 1)`;
 
-            // Zero GPU overhead filter bypass when all color sliders are at 100%
+            // Filter bypass when at default 100% values for maximum FPS
             if (transformState.brightness === 100 && transformState.contrast === 100 && transformState.saturate === 100) {
                 videoElement.style.filter = 'none';
             } else {
                 videoElement.style.filter = `brightness(${transformState.brightness}%) contrast(${transformState.contrast}%) saturate(${transformState.saturate}%)`;
             }
 
-            // Video Rendering Filter (Smooth Bilinear vs Crisp Pixelated)
+            // Video rendering filter (Smooth Bilinear vs Crisp Pixelated)
             videoElement.style.imageRendering = transformState.smoothing === 'smooth' ? 'auto' : 'pixelated';
 
+            // Aspect modes inside strict 16:9 viewport frame
             if (transformState.aspectMode === '43') {
                 videoElement.style.objectFit = 'contain';
                 videoElement.style.aspectRatio = '4 / 3';
-            } else if (transformState.aspectMode === 'crop') {
-                videoElement.style.objectFit = 'cover';
-                videoElement.style.aspectRatio = '16 / 9';
             } else if (transformState.aspectMode === '169') {
                 videoElement.style.objectFit = 'contain';
+                videoElement.style.aspectRatio = '16 / 9';
+            } else if (transformState.aspectMode === 'crop') {
+                videoElement.style.objectFit = 'cover';
                 videoElement.style.aspectRatio = '16 / 9';
             } else if (transformState.aspectMode === 'fill') {
                 videoElement.style.objectFit = 'fill';
@@ -1338,21 +1282,38 @@
         }
 
         function updateAspectUI(mode) {
-            const aspectBtns = [
+            const drawerButtons = [
                 { btn: btnAspect43, mode: '43' },
-                { btn: btnAspectCrop, mode: 'crop' },
                 { btn: btnAspect169, mode: '169' },
+                { btn: btnAspectCrop, mode: 'crop' },
                 { btn: btnAspectFill, mode: 'fill' }
             ];
 
-            aspectBtns.forEach(item => {
+            drawerButtons.forEach(item => {
                 const checkIcon = item.btn.querySelector('.aspect-check');
                 if (item.mode === mode) {
-                    item.btn.className = "aspect-btn py-2 px-3 rounded-2xl text-xs font-bold transition text-left flex flex-col liquid-sheen theme-pill-primary";
+                    item.btn.classList.remove('ui-pill', 'font-semibold');
+                    item.btn.classList.add('ui-pill-accent', 'font-bold');
                     if (checkIcon) checkIcon.classList.remove('hidden');
                 } else {
-                    item.btn.className = "aspect-btn py-2 px-3 rounded-2xl text-xs font-bold transition text-left flex flex-col liquid-sheen theme-card";
+                    item.btn.classList.remove('ui-pill-accent', 'font-bold');
+                    item.btn.classList.add('ui-pill', 'font-semibold');
                     if (checkIcon) checkIcon.classList.add('hidden');
+                }
+            });
+
+            const hudButtons = [
+                { btn: hudAspect43, mode: '43' },
+                { btn: hudAspect169, mode: '169' },
+                { btn: hudAspectCrop, mode: 'crop' },
+                { btn: hudAspectStretch, mode: 'fill' }
+            ];
+
+            hudButtons.forEach(item => {
+                if (item.mode === mode) {
+                    item.btn.classList.add('active');
+                } else {
+                    item.btn.classList.remove('active');
                 }
             });
         }
@@ -1360,27 +1321,27 @@
         function setAspectMode(mode) {
             transformState.aspectMode = mode;
             applyTransforms();
-            const modeNames = {
+            const names = {
                 '43': i18n[currentLang].hud43,
-                'crop': i18n[currentLang].hudCrop,
                 '169': i18n[currentLang].hud169,
+                'crop': i18n[currentLang].hudCrop,
                 'fill': i18n[currentLang].hudStretch
             };
-            showOSD(i18n[currentLang].toastAspect + (modeNames[mode] || mode));
+            showOSD(i18n[currentLang].toastAspect + (names[mode] || mode));
         }
 
-        // ==========================================================================
-        // 5. SCREEN WAKE LOCK API (ANTI-SLEEP WHILE GAMING)
-        // ==========================================================================
+        // 5. SCREEN WAKE LOCK API (PREVENTS DISPLAY SLEEP DURING CAPTURE)
         async function requestWakeLock() {
             if ('wakeLock' in navigator && currentStream) {
                 try {
                     wakeLock = await navigator.wakeLock.request('screen');
+                    txtWakeLockBadge.classList.remove('hidden');
                     wakeLock.addEventListener('release', () => {
                         wakeLock = null;
+                        txtWakeLockBadge.classList.add('hidden');
                     });
                 } catch (err) {
-                    console.warn('Screen Wake Lock request failed:', err.message);
+                    console.warn('Screen Wake Lock unavailable:', err.message);
                 }
             }
         }
@@ -1389,7 +1350,8 @@
             if (wakeLock !== null) {
                 wakeLock.release().then(() => {
                     wakeLock = null;
-                }).catch(() => {});
+                    txtWakeLockBadge.classList.add('hidden');
+                });
             }
         }
 
@@ -1399,43 +1361,40 @@
             }
         });
 
-        // ==========================================================================
-        // 6. HARDWARE CAPTURE & PERMISSION PRIMING ENGINE
-        // ==========================================================================
+        // 6. SMART DEVICE PERMISSION UNLOCK & HDMI CAPTURE AUTO-DETECTION
         async function getDevices() {
             try {
-                // Prime media permissions so true USB/HDMI hardware labels appear
+                // Unlock hardware labels if not yet granted
                 let permStream = null;
                 try {
                     permStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                } catch (pErr) {
+                } catch (_) {
                     try {
                         permStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                    } catch (vErr) {
-                        console.warn('Permission priming skipped or denied:', vErr);
-                    }
+                    } catch (__) {}
                 }
 
                 const devices = await navigator.mediaDevices.enumerateDevices();
-
                 if (permStream) {
                     permStream.getTracks().forEach(track => track.stop());
                 }
 
                 const t = i18n[currentLang];
-                const prevSelectedVideo = videoSourceSelect.value;
-                const prevSelectedAudio = audioSourceSelect.value;
+                const prevVideo = videoSourceSelect.value;
+                const prevAudio = audioSourceSelect.value;
 
                 videoSourceSelect.innerHTML = `<option value="">${t.selectVideoDefault}</option>`;
                 audioSourceSelect.innerHTML = `<option value="">${t.selectAudioDefault}</option>`;
 
-                let detectedCaptureVideoId = null;
-                let detectedCaptureAudioId = null;
+                let detectedVideoId = null;
+                let detectedAudioId = null;
 
                 const captureKeywords = [
                     'capture', 'hdmi', 'usb video', 'cam link', 'fhd camera',
-                    'video capture', 'usb camera', 'u capture', 'elgato', 'avermedia', 'macrosilicon'
+                    'video capture', 'usb camera', 'u capture', 'ezcap',
+                    'avermedia', 'elgato', 'ugreen', 'ms2109', 'ms2130'
                 ];
+                const builtinExclusions = ['integrated', 'built-in', 'facetime', 'ir camera', 'realtek'];
 
                 devices.forEach(device => {
                     const option = document.createElement('option');
@@ -1443,38 +1402,38 @@
                     const labelLower = (device.label || '').toLowerCase();
 
                     if (device.kind === 'videoinput') {
-                        option.text = device.label || `Video Input Device (${videoSourceSelect.length})`;
+                        option.text = device.label || `Video Input (${videoSourceSelect.length})`;
                         videoSourceSelect.appendChild(option);
 
-                        if (!detectedCaptureVideoId && captureKeywords.some(kw => labelLower.includes(kw))) {
-                            if (!labelLower.includes('integrated') && !labelLower.includes('built-in') && !labelLower.includes('facetime')) {
-                                detectedCaptureVideoId = device.deviceId;
+                        if (!detectedVideoId && captureKeywords.some(kw => labelLower.includes(kw))) {
+                            if (!builtinExclusions.some(ex => labelLower.includes(ex))) {
+                                detectedVideoId = device.deviceId;
                             }
                         }
                     } else if (device.kind === 'audioinput') {
-                        option.text = device.label || `Audio Input Device (${audioSourceSelect.length})`;
+                        option.text = device.label || `Audio Input (${audioSourceSelect.length})`;
                         audioSourceSelect.appendChild(option);
 
-                        if (!detectedCaptureAudioId && captureKeywords.some(kw => labelLower.includes(kw))) {
-                            if (!labelLower.includes('internal') && !labelLower.includes('built-in') && !labelLower.includes('realtek')) {
-                                detectedCaptureAudioId = device.deviceId;
+                        if (!detectedAudioId && captureKeywords.some(kw => labelLower.includes(kw))) {
+                            if (!builtinExclusions.some(ex => labelLower.includes(ex))) {
+                                detectedAudioId = device.deviceId;
                             }
                         }
                     }
                 });
 
-                if (prevSelectedVideo && [...videoSourceSelect.options].some(o => o.value === prevSelectedVideo)) {
-                    videoSourceSelect.value = prevSelectedVideo;
-                } else if (detectedCaptureVideoId) {
-                    videoSourceSelect.value = detectedCaptureVideoId;
+                if (prevVideo && [...videoSourceSelect.options].some(o => o.value === prevVideo)) {
+                    videoSourceSelect.value = prevVideo;
+                } else if (detectedVideoId) {
+                    videoSourceSelect.value = detectedVideoId;
                 } else if (videoSourceSelect.options.length > 1) {
                     videoSourceSelect.selectedIndex = 1;
                 }
 
-                if (prevSelectedAudio && [...audioSourceSelect.options].some(o => o.value === prevSelectedAudio)) {
-                    audioSourceSelect.value = prevSelectedAudio;
-                } else if (detectedCaptureAudioId) {
-                    audioSourceSelect.value = detectedCaptureAudioId;
+                if (prevAudio && [...audioSourceSelect.options].some(o => o.value === prevAudio)) {
+                    audioSourceSelect.value = prevAudio;
+                } else if (detectedAudioId) {
+                    audioSourceSelect.value = detectedAudioId;
                 } else if (audioSourceSelect.options.length > 1) {
                     audioSourceSelect.selectedIndex = 1;
                 }
@@ -1489,6 +1448,7 @@
             navigator.mediaDevices.addEventListener('devicechange', getDevices);
         }
 
+        // 7. LIVE STREAM CONNECTION & RESOLUTION ENGINE
         async function startCapture() {
             const videoId = videoSourceSelect.value;
             const audioId = audioSourceSelect.value;
@@ -1527,13 +1487,13 @@
                 deviceId: { exact: videoId }
             };
 
-            if (resVal === '1080p60') {
-                videoConstraints.width = { ideal: 1920 };
-                videoConstraints.height = { ideal: 1080 };
-                videoConstraints.frameRate = { ideal: 60, min: 30 };
-            } else if (resVal === '720p60') {
+            if (resVal === '720p60') {
                 videoConstraints.width = { ideal: 1280 };
                 videoConstraints.height = { ideal: 720 };
+                videoConstraints.frameRate = { ideal: 60, min: 30 };
+            } else if (resVal === '1080p60') {
+                videoConstraints.width = { ideal: 1920 };
+                videoConstraints.height = { ideal: 1080 };
                 videoConstraints.frameRate = { ideal: 60, min: 30 };
             } else if (resVal === '480p60') {
                 videoConstraints.width = { ideal: 720 };
@@ -1552,8 +1512,7 @@
                 });
 
                 videoElement.srcObject = currentStream;
-                videoElement.muted = true; // Output routed cleanly via Web Audio API GainNode
-
+                videoElement.muted = true;
                 placeholderState.classList.add('hidden');
                 document.getElementById('txtBtnConnect').textContent = i18n[currentLang].btnDisconnect;
 
@@ -1561,7 +1520,6 @@
                 await requestWakeLock();
                 showOSD(i18n[currentLang].toastConnected);
             } catch (err) {
-                console.warn('Exact constraints fallback:', err);
                 try {
                     currentStream = await navigator.mediaDevices.getUserMedia({
                         video: { deviceId: videoId },
@@ -1571,11 +1529,12 @@
                     videoElement.muted = true;
                     placeholderState.classList.add('hidden');
                     document.getElementById('txtBtnConnect').textContent = i18n[currentLang].btnDisconnect;
+
                     setupAudioPipeline(currentStream);
                     await requestWakeLock();
                     showOSD(i18n[currentLang].toastConnected);
                 } catch (fallbackErr) {
-                    console.error('Stream connection error:', fallbackErr);
+                    console.error('Stream connection failed:', fallbackErr);
                     showOSD(i18n[currentLang].toastError);
                 }
             }
@@ -1584,20 +1543,20 @@
         btnStartCapture.addEventListener('click', startCapture);
         btnStartCaptureDirect.addEventListener('click', startCapture);
 
-        // Live Hot-Switching on Source / Resolution Change
+        // Live switching on device or resolution change
         videoSourceSelect.addEventListener('change', async () => {
             if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
+                currentStream.getTracks().forEach(t => t.stop());
                 currentStream = null;
                 await startCapture();
-                const selectedLabel = videoSourceSelect.options[videoSourceSelect.selectedIndex].text;
-                showOSD(i18n[currentLang].toastSwitched + selectedLabel.split('(')[0].trim());
+                const label = videoSourceSelect.options[videoSourceSelect.selectedIndex].text;
+                showOSD(i18n[currentLang].toastSwitched + label.split('(')[0].trim());
             }
         });
 
         audioSourceSelect.addEventListener('change', async () => {
             if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
+                currentStream.getTracks().forEach(t => t.stop());
                 currentStream = null;
                 await startCapture();
             }
@@ -1605,24 +1564,22 @@
 
         videoResolutionSelect.addEventListener('change', async () => {
             if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
+                currentStream.getTracks().forEach(t => t.stop());
                 currentStream = null;
                 await startCapture();
-                const selectedText = videoResolutionSelect.options[videoResolutionSelect.selectedIndex].text;
-                showOSD(i18n[currentLang].toastResChanged + selectedText.split(' ')[0]);
+                const text = videoResolutionSelect.options[videoResolutionSelect.selectedIndex].text;
+                showOSD(i18n[currentLang].toastResChanged + text.split('(')[0].trim());
             }
         });
 
         videoSmoothingSelect.addEventListener('change', (e) => {
             transformState.smoothing = e.target.value;
             applyTransforms();
-            const filterLabel = e.target.options[e.target.selectedIndex].text.split(' ')[0];
-            showOSD(i18n[currentLang].toastFilterChanged + filterLabel);
+            const label = e.target.options[e.target.selectedIndex].text;
+            showOSD(i18n[currentLang].toastFilterChanged + label);
         });
 
-        // ==========================================================================
-        // 7. RAW STEREO AUDIO PIPELINE & LIVE VU METER
-        // ==========================================================================
+        // 8. RAW STEREO WEB AUDIO API PIPELINE & LIVE VU METER
         function setupAudioPipeline(stream) {
             const audioTracks = stream.getAudioTracks();
             if (audioTracks.length === 0) return;
@@ -1651,8 +1608,8 @@
                 gainNode.connect(analyser);
 
                 drawAudioMeter();
-            } catch (e) {
-                console.error('Audio pipeline error:', e);
+            } catch (err) {
+                console.error('Web Audio setup error:', err);
             }
         }
 
@@ -1674,20 +1631,19 @@
                 for (let i = 0; i < bufferLength; i++) {
                     sum += dataArray[i];
                 }
-                const average = sum / bufferLength;
-                const level = Math.min(1, average / 128);
+                const level = Math.min(1, (sum / bufferLength) / 128);
 
                 ctx.clearRect(0, 0, audioMeterCanvas.width, audioMeterCanvas.height);
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
                 ctx.fillRect(0, 0, audioMeterCanvas.width, audioMeterCanvas.height);
 
                 const fillWidth = level * audioMeterCanvas.width;
-                const gradient = ctx.createLinearGradient(0, 0, audioMeterCanvas.width, 0);
-                gradient.addColorStop(0, '#30D158');
-                gradient.addColorStop(0.7, '#0A84FF');
-                gradient.addColorStop(1, '#FF453A');
+                const grad = ctx.createLinearGradient(0, 0, audioMeterCanvas.width, 0);
+                grad.addColorStop(0, '#30d158');
+                grad.addColorStop(0.7, '#0a84ff');
+                grad.addColorStop(1, '#ff453a');
 
-                ctx.fillStyle = gradient;
+                ctx.fillStyle = grad;
                 ctx.fillRect(0, 0, fillWidth, audioMeterCanvas.height);
             }
 
@@ -1695,59 +1651,49 @@
             renderFrame();
         }
 
-        // ==========================================================================
-        // 8. UI CONTROLS, PRESETS & KEYBOARD SHORTCUTS
-        // ==========================================================================
+        // 9. SLIDERS, BUTTONS, SCANLINES & PRESETS
         btnAspect43.addEventListener('click', () => setAspectMode('43'));
-        btnAspectCrop.addEventListener('click', () => setAspectMode('crop'));
         btnAspect169.addEventListener('click', () => setAspectMode('169'));
+        btnAspectCrop.addEventListener('click', () => setAspectMode('crop'));
         btnAspectFill.addEventListener('click', () => setAspectMode('fill'));
 
         hudAspect43.addEventListener('click', () => setAspectMode('43'));
-        hudAspectCrop.addEventListener('click', () => setAspectMode('crop'));
         hudAspect169.addEventListener('click', () => setAspectMode('169'));
+        hudAspectCrop.addEventListener('click', () => setAspectMode('crop'));
         hudAspectStretch.addEventListener('click', () => setAspectMode('fill'));
 
         sliderZoom.addEventListener('input', (e) => {
             transformState.zoom = parseFloat(e.target.value);
             applyTransforms();
         });
-
         sliderScaleX.addEventListener('input', (e) => {
             transformState.scaleX = parseFloat(e.target.value);
             applyTransforms();
         });
-
         sliderScaleY.addEventListener('input', (e) => {
             transformState.scaleY = parseFloat(e.target.value);
             applyTransforms();
         });
-
         sliderPanX.addEventListener('input', (e) => {
             transformState.panX = parseInt(e.target.value, 10);
             applyTransforms();
         });
-
         sliderPanY.addEventListener('input', (e) => {
             transformState.panY = parseInt(e.target.value, 10);
             applyTransforms();
         });
-
         sliderBrightness.addEventListener('input', (e) => {
             transformState.brightness = parseInt(e.target.value, 10);
             applyTransforms();
         });
-
         sliderContrast.addEventListener('input', (e) => {
             transformState.contrast = parseInt(e.target.value, 10);
             applyTransforms();
         });
-
         sliderSaturate.addEventListener('input', (e) => {
             transformState.saturate = parseInt(e.target.value, 10);
             applyTransforms();
         });
-
         sliderVolume.addEventListener('input', (e) => {
             transformState.volume = parseFloat(e.target.value);
             if (gainNode && !transformState.isMuted) {
@@ -1756,8 +1702,6 @@
             applyTransforms();
         });
 
-        btnMute.addEventListener('click', toggleMute);
-
         function toggleMute() {
             transformState.isMuted = !transformState.isMuted;
             if (gainNode) {
@@ -1765,15 +1709,34 @@
             }
             if (transformState.isMuted) {
                 muteIcon.setAttribute('data-lucide', 'volume-x');
-                btnMute.style.color = '#FF453A';
+                btnMute.classList.add('text-red-400');
                 showOSD(i18n[currentLang].toastMuted);
             } else {
                 muteIcon.setAttribute('data-lucide', 'volume-2');
-                btnMute.style.color = '';
+                btnMute.classList.remove('text-red-400');
                 showOSD(i18n[currentLang].toastActive);
             }
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
+        btnMute.addEventListener('click', toggleMute);
+
+        function toggleScanlines() {
+            transformState.scanlines = !transformState.scanlines;
+            if (transformState.scanlines) {
+                scanlineEffect.classList.remove('opacity-0');
+                scanlineEffect.classList.add('opacity-100');
+                hudScanlines.classList.add('active');
+                txtScanlineState.textContent = 'ON';
+            } else {
+                scanlineEffect.classList.remove('opacity-100');
+                scanlineEffect.classList.add('opacity-0');
+                hudScanlines.classList.remove('active');
+                txtScanlineState.textContent = 'OFF';
+            }
+            showOSD(i18n[currentLang].toastScanlines + (transformState.scanlines ? 'ON' : 'OFF'));
+        }
+        hudScanlines.addEventListener('click', toggleScanlines);
+        btnToggleScanlinesDrawer.addEventListener('click', toggleScanlines);
 
         function resetPosition() {
             transformState.zoom = 1.0;
@@ -1810,7 +1773,16 @@
             sliderVolume.value = 1.0;
             if (gainNode) gainNode.gain.value = 1.0;
             muteIcon.setAttribute('data-lucide', 'volume-2');
-            btnMute.style.color = '';
+            btnMute.classList.remove('text-red-400');
+
+            if (transformState.scanlines) {
+                transformState.scanlines = false;
+                scanlineEffect.classList.remove('opacity-100');
+                scanlineEffect.classList.add('opacity-0');
+                hudScanlines.classList.remove('active');
+                txtScanlineState.textContent = 'OFF';
+            }
+
             applyTransforms();
             if (typeof lucide !== 'undefined') lucide.createIcons();
             showOSD(i18n[currentLang].toastReset);
@@ -1825,39 +1797,22 @@
             showOSD(i18n[currentLang].toastReset);
         });
         btnPresetDefault.addEventListener('click', resetAllDefaults);
-        btnResetAllDrawer.addEventListener('click', resetAllDefaults);
         hudReset.addEventListener('click', resetAllDefaults);
 
-        btnPresetHD1080p.addEventListener('click', () => {
+        btnPreset1080p.addEventListener('click', () => {
             resetPosition();
             setAspectMode('169');
         });
-
-        btnPresetSD480p.addEventListener('click', () => {
+        btnPreset480p.addEventListener('click', () => {
             resetPosition();
             setAspectMode('43');
         });
-
         btnPresetFullStretch.addEventListener('click', () => {
             resetPosition();
             setAspectMode('fill');
         });
 
-        let scanlinesActive = false;
-        hudScanlines.addEventListener('click', () => {
-            scanlinesActive = !scanlinesActive;
-            if (scanlinesActive) {
-                scanlineEffect.classList.remove('opacity-0');
-                scanlineEffect.classList.add('opacity-100');
-            } else {
-                scanlineEffect.classList.remove('opacity-100');
-                scanlineEffect.classList.add('opacity-0');
-            }
-        });
-
-        // PNG Screenshot Tool
-        btnScreenshot.addEventListener('click', takeScreenshot);
-
+        // 10. PNG SCREENSHOT CAPTURE
         function takeScreenshot() {
             if (!videoElement.srcObject || videoElement.readyState < 2) {
                 showOSD(i18n[currentLang].toastError);
@@ -1866,7 +1821,6 @@
 
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-
             canvas.width = videoElement.videoWidth || 1920;
             canvas.height = videoElement.videoHeight || 1080;
 
@@ -1884,26 +1838,26 @@
 
             showOSD(i18n[currentLang].toastScreenshot);
         }
+        btnScreenshot.addEventListener('click', takeScreenshot);
 
-        // Fullscreen & Sidebar Controls
-        btnFullscreen.addEventListener('click', toggleFullscreen);
-
+        // 11. FULLSCREEN & GPU SLIDE-OVER DRAWER TOGGLE
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 viewportContainer.requestFullscreen().catch(() => {});
             } else {
-                document.exitFullscreen().catch(() => {});
+                document.exitFullscreen();
             }
         }
+        btnFullscreen.addEventListener('click', toggleFullscreen);
 
         btnToggleSidebar.addEventListener('click', () => {
-            controlSidebar.classList.toggle('hidden');
+            controlSidebar.classList.toggle('open');
         });
         btnCloseSidebar.addEventListener('click', () => {
-            controlSidebar.classList.add('hidden');
+            controlSidebar.classList.remove('open');
         });
 
-        // OSD Toast Helper
+        // OSD Toast Notification Helper
         let osdTimeout = null;
         function showOSD(msg) {
             osdText.textContent = msg;
@@ -1911,10 +1865,10 @@
             if (osdTimeout) clearTimeout(osdTimeout);
             osdTimeout = setTimeout(() => {
                 osdNotification.classList.add('opacity-0');
-            }, 2500);
+            }, 2400);
         }
 
-        // Keyboard Shortcuts
+        // 12. KEYBOARD SHORTCUTS (F, S, M, C, R)
         window.addEventListener('keydown', (e) => {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
 
@@ -1931,6 +1885,10 @@
                     e.preventDefault();
                     toggleMute();
                     break;
+                case 'c':
+                    e.preventDefault();
+                    toggleScanlines();
+                    break;
                 case 'r':
                     e.preventDefault();
                     resetAllDefaults();
@@ -1940,10 +1898,14 @@
 
         // Initialize on Window Load
         window.onload = function () {
-            changeTheme(currentTheme, false);
+            if (window.innerWidth < 1024) {
+                controlSidebar.classList.remove('open');
+            }
+            changeTheme(currentTheme, true);
             changeLanguage(currentLang);
             applyTransforms();
             getDevices();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         };
     </script>
 </body>

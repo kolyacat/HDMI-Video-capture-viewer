@@ -456,7 +456,7 @@
                 </div>
 
                 <!-- FLOATING BOTTOM PILL HUD BAR (SINGLE-LAYER FROSTED GLASS) -->
-                <div class="glass-surface border absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full px-2.5 py-1.5 flex items-center gap-1 sm:gap-1.5 z-20 max-w-[95vw] overflow-x-auto">
+                <div id="floatingHudBar" class="glass-surface border absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full px-2.5 py-1.5 flex items-center gap-1 sm:gap-1.5 z-20 max-w-[95vw] overflow-x-auto">
                     <button id="hudReset" title="Reset All (R)" class="hud-btn flex items-center justify-center cursor-pointer shrink-0">
                         <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                     </button>
@@ -483,6 +483,12 @@
 
                     <button id="hudScanlines" title="Toggle CRT Scanlines (C)" class="hud-btn flex items-center justify-center cursor-pointer shrink-0">
                         <i data-lucide="grid" class="w-3.5 h-3.5"></i>
+                    </button>
+
+                    <div class="h-4 w-px bg-white/15 shrink-0"></div>
+
+                    <button id="hudClose" title="Close Quick Bar" class="hud-btn flex items-center justify-center cursor-pointer shrink-0">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
                     </button>
                 </div>
 
@@ -627,6 +633,17 @@
                             <span id="txtPresetReset">Reset Default</span>
                         </button>
                     </div>
+                </div>
+
+                <!-- Floating Quick Bar Toggle -->
+                <div class="pt-2 border-t border-white/10">
+                    <button id="btnToggleHudDrawer" class="ui-pill w-full py-2 px-3 text-xs font-semibold flex items-center justify-between cursor-pointer">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="panel-bottom" class="w-3.5 h-3.5 text-highlight"></i>
+                            <span id="txtHudToggle">Floating Quick Bar</span>
+                        </span>
+                        <span id="txtHudState" class="font-mono text-[10px] text-highlight font-bold">ON</span>
+                    </button>
                 </div>
             </div>
 
@@ -815,6 +832,8 @@
                 hud169: "16:9 Fit",
                 hudCrop: "Crop Edges",
                 hudStretch: "Full Stretch",
+                hudCloseTitle: "Close Quick Bar",
+                hudToggle: "Floating Quick Bar",
                 drawerTitle: "Settings Panel",
                 appearanceHeading: "Appearance & Language",
                 lblThemeDrawer: "Interface Theme",
@@ -875,7 +894,8 @@
                 toastSwitched: "Input: ",
                 toastFilterChanged: "Filter: ",
                 toastThemeChanged: "Theme: ",
-                toastScanlines: "CRT Scanlines: "
+                toastScanlines: "CRT Scanlines: ",
+                toastHud: "Quick Bar: "
             },
             id: {
                 appTitle: "Penampil Layar HDMI Video Capture",
@@ -893,6 +913,8 @@
                 hud169: "16:9 Pas",
                 hudCrop: "Potong Pinggir",
                 hudStretch: "Tarik Penuh",
+                hudCloseTitle: "Tutup Bar Cepat",
+                hudToggle: "Bar Cepat Melayang",
                 drawerTitle: "Panel Pengaturan",
                 appearanceHeading: "Tampilan & Bahasa",
                 lblThemeDrawer: "Tema Antarmuka",
@@ -953,7 +975,8 @@
                 toastSwitched: "Input: ",
                 toastFilterChanged: "Filter: ",
                 toastThemeChanged: "Tema: ",
-                toastScanlines: "CRT Scanlines: "
+                toastScanlines: "CRT Scanlines: ",
+                toastHud: "Bar Cepat: "
             },
             su: {
                 appTitle: "Panyawang Layar HDMI Video Capture",
@@ -971,6 +994,8 @@
                 hud169: "16:9 Pas",
                 hudCrop: "Kerat Sisi",
                 hudStretch: "Tarik Pinuh",
+                hudCloseTitle: "Tutup Bar Gancang",
+                hudToggle: "Bar Gancang Ngambang",
                 drawerTitle: "Panel Setelan",
                 appearanceHeading: "Tampilan & Basa",
                 lblThemeDrawer: "Téma Antarmuka",
@@ -1031,7 +1056,8 @@
                 toastSwitched: "Input: ",
                 toastFilterChanged: "Filter: ",
                 toastThemeChanged: "Téma: ",
-                toastScanlines: "CRT Scanlines: "
+                toastScanlines: "CRT Scanlines: ",
+                toastHud: "Bar Gancang: "
             }
         };
 
@@ -1083,6 +1109,8 @@
             document.getElementById('txtHud169').textContent = t.hud169;
             document.getElementById('txtHudCrop').textContent = t.hudCrop;
             document.getElementById('txtHudStretch').textContent = t.hudStretch;
+            document.getElementById('hudClose').title = t.hudCloseTitle;
+            document.getElementById('txtHudToggle').textContent = t.hudToggle;
 
             document.getElementById('txtDrawerTitle').textContent = t.drawerTitle;
             document.getElementById('txtAppearanceHeading').textContent = t.appearanceHeading;
@@ -1187,6 +1215,10 @@
         const hudAspectCrop = document.getElementById('hudAspectCrop');
         const hudAspectStretch = document.getElementById('hudAspectStretch');
         const hudScanlines = document.getElementById('hudScanlines');
+        const hudClose = document.getElementById('hudClose');
+        const floatingHudBar = document.getElementById('floatingHudBar');
+        const btnToggleHudDrawer = document.getElementById('btnToggleHudDrawer');
+        const txtHudState = document.getElementById('txtHudState');
 
         const btnPreset1080p = document.getElementById('btnPreset1080p');
         const btnPreset480p = document.getElementById('btnPreset480p');
@@ -1224,7 +1256,8 @@
             isMuted: false,
             smoothing: 'smooth',
             aspectMode: '43',
-            scanlines: false
+            scanlines: false,
+            hudVisible: true
         };
 
         let currentStream = null;
@@ -1738,6 +1771,26 @@
         hudScanlines.addEventListener('click', toggleScanlines);
         btnToggleScanlinesDrawer.addEventListener('click', toggleScanlines);
 
+        function setFloatingHudVisible(visible, silent = false) {
+            transformState.hudVisible = Boolean(visible);
+            if (transformState.hudVisible) {
+                floatingHudBar.classList.remove('hidden');
+                txtHudState.textContent = 'ON';
+                txtHudState.classList.add('text-highlight', 'font-bold');
+                txtHudState.classList.remove('text-sub');
+            } else {
+                floatingHudBar.classList.add('hidden');
+                txtHudState.textContent = 'OFF';
+                txtHudState.classList.remove('text-highlight', 'font-bold');
+                txtHudState.classList.add('text-sub');
+            }
+            if (!silent) {
+                showOSD(i18n[currentLang].toastHud + (transformState.hudVisible ? 'ON' : 'OFF'));
+            }
+        }
+        hudClose.addEventListener('click', () => setFloatingHudVisible(false));
+        btnToggleHudDrawer.addEventListener('click', () => setFloatingHudVisible(!transformState.hudVisible));
+
         function resetPosition() {
             transformState.zoom = 1.0;
             transformState.scaleX = 1.0;
@@ -1888,6 +1941,10 @@
                 case 'c':
                     e.preventDefault();
                     toggleScanlines();
+                    break;
+                case 'h':
+                    e.preventDefault();
+                    setFloatingHudVisible(!transformState.hudVisible);
                     break;
                 case 'r':
                     e.preventDefault();
